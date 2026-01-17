@@ -1,4 +1,5 @@
 import random
+import time
 from models.enums import Type, Status, MoveCategory
 from models.stats import Stats
 from models.move import Move
@@ -55,10 +56,12 @@ def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
         
         # Turno del primero
         execute_turn(first, second, first_move)
+        time.sleep(3)
         
         # Turno del segundo (si sigue vivo)
         if second.is_alive():
             execute_turn(second, first, second_move)
+            time.sleep(3)
         
         turn += 1
     

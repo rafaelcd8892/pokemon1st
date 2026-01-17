@@ -1,3 +1,5 @@
+from models.enums import Type
+
 TYPE_CHART = {
     Type.NORMAL: {Type.ROCK: 0.5, Type.GHOST: 0},
     Type.FIRE: {Type.FIRE: 0.5, Type.WATER: 0.5, Type.GRASS: 2, Type.ICE: 2, Type.BUG: 2, Type.ROCK: 0.5, Type.DRAGON: 0.5},
