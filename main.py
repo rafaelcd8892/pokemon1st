@@ -1,3 +1,4 @@
+
 import random
 import time
 from models.enums import Type, Status, MoveCategory
@@ -6,36 +7,134 @@ from models.move import Move
 from models.pokemon import Pokemon
 from engine.battle import execute_turn, determine_turn_order
 
-def create_sample_pokemon():
-    """Crea Pokémon de ejemplo para la batalla"""
-    # Movimientos de Pikachu
-    thunderbolt = Move("Thunderbolt", Type.ELECTRIC, MoveCategory.SPECIAL, 95, 100, 15, 15)
-    thunder_wave = Move("Thunder Wave", Type.ELECTRIC, MoveCategory.STATUS, 0, 100, 20, 20, Status.PARALYSIS, 100)
-    quick_attack = Move("Quick Attack", Type.NORMAL, MoveCategory.PHYSICAL, 40, 100, 30, 30)
-    
-    # Movimientos de Blastoise
-    surf = Move("Surf", Type.WATER, MoveCategory.SPECIAL, 95, 100, 15, 15)
-    ice_beam = Move("Ice Beam", Type.ICE, MoveCategory.SPECIAL, 95, 100, 10, 10, Status.FREEZE, 10)
-    hydro_pump = Move("Hydro Pump", Type.WATER, MoveCategory.SPECIAL, 120, 80, 5, 5)
-    
-    # Crear Pokémon
-    pikachu = Pokemon(
-        "Pikachu",
-        [Type.ELECTRIC],
-        Stats(hp=95, attack=85, defense=70, special=85, speed=120),
-        [thunderbolt, thunder_wave, quick_attack],
-        level=50
+from pokeapi_client import get_pokemon_data, get_move_data
+from pokeapi_kanto import get_kanto_pokemon_list, get_pokemon_moves_gen1
+from pokeapi_types import get_pokemon_weaknesses_resistances
+
+
+def select_pokemon_from_list():
+    """
+    Permite al usuario seleccionar un Pokémon de la lista de Kanto usando enter.
+    """
+    kanto_list = get_kanto_pokemon_list()
+    print("Pokémon disponibles (Kanto):")
+    for idx, name in enumerate(kanto_list, 1):
+        print(f"{idx}. {name.capitalize()}")
+    while True:
+        try:
+            sel = int(input("\nSelecciona el número de Pokémon: "))
+            if 1 <= sel <= len(kanto_list):
+                name = kanto_list[sel-1]
+                break
+        except ValueError:
+            pass
+        print("Opción inválida. Intenta de nuevo.")
+    poke_data = get_pokemon_data(name)
+    print(f"\nPokémon: {poke_data['name']}")
+    print(f"Tipos: {', '.join(poke_data['types'])}")
+    # Mostrar debilidades y resistencias
+    type_info = get_pokemon_weaknesses_resistances(poke_data['types'])
+    print(f"Debilidades: {', '.join(type_info['weaknesses']) if type_info['weaknesses'] else 'Ninguna'}")
+    print(f"Resistencias: {', '.join(type_info['resistances']) if type_info['resistances'] else 'Ninguna'}")
+    print(f"Inmunidades: {', '.join(type_info['immunities']) if type_info['immunities'] else 'Ninguna'}")
+    print("Stats:")
+    for stat, value in poke_data['stats'].items():
+        print(f"  {stat}: {value}")
+    moves_gen1 = get_pokemon_moves_gen1(name)
+    print(f"Movimientos Gen 1 disponibles: {', '.join(moves_gen1[:20])} ...")
+    moves = []
+    for i in range(4):
+        move_name = input(f"Selecciona el movimiento {i+1}: ").strip().lower()
+        if move_name not in moves_gen1:
+            print("Movimiento no válido para este Pokémon en Gen 1. Intenta de nuevo.")
+            continue
+        move_data = get_move_data(move_name)
+        type_enum = getattr(Type, move_data['type'].upper(), Type.NORMAL)
+        cat_enum = getattr(MoveCategory, move_data['category'].upper(), MoveCategory.STATUS)
+        status_enum = None
+        if cat_enum == MoveCategory.STATUS:
+            if 'paralysis' in move_name:
+                status_enum = Status.PARALYSIS
+            elif 'burn' in move_name:
+                status_enum = Status.BURN
+            elif 'freeze' in move_name:
+                status_enum = Status.FREEZE
+            elif 'poison' in move_name:
+                status_enum = Status.POISON
+            elif 'sleep' in move_name:
+                status_enum = Status.SLEEP
+        move = Move(
+            move_data['name'],
+            type_enum,
+            cat_enum,
+            move_data['power'] or 0,
+            move_data['accuracy'] or 100,
+            move_data['pp'] or 10,
+            move_data['pp'] or 10,
+            status_enum,
+            100 if status_enum else 0
+        )
+        moves.append(move)
+        if len(moves) == 4:
+            break
+    stats = Stats(
+        hp=poke_data['stats'].get('hp', 100),
+        attack=poke_data['stats'].get('attack', 50),
+        defense=poke_data['stats'].get('defense', 50),
+        special=poke_data['stats'].get('special-attack', 50),
+        speed=poke_data['stats'].get('speed', 50)
     )
-    
-    blastoise = Pokemon(
-        "Blastoise",
-        [Type.WATER],
-        Stats(hp=158, attack=103, defense=120, special=105, speed=98),
-        [surf, ice_beam, hydro_pump],
-        level=50
+    types = [getattr(Type, t.upper(), Type.NORMAL) for t in poke_data['types']]
+    return Pokemon(poke_data['name'], types, stats, moves, level=50)
+
+def select_random_pokemon_and_moves():
+    """
+    Selecciona aleatoriamente un Pokémon y 4 movimientos válidos de Gen 1.
+    """
+    kanto_list = get_kanto_pokemon_list()
+    name = random.choice(kanto_list)
+    poke_data = get_pokemon_data(name)
+    moves_gen1 = get_pokemon_moves_gen1(name)
+    moves_selected = random.sample(moves_gen1, min(4, len(moves_gen1)))
+    moves = []
+    for move_name in moves_selected:
+        move_data = get_move_data(move_name)
+        type_enum = getattr(Type, move_data['type'].upper(), Type.NORMAL)
+        cat_enum = getattr(MoveCategory, move_data['category'].upper(), MoveCategory.STATUS)
+        status_enum = None
+        if cat_enum == MoveCategory.STATUS:
+            if 'paralysis' in move_name:
+                status_enum = Status.PARALYSIS
+            elif 'burn' in move_name:
+                status_enum = Status.BURN
+            elif 'freeze' in move_name:
+                status_enum = Status.FREEZE
+            elif 'poison' in move_name:
+                status_enum = Status.POISON
+            elif 'sleep' in move_name:
+                status_enum = Status.SLEEP
+        move = Move(
+            move_data['name'],
+            type_enum,
+            cat_enum,
+            move_data['power'] or 0,
+            move_data['accuracy'] or 100,
+            move_data['pp'] or 10,
+            move_data['pp'] or 10,
+            status_enum,
+            100 if status_enum else 0
+        )
+        moves.append(move)
+    stats = Stats(
+        hp=poke_data['stats'].get('hp', 100),
+        attack=poke_data['stats'].get('attack', 50),
+        defense=poke_data['stats'].get('defense', 50),
+        special=poke_data['stats'].get('special-attack', 50),
+        speed=poke_data['stats'].get('speed', 50)
     )
-    
-    return pikachu, blastoise
+    types = [getattr(Type, t.upper(), Type.NORMAL) for t in poke_data['types']]
+    print(f"Pokémon aleatorio: {poke_data['name'].capitalize()} | Movimientos: {', '.join([m.name for m in moves])}")
+    return Pokemon(poke_data['name'], types, stats, moves, level=50)
 
 def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
     """Ejecuta una batalla completa"""
@@ -76,5 +175,8 @@ def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
         print("¡Ambos Pokémon se debilitaron!")
 
 if __name__ == "__main__":
-    pikachu, blastoise = create_sample_pokemon()
-    run_battle(pikachu, blastoise)
+    print("Selecciona tu Pokémon:")
+    pokemon1 = select_pokemon_from_list()
+    print("\nEl rival será aleatorio...")
+    pokemon2 = select_random_pokemon_and_moves()
+    run_battle(pokemon1, pokemon2)
