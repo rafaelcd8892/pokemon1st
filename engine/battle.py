@@ -1,3 +1,9 @@
+import random
+from models.pokemon import Pokemon
+from models.move import Move
+from engine.damage import calculate_damage
+from engine.status import apply_status_effects, apply_end_turn_status_damage
+
 def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move):
     """Ejecuta un turno de batalla completo"""
     print(f"\n{attacker.name} usa {move.name}!")
