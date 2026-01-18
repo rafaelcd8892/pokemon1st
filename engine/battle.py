@@ -3,6 +3,7 @@ from models.pokemon import Pokemon
 from models.move import Move
 from engine.damage import calculate_damage
 from engine.status import apply_status_effects, apply_end_turn_status_damage
+from engine.stat_modifiers import get_stat_change_message, get_modified_speed
 
 def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move):
     """Ejecuta un turno de batalla completo"""
@@ -40,21 +41,39 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move):
         elif effectiveness == 0:
             print(f"No afecta a {defender.name}...")
         
-        print(f"{defender.name} recibe {damage} de daño! (HP: {defender.current_hp}/{defender.max_hp})")
+        print(f"{defender.name} recibe {damage} de daño!")
+        print(f"  {defender.get_health_bar()}")
         
         # Aplicar efecto de estado
         if move.status_effect and random.randint(1, 100) <= move.status_chance:
             if defender.apply_status(move.status_effect):
                 print(f"¡{defender.name} está {move.status_effect.value}!")
-    
+
+    # Aplicar cambios de stats del movimiento
+    if move.stat_changes:
+        target = attacker if move.target_self else defender
+        for stat, change in move.stat_changes.items():
+            actual_change, hit_limit = target.modify_stat_stage(stat, change)
+            message = get_stat_change_message(target, stat, actual_change, hit_limit)
+            if message:
+                print(message)
+        # Show updated stat display
+        from engine.display import format_stat_stages
+        stat_display = format_stat_stages(target)
+        if stat_display:
+            print(f"  {stat_display}")
+
     # Daño por estado al final del turno
     apply_end_turn_status_damage(attacker)
 
 def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon, Pokemon]:
-    """Determina quién ataca primero basado en Speed"""
-    if pokemon1.base_stats.speed > pokemon2.base_stats.speed:
+    """Determina quién ataca primero basado en Speed (con stat stages aplicados)"""
+    speed1 = get_modified_speed(pokemon1)
+    speed2 = get_modified_speed(pokemon2)
+
+    if speed1 > speed2:
         return pokemon1, pokemon2
-    elif pokemon2.base_stats.speed > pokemon1.base_stats.speed:
+    elif speed2 > speed1:
         return pokemon2, pokemon1
     else:
         # En caso de empate, aleatorio

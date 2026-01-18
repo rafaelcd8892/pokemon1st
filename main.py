@@ -1,15 +1,18 @@
 
 import random
 import time
-from models.enums import Type, Status, MoveCategory
+from models.enums import Type
 from models.stats import Stats
-from models.move import Move
 from models.pokemon import Pokemon
 from engine.battle import execute_turn, determine_turn_order
 
-from pokeapi_client import get_pokemon_data, get_move_data
-from pokeapi_kanto import get_kanto_pokemon_list, get_pokemon_moves_gen1
-from pokeapi_types import get_pokemon_weaknesses_resistances
+from data.data_loader import (
+    get_pokemon_data,
+    get_kanto_pokemon_list,
+    get_pokemon_moves_gen1,
+    get_pokemon_weaknesses_resistances,
+    create_move
+)
 
 
 def select_pokemon_from_list():
@@ -48,32 +51,7 @@ def select_pokemon_from_list():
         if move_name not in moves_gen1:
             print("Movimiento no válido para este Pokémon en Gen 1. Intenta de nuevo.")
             continue
-        move_data = get_move_data(move_name)
-        type_enum = getattr(Type, move_data['type'].upper(), Type.NORMAL)
-        cat_enum = getattr(MoveCategory, move_data['category'].upper(), MoveCategory.STATUS)
-        status_enum = None
-        if cat_enum == MoveCategory.STATUS:
-            if 'paralysis' in move_name:
-                status_enum = Status.PARALYSIS
-            elif 'burn' in move_name:
-                status_enum = Status.BURN
-            elif 'freeze' in move_name:
-                status_enum = Status.FREEZE
-            elif 'poison' in move_name:
-                status_enum = Status.POISON
-            elif 'sleep' in move_name:
-                status_enum = Status.SLEEP
-        move = Move(
-            move_data['name'],
-            type_enum,
-            cat_enum,
-            move_data['power'] or 0,
-            move_data['accuracy'] or 100,
-            move_data['pp'] or 10,
-            move_data['pp'] or 10,
-            status_enum,
-            100 if status_enum else 0
-        )
+        move = create_move(move_name)
         moves.append(move)
         if len(moves) == 4:
             break
@@ -98,32 +76,7 @@ def select_random_pokemon_and_moves():
     moves_selected = random.sample(moves_gen1, min(4, len(moves_gen1)))
     moves = []
     for move_name in moves_selected:
-        move_data = get_move_data(move_name)
-        type_enum = getattr(Type, move_data['type'].upper(), Type.NORMAL)
-        cat_enum = getattr(MoveCategory, move_data['category'].upper(), MoveCategory.STATUS)
-        status_enum = None
-        if cat_enum == MoveCategory.STATUS:
-            if 'paralysis' in move_name:
-                status_enum = Status.PARALYSIS
-            elif 'burn' in move_name:
-                status_enum = Status.BURN
-            elif 'freeze' in move_name:
-                status_enum = Status.FREEZE
-            elif 'poison' in move_name:
-                status_enum = Status.POISON
-            elif 'sleep' in move_name:
-                status_enum = Status.SLEEP
-        move = Move(
-            move_data['name'],
-            type_enum,
-            cat_enum,
-            move_data['power'] or 0,
-            move_data['accuracy'] or 100,
-            move_data['pp'] or 10,
-            move_data['pp'] or 10,
-            status_enum,
-            100 if status_enum else 0
-        )
+        move = create_move(move_name)
         moves.append(move)
     stats = Stats(
         hp=poke_data['stats'].get('hp', 100),
@@ -139,8 +92,8 @@ def select_random_pokemon_and_moves():
 def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
     """Ejecuta una batalla completa"""
     print("=== BATALLA POKÉMON ===")
-    print(f"{pokemon1.name} (HP: {pokemon1.current_hp}/{pokemon1.max_hp})")
-    print(f"{pokemon2.name} (HP: {pokemon2.current_hp}/{pokemon2.max_hp})")
+    print(f"{pokemon1.name}: {pokemon1.get_health_bar()}")
+    print(f"{pokemon2.name}: {pokemon2.get_health_bar()}")
     
     turn = 1
     while pokemon1.is_alive() and pokemon2.is_alive() and turn <= max_turns:

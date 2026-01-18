@@ -24,8 +24,18 @@ class Status(Enum):
     PARALYSIS = "Paralysis"
     POISON = "Poison"
     SLEEP = "Sleep"
+    CONFUSION = "Confusion"
 
 class MoveCategory(Enum):
     PHYSICAL = "Physical"
     SPECIAL = "Special"
     STATUS = "Status"
+
+class StatType(Enum):
+    """Stats that can be modified by stat stages"""
+    ATTACK = "Attack"
+    DEFENSE = "Defense"
+    SPECIAL = "Special"
+    SPEED = "Speed"
+    ACCURACY = "Accuracy"
+    EVASION = "Evasion"

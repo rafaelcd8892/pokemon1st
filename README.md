@@ -4,6 +4,12 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
 
 ## Features
 
+- **Complete Gen 1 Pokemon Database**
+  - All 151 Kanto Pokemon with accurate base stats
+  - 147 Gen 1 moves with proper effects
+  - Pokemon learnsets from Red/Blue/Yellow
+  - No internet required - all data stored locally
+
 - **Accurate Gen 1 Mechanics**
   - Original damage calculation formula
   - Critical hit system based on Speed stat (Speed/512)
@@ -22,6 +28,7 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
   - Physical moves use Attack vs Defense
   - Special moves use Special vs Special
   - Status moves for applying conditions
+  - Stat-modifying moves (Swords Dance, Growl, etc.)
 
 ## Project Structure
 
@@ -29,16 +36,23 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
 PokemonGen1/
 ├── config.py              # Battle system constants
 ├── main.py                # Entry point and battle orchestration
+├── data/
+│   ├── pokemon.json      # All 151 Pokemon data
+│   ├── moves.json        # All Gen 1 moves with effects
+│   ├── learnsets.json    # Pokemon move learnsets
+│   └── data_loader.py    # Data access layer
 ├── models/
 │   ├── enums.py          # Type, Status, and MoveCategory enums
 │   ├── stats.py          # Stats dataclass
 │   ├── move.py           # Move dataclass with PP tracking
 │   └── pokemon.py        # Pokemon class with HP and status management
-└── engine/
-    ├── battle.py         # Turn execution and battle flow
-    ├── damage.py         # Gen 1 damage calculation
-    ├── status.py         # Status effect application
-    └── type_chart.py     # Type effectiveness chart
+├── engine/
+│   ├── battle.py         # Turn execution and battle flow
+│   ├── damage.py         # Gen 1 damage calculation
+│   ├── status.py         # Status effect application
+│   └── type_chart.py     # Type effectiveness chart
+└── scripts/
+    └── fetch_gen1_data.py # One-time data fetcher (optional)
 ```
 
 ## Requirements
@@ -77,27 +91,33 @@ Pikachu recibe 52 de daño! (HP: 43/95)
 ## Creating Custom Battles
 
 ```python
+from data.data_loader import get_pokemon_data, get_pokemon_moves_gen1, create_move
 from models.pokemon import Pokemon
-from models.move import Move
 from models.stats import Stats
-from models.enums import Type, MoveCategory
-from engine.battle import execute_turn, determine_turn_order
+from models.enums import Type
 
-# Create a move
-tackle = Move("Tackle", Type.NORMAL, MoveCategory.PHYSICAL, 40, 100, 35, 35)
+# Load a Pokemon from the database
+poke_data = get_pokemon_data('pikachu')
+moves_gen1 = get_pokemon_moves_gen1('pikachu')
 
-# Create a Pokemon
-bulbasaur = Pokemon(
-    "Bulbasaur",
-    [Type.GRASS, Type.POISON],
-    Stats(hp=90, attack=82, defense=83, special=100, speed=80),
-    [tackle],
-    level=50
+# Create moves
+moves = [create_move('thunderbolt'), create_move('thunder-wave'),
+         create_move('quick-attack'), create_move('agility')]
+
+# Create the Pokemon
+stats = Stats(
+    hp=poke_data['stats']['hp'],
+    attack=poke_data['stats']['attack'],
+    defense=poke_data['stats']['defense'],
+    special=poke_data['stats']['special-attack'],
+    speed=poke_data['stats']['speed']
 )
+types = [Type[t.upper()] for t in poke_data['types']]
+pikachu = Pokemon(poke_data['name'], types, stats, moves, level=50)
 
 # Run a battle
 from main import run_battle
-run_battle(pokemon1, pokemon2, max_turns=20)
+run_battle(pikachu, opponent, max_turns=20)
 ```
 
 ## Configuration
@@ -134,10 +154,8 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 
 ## Known Limitations
 
-- No stat modifications (buffs/debuffs)
 - No move priority system
-- No confusion or flinch mechanics
-- No multi-turn moves
+- No multi-turn moves (Dig, Fly, etc.)
 - Random move selection only (no AI)
 
 ## License

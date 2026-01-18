@@ -1,0 +1,1327 @@
+{
+  "learnsets": {
+    "bulbasaur": [
+      "tackle",
+      "sleep-powder",
+      "razor-leaf",
+      "leech-seed",
+      "vine-whip",
+      "growl",
+      "poison-powder",
+      "growth",
+      "solar-beam"
+    ],
+    "ivysaur": [
+      "tackle",
+      "sleep-powder",
+      "razor-leaf",
+      "leech-seed",
+      "vine-whip",
+      "growl",
+      "poison-powder",
+      "growth",
+      "solar-beam"
+    ],
+    "venusaur": [
+      "tackle",
+      "sleep-powder",
+      "razor-leaf",
+      "leech-seed",
+      "vine-whip",
+      "growl",
+      "poison-powder",
+      "growth",
+      "solar-beam"
+    ],
+    "charmander": [
+      "ember",
+      "slash",
+      "leer",
+      "flamethrower",
+      "fire-spin",
+      "rage",
+      "scratch",
+      "growl"
+    ],
+    "charmeleon": [
+      "ember",
+      "slash",
+      "leer",
+      "flamethrower",
+      "fire-spin",
+      "rage",
+      "scratch",
+      "growl"
+    ],
+    "charizard": [
+      "ember",
+      "slash",
+      "leer",
+      "flamethrower",
+      "fire-spin",
+      "rage",
+      "scratch",
+      "growl"
+    ],
+    "squirtle": [
+      "water-gun",
+      "tackle",
+      "tail-whip",
+      "withdraw",
+      "hydro-pump",
+      "skull-bash",
+      "bite",
+      "bubble"
+    ],
+    "wartortle": [
+      "water-gun",
+      "tackle",
+      "tail-whip",
+      "withdraw",
+      "hydro-pump",
+      "skull-bash",
+      "bite",
+      "bubble"
+    ],
+    "blastoise": [
+      "water-gun",
+      "tackle",
+      "tail-whip",
+      "withdraw",
+      "hydro-pump",
+      "skull-bash",
+      "bite",
+      "bubble"
+    ],
+    "caterpie": [
+      "string-shot",
+      "tackle"
+    ],
+    "metapod": [
+      "harden"
+    ],
+    "butterfree": [
+      "whirlwind",
+      "gust",
+      "psybeam",
+      "confusion",
+      "stun-spore",
+      "sleep-powder",
+      "supersonic",
+      "poison-powder"
+    ],
+    "weedle": [
+      "string-shot",
+      "poison-sting"
+    ],
+    "kakuna": [
+      "harden"
+    ],
+    "beedrill": [
+      "focus-energy",
+      "pin-missile",
+      "fury-attack",
+      "rage",
+      "twineedle",
+      "agility"
+    ],
+    "pidgey": [
+      "whirlwind",
+      "gust",
+      "sand-attack",
+      "quick-attack",
+      "mirror-move",
+      "wing-attack",
+      "agility"
+    ],
+    "pidgeotto": [
+      "whirlwind",
+      "gust",
+      "sand-attack",
+      "quick-attack",
+      "mirror-move",
+      "wing-attack",
+      "agility"
+    ],
+    "pidgeot": [
+      "whirlwind",
+      "gust",
+      "sand-attack",
+      "quick-attack",
+      "mirror-move",
+      "wing-attack",
+      "agility"
+    ],
+    "rattata": [
+      "tackle",
+      "tail-whip",
+      "quick-attack",
+      "focus-energy",
+      "hyper-fang",
+      "super-fang"
+    ],
+    "raticate": [
+      "tackle",
+      "tail-whip",
+      "quick-attack",
+      "focus-energy",
+      "hyper-fang",
+      "super-fang"
+    ],
+    "spearow": [
+      "drill-peck",
+      "leer",
+      "peck",
+      "mirror-move",
+      "fury-attack",
+      "growl",
+      "agility"
+    ],
+    "fearow": [
+      "drill-peck",
+      "leer",
+      "peck",
+      "mirror-move",
+      "fury-attack",
+      "growl",
+      "agility"
+    ],
+    "ekans": [
+      "wrap",
+      "screech",
+      "leer",
+      "acid",
+      "glare",
+      "bite",
+      "poison-sting"
+    ],
+    "arbok": [
+      "wrap",
+      "screech",
+      "leer",
+      "acid",
+      "glare",
+      "bite",
+      "poison-sting"
+    ],
+    "pikachu": [
+      "tail-whip",
+      "thunder-shock",
+      "thunder",
+      "quick-attack",
+      "light-screen",
+      "double-team",
+      "thunderbolt",
+      "thunder-wave",
+      "growl",
+      "slam",
+      "agility",
+      "swift"
+    ],
+    "raichu": [
+      "thunder-wave",
+      "growl",
+      "thunder-shock"
+    ],
+    "sandshrew": [
+      "slash",
+      "sand-attack",
+      "fury-swipes",
+      "poison-sting",
+      "scratch",
+      "swift"
+    ],
+    "sandslash": [
+      "slash",
+      "sand-attack",
+      "fury-swipes",
+      "poison-sting",
+      "scratch",
+      "swift"
+    ],
+    "nidoran-f": [
+      "tackle",
+      "tail-whip",
+      "double-kick",
+      "fury-swipes",
+      "poison-sting",
+      "bite",
+      "scratch",
+      "growl"
+    ],
+    "nidorina": [
+      "tackle",
+      "tail-whip",
+      "double-kick",
+      "fury-swipes",
+      "poison-sting",
+      "bite",
+      "scratch",
+      "growl"
+    ],
+    "nidoqueen": [
+      "tackle",
+      "tail-whip",
+      "double-kick",
+      "body-slam",
+      "poison-sting",
+      "scratch"
+    ],
+    "nidoran-m": [
+      "tackle",
+      "leer",
+      "double-kick",
+      "focus-energy",
+      "horn-attack",
+      "fury-attack",
+      "poison-sting",
+      "horn-drill"
+    ],
+    "nidorino": [
+      "tackle",
+      "leer",
+      "double-kick",
+      "focus-energy",
+      "horn-attack",
+      "fury-attack",
+      "poison-sting",
+      "horn-drill"
+    ],
+    "nidoking": [
+      "tackle",
+      "thrash",
+      "double-kick",
+      "horn-attack",
+      "poison-sting"
+    ],
+    "clefairy": [
+      "minimize",
+      "pound",
+      "light-screen",
+      "double-slap",
+      "metronome",
+      "growl",
+      "sing",
+      "defense-curl"
+    ],
+    "clefable": [
+      "minimize",
+      "sing",
+      "double-slap",
+      "metronome"
+    ],
+    "vulpix": [
+      "ember",
+      "tail-whip",
+      "quick-attack",
+      "flamethrower",
+      "fire-spin",
+      "roar",
+      "confuse-ray"
+    ],
+    "ninetales": [
+      "ember",
+      "tail-whip",
+      "quick-attack",
+      "roar"
+    ],
+    "jigglypuff": [
+      "pound",
+      "body-slam",
+      "double-slap",
+      "disable",
+      "sing",
+      "defense-curl",
+      "double-edge",
+      "rest"
+    ],
+    "wigglytuff": [
+      "sing",
+      "double-slap",
+      "defense-curl",
+      "disable"
+    ],
+    "zubat": [
+      "haze",
+      "supersonic",
+      "confuse-ray",
+      "wing-attack",
+      "bite",
+      "leech-life"
+    ],
+    "golbat": [
+      "screech",
+      "haze",
+      "supersonic",
+      "wing-attack",
+      "bite",
+      "confuse-ray",
+      "leech-life"
+    ],
+    "oddish": [
+      "stun-spore",
+      "sleep-powder",
+      "acid",
+      "petal-dance",
+      "poison-powder",
+      "solar-beam",
+      "absorb"
+    ],
+    "gloom": [
+      "stun-spore",
+      "sleep-powder",
+      "acid",
+      "petal-dance",
+      "poison-powder",
+      "solar-beam",
+      "absorb"
+    ],
+    "vileplume": [
+      "stun-spore",
+      "sleep-powder",
+      "acid",
+      "petal-dance",
+      "poison-powder"
+    ],
+    "paras": [
+      "slash",
+      "stun-spore",
+      "spore",
+      "scratch",
+      "leech-life",
+      "growth"
+    ],
+    "parasect": [
+      "slash",
+      "stun-spore",
+      "spore",
+      "scratch",
+      "leech-life",
+      "growth"
+    ],
+    "venonat": [
+      "psybeam",
+      "tackle",
+      "confusion",
+      "stun-spore",
+      "sleep-powder",
+      "supersonic",
+      "psychic",
+      "disable",
+      "leech-life",
+      "poison-powder"
+    ],
+    "venomoth": [
+      "psybeam",
+      "tackle",
+      "confusion",
+      "stun-spore",
+      "sleep-powder",
+      "supersonic",
+      "psychic",
+      "disable",
+      "leech-life",
+      "poison-powder"
+    ],
+    "diglett": [
+      "slash",
+      "sand-attack",
+      "dig",
+      "scratch",
+      "growl",
+      "earthquake"
+    ],
+    "dugtrio": [
+      "slash",
+      "sand-attack",
+      "dig",
+      "scratch",
+      "growl",
+      "earthquake"
+    ],
+    "meowth": [
+      "pay-day",
+      "slash",
+      "screech",
+      "fury-swipes",
+      "bite",
+      "scratch",
+      "growl"
+    ],
+    "persian": [
+      "pay-day",
+      "slash",
+      "screech",
+      "fury-swipes",
+      "bite",
+      "scratch",
+      "growl"
+    ],
+    "psyduck": [
+      "tail-whip",
+      "confusion",
+      "hydro-pump",
+      "fury-swipes",
+      "disable",
+      "scratch"
+    ],
+    "golduck": [
+      "tail-whip",
+      "confusion",
+      "hydro-pump",
+      "fury-swipes",
+      "disable",
+      "scratch"
+    ],
+    "mankey": [
+      "screech",
+      "thrash",
+      "low-kick",
+      "leer",
+      "focus-energy",
+      "fury-swipes",
+      "scratch",
+      "seismic-toss",
+      "karate-chop"
+    ],
+    "primeape": [
+      "screech",
+      "thrash",
+      "low-kick",
+      "leer",
+      "focus-energy",
+      "fury-swipes",
+      "rage",
+      "scratch",
+      "seismic-toss",
+      "karate-chop"
+    ],
+    "growlithe": [
+      "ember",
+      "take-down",
+      "leer",
+      "flamethrower",
+      "roar",
+      "bite",
+      "agility"
+    ],
+    "arcanine": [
+      "leer",
+      "take-down",
+      "ember",
+      "roar"
+    ],
+    "poliwag": [
+      "water-gun",
+      "hydro-pump",
+      "body-slam",
+      "double-slap",
+      "hypnosis",
+      "bubble",
+      "amnesia"
+    ],
+    "poliwhirl": [
+      "water-gun",
+      "hydro-pump",
+      "body-slam",
+      "double-slap",
+      "hypnosis",
+      "bubble",
+      "amnesia"
+    ],
+    "poliwrath": [
+      "body-slam",
+      "double-slap",
+      "hypnosis",
+      "water-gun"
+    ],
+    "abra": [
+      "teleport"
+    ],
+    "kadabra": [
+      "psybeam",
+      "confusion",
+      "reflect",
+      "kinesis",
+      "teleport",
+      "recover",
+      "psychic",
+      "disable"
+    ],
+    "alakazam": [
+      "psybeam",
+      "confusion",
+      "reflect",
+      "kinesis",
+      "teleport",
+      "recover",
+      "psychic",
+      "disable"
+    ],
+    "machop": [
+      "submission",
+      "leer",
+      "low-kick",
+      "focus-energy",
+      "seismic-toss",
+      "karate-chop"
+    ],
+    "machoke": [
+      "submission",
+      "leer",
+      "low-kick",
+      "focus-energy",
+      "seismic-toss",
+      "karate-chop"
+    ],
+    "machamp": [
+      "submission",
+      "leer",
+      "low-kick",
+      "focus-energy",
+      "seismic-toss",
+      "karate-chop"
+    ],
+    "bellsprout": [
+      "wrap",
+      "stun-spore",
+      "sleep-powder",
+      "razor-leaf",
+      "acid",
+      "vine-whip",
+      "poison-powder",
+      "growth",
+      "slam"
+    ],
+    "weepinbell": [
+      "wrap",
+      "stun-spore",
+      "sleep-powder",
+      "razor-leaf",
+      "acid",
+      "vine-whip",
+      "poison-powder",
+      "growth",
+      "slam"
+    ],
+    "victreebel": [
+      "wrap",
+      "stun-spore",
+      "sleep-powder",
+      "razor-leaf",
+      "acid",
+      "poison-powder"
+    ],
+    "tentacool": [
+      "wrap",
+      "water-gun",
+      "screech",
+      "hydro-pump",
+      "barrier",
+      "constrict",
+      "acid",
+      "supersonic",
+      "poison-sting"
+    ],
+    "tentacruel": [
+      "wrap",
+      "water-gun",
+      "screech",
+      "hydro-pump",
+      "barrier",
+      "constrict",
+      "acid",
+      "supersonic",
+      "poison-sting"
+    ],
+    "geodude": [
+      "tackle",
+      "rock-throw",
+      "explosion",
+      "self-destruct",
+      "defense-curl",
+      "earthquake",
+      "harden"
+    ],
+    "graveler": [
+      "tackle",
+      "rock-throw",
+      "explosion",
+      "self-destruct",
+      "defense-curl",
+      "earthquake",
+      "harden"
+    ],
+    "golem": [
+      "tackle",
+      "rock-throw",
+      "explosion",
+      "self-destruct",
+      "defense-curl",
+      "earthquake",
+      "harden"
+    ],
+    "ponyta": [
+      "ember",
+      "take-down",
+      "tail-whip",
+      "stomp",
+      "fire-spin",
+      "growl",
+      "agility"
+    ],
+    "rapidash": [
+      "ember",
+      "take-down",
+      "tail-whip",
+      "stomp",
+      "fire-spin",
+      "growl",
+      "agility"
+    ],
+    "slowpoke": [
+      "water-gun",
+      "confusion",
+      "psychic",
+      "disable",
+      "growl",
+      "amnesia",
+      "headbutt"
+    ],
+    "slowbro": [
+      "water-gun",
+      "withdraw",
+      "confusion",
+      "psychic",
+      "disable",
+      "growl",
+      "amnesia",
+      "headbutt"
+    ],
+    "magnemite": [
+      "tackle",
+      "sonic-boom",
+      "thunder-shock",
+      "screech",
+      "supersonic",
+      "thunder-wave",
+      "swift"
+    ],
+    "magneton": [
+      "tackle",
+      "sonic-boom",
+      "thunder-shock",
+      "screech",
+      "supersonic",
+      "thunder-wave",
+      "swift"
+    ],
+    "farfetchd": [
+      "slash",
+      "sand-attack",
+      "swords-dance",
+      "leer",
+      "peck",
+      "fury-attack",
+      "agility"
+    ],
+    "doduo": [
+      "drill-peck",
+      "peck",
+      "fury-attack",
+      "rage",
+      "growl",
+      "tri-attack",
+      "agility"
+    ],
+    "dodrio": [
+      "drill-peck",
+      "peck",
+      "fury-attack",
+      "rage",
+      "growl",
+      "tri-attack",
+      "agility"
+    ],
+    "seel": [
+      "take-down",
+      "aurora-beam",
+      "ice-beam",
+      "growl",
+      "headbutt",
+      "rest"
+    ],
+    "dewgong": [
+      "take-down",
+      "aurora-beam",
+      "ice-beam",
+      "growl",
+      "headbutt",
+      "rest"
+    ],
+    "grimer": [
+      "minimize",
+      "screech",
+      "pound",
+      "sludge",
+      "poison-gas",
+      "acid-armor",
+      "disable",
+      "harden"
+    ],
+    "muk": [
+      "minimize",
+      "screech",
+      "pound",
+      "sludge",
+      "poison-gas",
+      "acid-armor",
+      "disable",
+      "harden"
+    ],
+    "shellder": [
+      "withdraw",
+      "tackle",
+      "clamp",
+      "aurora-beam",
+      "leer",
+      "supersonic",
+      "ice-beam"
+    ],
+    "cloyster": [
+      "withdraw",
+      "clamp",
+      "aurora-beam",
+      "supersonic",
+      "spike-cannon"
+    ],
+    "gastly": [
+      "lick",
+      "night-shade",
+      "hypnosis",
+      "dream-eater",
+      "confuse-ray"
+    ],
+    "haunter": [
+      "lick",
+      "night-shade",
+      "hypnosis",
+      "dream-eater",
+      "confuse-ray"
+    ],
+    "gengar": [
+      "lick",
+      "night-shade",
+      "hypnosis",
+      "dream-eater",
+      "confuse-ray"
+    ],
+    "onix": [
+      "tackle",
+      "rock-throw",
+      "screech",
+      "rage",
+      "slam",
+      "harden",
+      "bind"
+    ],
+    "drowzee": [
+      "confusion",
+      "pound",
+      "hypnosis",
+      "meditate",
+      "poison-gas",
+      "psychic",
+      "disable",
+      "headbutt"
+    ],
+    "hypno": [
+      "confusion",
+      "pound",
+      "hypnosis",
+      "meditate",
+      "poison-gas",
+      "psychic",
+      "disable",
+      "headbutt"
+    ],
+    "krabby": [
+      "stomp",
+      "vice-grip",
+      "leer",
+      "crabhammer",
+      "bubble",
+      "guillotine",
+      "harden"
+    ],
+    "kingler": [
+      "stomp",
+      "vice-grip",
+      "leer",
+      "crabhammer",
+      "bubble",
+      "guillotine",
+      "harden"
+    ],
+    "voltorb": [
+      "tackle",
+      "sonic-boom",
+      "screech",
+      "light-screen",
+      "explosion",
+      "self-destruct",
+      "swift"
+    ],
+    "electrode": [
+      "tackle",
+      "sonic-boom",
+      "screech",
+      "light-screen",
+      "explosion",
+      "self-destruct",
+      "swift"
+    ],
+    "exeggcute": [
+      "stun-spore",
+      "sleep-powder",
+      "reflect",
+      "hypnosis",
+      "barrage",
+      "leech-seed",
+      "poison-powder",
+      "solar-beam"
+    ],
+    "exeggutor": [
+      "barrage",
+      "hypnosis",
+      "stomp"
+    ],
+    "cubone": [
+      "tail-whip",
+      "thrash",
+      "leer",
+      "focus-energy",
+      "bone-club",
+      "rage",
+      "bonemerang",
+      "growl",
+      "headbutt"
+    ],
+    "marowak": [
+      "tail-whip",
+      "thrash",
+      "leer",
+      "focus-energy",
+      "bone-club",
+      "rage",
+      "bonemerang",
+      "growl",
+      "headbutt"
+    ],
+    "hitmonlee": [
+      "double-kick",
+      "jump-kick",
+      "focus-energy",
+      "mega-kick",
+      "meditate",
+      "rolling-kick",
+      "high-jump-kick"
+    ],
+    "hitmonchan": [
+      "fire-punch",
+      "thunder-punch",
+      "comet-punch",
+      "counter",
+      "ice-punch",
+      "mega-punch",
+      "agility"
+    ],
+    "lickitung": [
+      "wrap",
+      "screech",
+      "stomp",
+      "supersonic",
+      "disable",
+      "slam",
+      "defense-curl"
+    ],
+    "koffing": [
+      "tackle",
+      "sludge",
+      "smokescreen",
+      "explosion",
+      "haze",
+      "self-destruct",
+      "smog"
+    ],
+    "weezing": [
+      "tackle",
+      "sludge",
+      "smokescreen",
+      "explosion",
+      "haze",
+      "self-destruct",
+      "smog"
+    ],
+    "rhyhorn": [
+      "take-down",
+      "tail-whip",
+      "stomp",
+      "leer",
+      "horn-attack",
+      "fury-attack",
+      "horn-drill"
+    ],
+    "rhydon": [
+      "take-down",
+      "tail-whip",
+      "stomp",
+      "leer",
+      "horn-attack",
+      "fury-attack",
+      "horn-drill"
+    ],
+    "chansey": [
+      "minimize",
+      "tail-whip",
+      "pound",
+      "light-screen",
+      "double-slap",
+      "growl",
+      "sing",
+      "defense-curl",
+      "double-edge"
+    ],
+    "tangela": [
+      "bind",
+      "stun-spore",
+      "sleep-powder",
+      "constrict",
+      "vine-whip",
+      "poison-powder",
+      "growth",
+      "slam",
+      "absorb"
+    ],
+    "kangaskhan": [
+      "tail-whip",
+      "leer",
+      "dizzy-punch",
+      "comet-punch",
+      "bite",
+      "rage",
+      "mega-punch"
+    ],
+    "horsea": [
+      "water-gun",
+      "hydro-pump",
+      "leer",
+      "smokescreen",
+      "bubble",
+      "agility"
+    ],
+    "seadra": [
+      "water-gun",
+      "hydro-pump",
+      "leer",
+      "smokescreen",
+      "bubble",
+      "agility"
+    ],
+    "goldeen": [
+      "tail-whip",
+      "waterfall",
+      "peck",
+      "horn-attack",
+      "supersonic",
+      "fury-attack",
+      "horn-drill",
+      "agility"
+    ],
+    "seaking": [
+      "tail-whip",
+      "waterfall",
+      "peck",
+      "horn-attack",
+      "supersonic",
+      "fury-attack",
+      "horn-drill",
+      "agility"
+    ],
+    "staryu": [
+      "minimize",
+      "water-gun",
+      "tackle",
+      "swift",
+      "hydro-pump",
+      "light-screen",
+      "recover",
+      "harden"
+    ],
+    "starmie": [
+      "water-gun",
+      "tackle",
+      "harden"
+    ],
+    "mr-mime": [
+      "confusion",
+      "light-screen",
+      "barrier",
+      "double-slap",
+      "meditate",
+      "substitute"
+    ],
+    "scyther": [
+      "slash",
+      "swords-dance",
+      "leer",
+      "quick-attack",
+      "focus-energy",
+      "double-team",
+      "wing-attack",
+      "agility"
+    ],
+    "jynx": [
+      "lovely-kiss",
+      "pound",
+      "lick",
+      "thrash",
+      "body-slam",
+      "double-slap",
+      "blizzard",
+      "ice-punch"
+    ],
+    "electabuzz": [
+      "thunder-shock",
+      "screech",
+      "thunder",
+      "leer",
+      "quick-attack",
+      "light-screen",
+      "thunder-punch"
+    ],
+    "magmar": [
+      "ember",
+      "leer",
+      "fire-punch",
+      "flamethrower",
+      "smokescreen",
+      "confuse-ray",
+      "smog"
+    ],
+    "pinsir": [
+      "slash",
+      "swords-dance",
+      "vice-grip",
+      "focus-energy",
+      "seismic-toss",
+      "guillotine",
+      "harden",
+      "bind"
+    ],
+    "tauros": [
+      "take-down",
+      "tackle",
+      "tail-whip",
+      "stomp",
+      "leer",
+      "rage"
+    ],
+    "magikarp": [
+      "splash",
+      "tackle"
+    ],
+    "gyarados": [
+      "tackle",
+      "hyper-beam",
+      "hydro-pump",
+      "leer",
+      "dragon-rage",
+      "bite"
+    ],
+    "lapras": [
+      "water-gun",
+      "hydro-pump",
+      "body-slam",
+      "confuse-ray",
+      "ice-beam",
+      "growl",
+      "sing",
+      "mist"
+    ],
+    "ditto": [
+      "transform"
+    ],
+    "eevee": [
+      "take-down",
+      "tackle",
+      "tail-whip",
+      "sand-attack",
+      "quick-attack",
+      "focus-energy",
+      "bite",
+      "growl"
+    ],
+    "vaporeon": [
+      "water-gun",
+      "tackle",
+      "tail-whip",
+      "sand-attack",
+      "aurora-beam",
+      "hydro-pump",
+      "quick-attack",
+      "haze",
+      "acid-armor",
+      "bite",
+      "mist"
+    ],
+    "jolteon": [
+      "tackle",
+      "tail-whip",
+      "sand-attack",
+      "thunder-shock",
+      "thunder",
+      "quick-attack",
+      "double-kick",
+      "pin-missile",
+      "thunder-wave",
+      "agility"
+    ],
+    "flareon": [
+      "ember",
+      "tackle",
+      "tail-whip",
+      "sand-attack",
+      "leer",
+      "quick-attack",
+      "flamethrower",
+      "fire-spin",
+      "rage",
+      "bite",
+      "smog"
+    ],
+    "porygon": [
+      "psybeam",
+      "tackle",
+      "sharpen",
+      "recover",
+      "conversion",
+      "tri-attack",
+      "agility"
+    ],
+    "omanyte": [
+      "water-gun",
+      "withdraw",
+      "hydro-pump",
+      "leer",
+      "horn-attack",
+      "spike-cannon"
+    ],
+    "omastar": [
+      "water-gun",
+      "withdraw",
+      "hydro-pump",
+      "leer",
+      "horn-attack",
+      "spike-cannon"
+    ],
+    "kabuto": [
+      "slash",
+      "hydro-pump",
+      "leer",
+      "scratch",
+      "harden",
+      "absorb"
+    ],
+    "kabutops": [
+      "slash",
+      "hydro-pump",
+      "leer",
+      "scratch",
+      "harden",
+      "absorb"
+    ],
+    "aerodactyl": [
+      "take-down",
+      "hyper-beam",
+      "supersonic",
+      "wing-attack",
+      "bite",
+      "agility"
+    ],
+    "snorlax": [
+      "headbutt",
+      "hyper-beam",
+      "body-slam",
+      "rest",
+      "amnesia",
+      "double-edge",
+      "harden"
+    ],
+    "articuno": [
+      "peck",
+      "ice-beam",
+      "blizzard",
+      "mist",
+      "agility"
+    ],
+    "zapdos": [
+      "thunder-shock",
+      "thunder",
+      "drill-peck",
+      "light-screen",
+      "agility"
+    ],
+    "moltres": [
+      "leer",
+      "peck",
+      "sky-attack",
+      "fire-spin",
+      "agility"
+    ],
+    "dratini": [
+      "wrap",
+      "hyper-beam",
+      "leer",
+      "dragon-rage",
+      "thunder-wave",
+      "slam",
+      "agility"
+    ],
+    "dragonair": [
+      "wrap",
+      "hyper-beam",
+      "leer",
+      "dragon-rage",
+      "thunder-wave",
+      "slam",
+      "agility"
+    ],
+    "dragonite": [
+      "wrap",
+      "hyper-beam",
+      "leer",
+      "dragon-rage",
+      "thunder-wave",
+      "slam",
+      "agility"
+    ],
+    "mewtwo": [
+      "confusion",
+      "barrier",
+      "recover",
+      "psychic",
+      "disable",
+      "amnesia",
+      "mist",
+      "swift"
+    ],
+    "mew": [
+      "transform",
+      "pound",
+      "metronome",
+      "psychic",
+      "mega-punch"
+    ]
+  }
+}
