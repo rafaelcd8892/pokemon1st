@@ -4,7 +4,7 @@ import time
 from models.enums import Type
 from models.stats import Stats
 from models.pokemon import Pokemon
-from engine.battle import execute_turn, determine_turn_order
+from engine.battle import execute_turn, determine_turn_order, apply_end_of_turn_effects
 
 from data.data_loader import (
     get_pokemon_data,
@@ -46,15 +46,13 @@ def select_pokemon_from_list():
     moves_gen1 = get_pokemon_moves_gen1(name)
     print(f"Movimientos Gen 1 disponibles: {', '.join(moves_gen1[:20])} ...")
     moves = []
-    for i in range(4):
-        move_name = input(f"Selecciona el movimiento {i+1}: ").strip().lower()
+    while len(moves) < 4:
+        move_name = input(f"Selecciona el movimiento {len(moves)+1}: ").strip().lower()
         if move_name not in moves_gen1:
             print("Movimiento no válido para este Pokémon en Gen 1. Intenta de nuevo.")
             continue
         move = create_move(move_name)
         moves.append(move)
-        if len(moves) == 4:
-            break
     stats = Stats(
         hp=poke_data['stats'].get('hp', 100),
         attack=poke_data['stats'].get('attack', 50),
@@ -89,11 +87,12 @@ def select_random_pokemon_and_moves():
     print(f"Pokémon aleatorio: {poke_data['name'].capitalize()} | Movimientos: {', '.join([m.name for m in moves])}")
     return Pokemon(poke_data['name'], types, stats, moves, level=50)
 
-def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
+def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 50):
     """Ejecuta una batalla completa"""
+    from engine.display import format_pokemon_status
     print("=== BATALLA POKÉMON ===")
-    print(f"{pokemon1.name}: {pokemon1.get_health_bar()}")
-    print(f"{pokemon2.name}: {pokemon2.get_health_bar()}")
+    print(format_pokemon_status(pokemon1))
+    print(format_pokemon_status(pokemon2))
     
     turn = 1
     while pokemon1.is_alive() and pokemon2.is_alive() and turn <= max_turns:
@@ -114,7 +113,10 @@ def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 10):
         if second.is_alive():
             execute_turn(second, first, second_move)
             time.sleep(3)
-        
+
+        # Apply end of turn effects (Leech Seed, screen expiration, etc.)
+        apply_end_of_turn_effects(pokemon1, pokemon2)
+
         turn += 1
     
     print("\n=== FIN DE LA BATALLA ===")

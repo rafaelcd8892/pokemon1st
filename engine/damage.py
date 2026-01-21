@@ -9,6 +9,15 @@ import config
 def calculate_critical_hit(attacker: Pokemon) -> bool:
     """Determines if attack is critical using Gen1 formula: BaseSpeed/512"""
     crit_chance = attacker.base_stats.speed / 512
+
+    # Focus Energy multiplies crit chance by 4 (intended behavior)
+    # Note: In actual Gen 1, it was bugged and divided by 4 instead
+    if hasattr(attacker, 'focus_energy') and attacker.focus_energy:
+        crit_chance *= 4
+
+    # Cap at 100%
+    crit_chance = min(crit_chance, 1.0)
+
     return random.random() < crit_chance
 
 def get_attack_defense_stats(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[int, int]:

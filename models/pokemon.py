@@ -27,6 +27,40 @@ class Pokemon:
 
         # Confusion tracking
         self.confusion_turns = 0
+
+        # Battle state effects
+        self.is_seeded = False          # Leech Seed active
+        self.has_reflect = False        # Reflect screen active
+        self.reflect_turns = 0
+        self.has_light_screen = False   # Light Screen active
+        self.light_screen_turns = 0
+        self.has_mist = False           # Mist active (prevents stat drops)
+        self.mist_turns = 0
+        self.focus_energy = False       # Focus Energy active (crit boost)
+        self.substitute_hp = 0          # Substitute HP (0 = no substitute)
+        self.disabled_move = None       # Name of disabled move
+        self.disable_turns = 0
+        self.last_move_used = None      # For Mirror Move
+        self.last_damage_taken = 0      # For Counter
+        self.last_damage_physical = False  # Was last damage physical?
+
+        # Two-turn move states
+        self.is_charging = False        # Charging a two-turn move
+        self.charging_move = None       # Move being charged
+        self.must_recharge = False      # Must recharge (Hyper Beam)
+        self.is_semi_invulnerable = False  # Dig/Fly invulnerability
+
+        # Multi-turn move states
+        self.multi_turn_move = None     # Current multi-turn move (Thrash, etc.)
+        self.multi_turn_counter = 0     # Turns remaining
+
+        # Rage state
+        self.is_raging = False          # Currently using Rage
+
+        # Trapping state
+        self.is_trapped = False         # Being trapped by Wrap, etc.
+        self.trap_turns = 0             # Turns remaining in trap
+        self.trapped_by = None          # Pokemon trapping this one
         
     def is_alive(self) -> bool:
         return self.current_hp > 0
@@ -61,6 +95,39 @@ class Pokemon:
         """Resets all stat stages to 0"""
         for stat in self.stat_stages:
             self.stat_stages[stat] = 0
+
+    def reset_battle_effects(self):
+        """Resets all volatile battle effects (called when switching out)"""
+        self.confusion_turns = 0
+        self.is_seeded = False
+        self.has_reflect = False
+        self.reflect_turns = 0
+        self.has_light_screen = False
+        self.light_screen_turns = 0
+        self.has_mist = False
+        self.mist_turns = 0
+        self.focus_energy = False
+        self.substitute_hp = 0
+        self.disabled_move = None
+        self.disable_turns = 0
+        self.last_move_used = None
+        self.last_damage_taken = 0
+        self.last_damage_physical = False
+        # Two-turn move states
+        self.is_charging = False
+        self.charging_move = None
+        self.must_recharge = False
+        self.is_semi_invulnerable = False
+        # Multi-turn move states
+        self.multi_turn_move = None
+        self.multi_turn_counter = 0
+        # Rage state
+        self.is_raging = False
+        # Trapping state
+        self.is_trapped = False
+        self.trap_turns = 0
+        self.trapped_by = None
+        self.reset_stat_stages()
 
     def is_confused(self) -> bool:
         """Check if Pokemon is confused"""

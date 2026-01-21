@@ -493,6 +493,18 @@
       "target_self": false
     },
     {
+      "name": "Fly",
+      "type": "FLYING",
+      "category": "PHYSICAL",
+      "power": 90,
+      "accuracy": 95,
+      "pp": 15,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Focus-Energy",
       "type": "NORMAL",
       "category": "STATUS",
@@ -854,7 +866,7 @@
       "name": "Low-Kick",
       "type": "FIGHTING",
       "category": "PHYSICAL",
-      "power": 0,
+      "power": 50,
       "accuracy": 100,
       "pp": 20,
       "status_effect": null,
@@ -875,6 +887,18 @@
         "ATTACK": 1
       },
       "target_self": true
+    },
+    {
+      "name": "Mega-Drain",
+      "type": "GRASS",
+      "category": "SPECIAL",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 15,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
     },
     {
       "name": "Mega-Kick",
@@ -1113,6 +1137,18 @@
       "power": 55,
       "accuracy": 95,
       "pp": 25,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Razor-Wind",
+      "type": "NORMAL",
+      "category": "SPECIAL",
+      "power": 80,
+      "accuracy": 100,
+      "pp": 10,
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
