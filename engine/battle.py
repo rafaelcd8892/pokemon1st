@@ -1,4 +1,9 @@
 import random
+
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
 from models.pokemon import Pokemon
 from models.move import Move
 from models.enums import MoveCategory
@@ -16,6 +21,7 @@ from models.enums import StatType, Status
 
 def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list = None):
     """Ejecuta un turno de batalla completo"""
+    logger.debug(f"Turn: {attacker.name} using {move.name} against {defender.name}")
 
     # Check if must recharge (Hyper Beam)
     if attacker.must_recharge:
@@ -526,6 +532,7 @@ def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon,
     """Determina quién ataca primero basado en Speed (con stat stages aplicados)"""
     speed1 = get_modified_speed(pokemon1)
     speed2 = get_modified_speed(pokemon2)
+    logger.debug(f"Speed comparison: {pokemon1.name}={speed1}, {pokemon2.name}={speed2}")
 
     if speed1 > speed2:
         return pokemon1, pokemon2
@@ -533,4 +540,6 @@ def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon,
         return pokemon2, pokemon1
     else:
         # En caso de empate, aleatorio
-        return random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
+        result = random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
+        logger.debug(f"Speed tie, random order: {result[0].name} goes first")
+        return result

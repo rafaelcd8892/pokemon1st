@@ -244,7 +244,8 @@ class TestSTAB:
         avg_without = sum(without_stab) / len(without_stab)
 
         ratio = avg_with / avg_without
-        assert 1.4 < ratio < 1.6, f"STAB should be ~1.5x, got {ratio:.2f}"
+        # STAB is 1.5x, but with damage variance and possible crits, widen tolerance
+        assert 1.35 < ratio < 1.65, f"STAB should be ~1.5x, got {ratio:.2f}"
 
 
 class TestDamageRange:

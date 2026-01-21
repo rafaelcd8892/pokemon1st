@@ -39,3 +39,14 @@ class StatType(Enum):
     SPEED = "Speed"
     ACCURACY = "Accuracy"
     EVASION = "Evasion"
+
+
+class BattleFormat(Enum):
+    """Battle format options"""
+    SINGLE = (1, "1v1 Single Battle")
+    TRIPLE = (3, "3v3 Battle")
+    FULL = (6, "6v6 Full Battle")
+
+    def __init__(self, team_size: int, description: str):
+        self.team_size = team_size
+        self.description = description

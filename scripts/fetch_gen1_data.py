@@ -5,9 +5,19 @@ Run this once to generate the data files, then the app will use local data only.
 """
 
 import json
+import logging
 import requests
+import sys
 import time
 from pathlib import Path
+
+# Configure logging for the script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2/"
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -90,7 +100,7 @@ MOVE_STAT_CHANGES = {
 
 def fetch_kanto_pokemon_list():
     """Fetch all 151 Kanto Pokemon names."""
-    print("Fetching Kanto Pokemon list...")
+    logger.info("Fetching Kanto Pokemon list...")
     url = f"{POKEAPI_BASE_URL}pokedex/2/"
     response = requests.get(url)
     response.raise_for_status()
@@ -173,7 +183,7 @@ def get_evolution_chain(species_name):
         return path if path else []
 
     except Exception as e:
-        print(f"  Error getting evolution chain for {species_name}: {e}")
+        logger.warning(f"Error getting evolution chain for {species_name}: {e}")
         return []
 
 
@@ -236,7 +246,7 @@ def main():
 
     # Fetch Kanto Pokemon list
     kanto_pokemon = fetch_kanto_pokemon_list()
-    print(f"Found {len(kanto_pokemon)} Kanto Pokemon")
+    logger.info(f"Found {len(kanto_pokemon)} Kanto Pokemon")
 
     pokemon_list = []
     learnsets = {}  # name -> {move_name: source}
@@ -245,7 +255,7 @@ def main():
     # First pass: Fetch each Pokemon and their direct moves
     pokemon_data_cache = {}
     for i, name in enumerate(kanto_pokemon):
-        print(f"Fetching {name} ({i+1}/{len(kanto_pokemon)})...")
+        logger.info(f"Fetching {name} ({i+1}/{len(kanto_pokemon)})...")
         try:
             data = fetch_pokemon_data(name)
             pokemon_data_cache[name] = data
@@ -258,10 +268,10 @@ def main():
 
             time.sleep(0.1)  # Be nice to the API
         except Exception as e:
-            print(f"  Error fetching {name}: {e}")
+            logger.error(f"Error fetching {name}: {e}")
 
     # Second pass: Add moves from pre-evolutions
-    print("\nAdding evolution line moves...")
+    logger.info("Adding evolution line moves...")
     for name in kanto_pokemon:
         if name not in learnsets:
             continue
@@ -280,43 +290,43 @@ def main():
     pokemon_list.sort(key=lambda p: p["id"])
 
     # Fetch all unique moves
-    print(f"\nFetching {len(all_moves)} unique moves...")
+    logger.info(f"Fetching {len(all_moves)} unique moves...")
     moves_list = []
     for i, move_name in enumerate(sorted(all_moves)):
-        print(f"Fetching move: {move_name} ({i+1}/{len(all_moves)})...")
+        logger.info(f"Fetching move: {move_name} ({i+1}/{len(all_moves)})...")
         try:
             data = fetch_move_data(move_name)
             if data:
                 moves_list.append(transform_move(data))
             time.sleep(0.05)  # Be nice to the API
         except Exception as e:
-            print(f"  Error fetching move {move_name}: {e}")
+            logger.error(f"Error fetching move {move_name}: {e}")
 
     # Sort moves alphabetically
     moves_list.sort(key=lambda m: m["name"])
 
     # Write JSON files
-    print("\nWriting JSON files...")
+    logger.info("Writing JSON files...")
 
     with open(DATA_DIR / "pokemon.json", "w", encoding="utf-8") as f:
         json.dump({"pokemon": pokemon_list}, f, indent=2, ensure_ascii=False)
-    print(f"  Written: pokemon.json ({len(pokemon_list)} Pokemon)")
+    logger.info(f"Written: pokemon.json ({len(pokemon_list)} Pokemon)")
 
     with open(DATA_DIR / "moves.json", "w", encoding="utf-8") as f:
         json.dump({"moves": moves_list}, f, indent=2, ensure_ascii=False)
-    print(f"  Written: moves.json ({len(moves_list)} moves)")
+    logger.info(f"Written: moves.json ({len(moves_list)} moves)")
 
     with open(DATA_DIR / "learnsets.json", "w", encoding="utf-8") as f:
         json.dump({"learnsets": learnsets}, f, indent=2, ensure_ascii=False)
-    print(f"  Written: learnsets.json ({len(learnsets)} learnsets)")
+    logger.info(f"Written: learnsets.json ({len(learnsets)} learnsets)")
 
     # Print some stats
     total_tm = sum(1 for ls in learnsets.values() for s in ls.values() if s == "tm")
     total_evo = sum(1 for ls in learnsets.values() for s in ls.values() if s == "evolution")
     total_level = sum(1 for ls in learnsets.values() for s in ls.values() if s == "level-up")
-    print(f"\n  Move breakdown: {total_level} level-up, {total_tm} TM, {total_evo} evolution")
+    logger.info(f"Move breakdown: {total_level} level-up, {total_tm} TM, {total_evo} evolution")
 
-    print("\nDone!")
+    logger.info("Done!")
 
 
 if __name__ == "__main__":

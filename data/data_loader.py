@@ -7,6 +7,10 @@ import json
 from pathlib import Path
 from typing import Optional
 
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
 from models.enums import Type, Status, MoveCategory, StatType
 from models.stats import Stats
 from models.move import Move
@@ -21,8 +25,19 @@ _learnsets_cache: Optional[dict] = None
 
 def _load_json(filename: str) -> dict:
     """Load and parse JSON file."""
-    with open(DATA_DIR / filename, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    filepath = DATA_DIR / filename
+    logger.debug(f"Loading JSON file: {filepath}")
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            logger.debug(f"Successfully loaded {filename}")
+            return data
+    except FileNotFoundError:
+        logger.error(f"Data file not found: {filepath}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {filename}: {e}")
+        raise
 
 
 def _get_pokemon_data() -> dict:
@@ -76,6 +91,7 @@ def get_pokemon_data(name_or_id) -> dict:
                     'speed': pokemon['base_stats']['speed']
                 }
             }
+    logger.warning(f"Pokemon not found: {name_or_id}")
     raise ValueError(f"Pokemon not found: {name_or_id}")
 
 
@@ -128,6 +144,7 @@ def get_move_data(move_name: str) -> dict:
                 'stat_changes': move.get('stat_changes'),
                 'target_self': move.get('target_self', False)
             }
+    logger.warning(f"Move not found: {move_name}")
     raise ValueError(f"Move not found: {move_name}")
 
 

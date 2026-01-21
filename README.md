@@ -53,6 +53,7 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
 ```
 PokemonGen1/
 ├── config.py              # Battle system constants
+├── logging_config.py      # Logging framework configuration
 ├── main.py                # Entry point and battle orchestration
 ├── data/
 │   ├── pokemon.json       # All 151 Pokemon data
