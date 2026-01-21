@@ -6,6 +6,7 @@ from data.data_loader import (
     get_pokemon_data,
     get_kanto_pokemon_list,
     get_pokemon_moves_gen1,
+    get_pokemon_moves_with_source,
     get_pokemon_weaknesses_resistances,
     create_move
 )
@@ -298,7 +299,7 @@ def select_pokemon_curses(stdscr) -> Optional[str]:
 
 
 def draw_move_list(stdscr, moves: list, selected_moves: list, cursor_idx: int,
-                   scroll_offset: int, list_height: int):
+                   scroll_offset: int, list_height: int, move_sources: dict = None):
     """Draw the move selection list"""
     max_y, max_x = stdscr.getmaxyx()
     list_width = max_x // 2 - 2
@@ -322,6 +323,9 @@ def draw_move_list(stdscr, moves: list, selected_moves: list, cursor_idx: int,
         is_selected = move_name in selected_moves
         is_cursor = actual_idx == cursor_idx
 
+        # Get move source
+        source = move_sources.get(move_name, "level-up") if move_sources else "level-up"
+
         # Get move data for type
         try:
             move_data = create_move(move_name)
@@ -333,9 +337,17 @@ def draw_move_list(stdscr, moves: list, selected_moves: list, cursor_idx: int,
             power = 0
             accuracy = 100
 
-        # Build display
+        # Build display with source indicator
         marker = "●" if is_selected else " "
-        display = f"{marker} {move_name.capitalize()[:18].ljust(18)}"
+        # Source indicator: TM for TM moves, EVO for evolution moves, nothing for level-up
+        if source == "tm":
+            source_tag = "TM "
+        elif source == "evolution":
+            source_tag = "EVO"
+        else:
+            source_tag = "   "
+
+        display = f"{marker} {move_name.capitalize()[:15].ljust(15)}"
 
         if is_cursor:
             stdscr.attron(curses.color_pair(1))
@@ -343,6 +355,18 @@ def draw_move_list(stdscr, moves: list, selected_moves: list, cursor_idx: int,
             stdscr.attroff(curses.color_pair(1))
         else:
             stdscr.addstr(y, 1, display)
+
+        # Source tag (dimmed for TM/EVO)
+        if source == "tm":
+            stdscr.attron(curses.color_pair(5))  # Yellow for TM
+            stdscr.addstr(y, 18, source_tag)
+            stdscr.attroff(curses.color_pair(5))
+        elif source == "evolution":
+            stdscr.attron(curses.color_pair(4))  # Green for EVO
+            stdscr.addstr(y, 18, source_tag)
+            stdscr.attroff(curses.color_pair(4))
+        else:
+            stdscr.addstr(y, 18, source_tag)
 
         # Type badge
         color = get_type_color_pair(move_type)
@@ -358,7 +382,7 @@ def draw_move_list(stdscr, moves: list, selected_moves: list, cursor_idx: int,
         stdscr.addstr(y, 36, f"A:{accuracy:3}")
 
 
-def draw_move_preview(stdscr, move_name: str, pokemon_name: str):
+def draw_move_preview(stdscr, move_name: str, pokemon_name: str, move_source: str = "level-up"):
     """Draw move details on the right side"""
     max_y, max_x = stdscr.getmaxyx()
     start_x = max_x // 2 + 1
@@ -375,41 +399,51 @@ def draw_move_preview(stdscr, move_name: str, pokemon_name: str):
     stdscr.addstr(1, start_x, f" {move_name.upper()} ")
     stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
 
+    # Source indicator
+    if move_source == "tm":
+        stdscr.attron(curses.color_pair(5) | curses.A_BOLD)  # Yellow
+        stdscr.addstr(2, start_x, "[TM] Máquina Técnica")
+        stdscr.attroff(curses.color_pair(5) | curses.A_BOLD)
+    elif move_source == "evolution":
+        stdscr.attron(curses.color_pair(4) | curses.A_BOLD)  # Green
+        stdscr.addstr(2, start_x, "[EVO] Línea evolutiva")
+        stdscr.attroff(curses.color_pair(4) | curses.A_BOLD)
+
     # Type
     move_type = move.type.value.lower()
     color = get_type_color_pair(move_type)
-    stdscr.addstr(3, start_x, "Tipo: ")
+    stdscr.addstr(4, start_x, "Tipo: ")
     stdscr.attron(color | curses.A_BOLD)
-    stdscr.addstr(3, start_x + 6, f"[{move_type.upper()}]")
+    stdscr.addstr(4, start_x + 6, f"[{move_type.upper()}]")
     stdscr.attroff(color | curses.A_BOLD)
 
     # Category
     category = move.category.value
-    stdscr.addstr(4, start_x, f"Categoría: {category}")
+    stdscr.addstr(5, start_x, f"Categoría: {category}")
 
     # Stats
     stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-    stdscr.addstr(6, start_x, "ESTADÍSTICAS:")
+    stdscr.addstr(7, start_x, "ESTADÍSTICAS:")
     stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
 
     power_str = str(move.power) if move.power > 0 else "--"
-    stdscr.addstr(7, start_x, f"Poder:     {power_str}")
-    stdscr.addstr(8, start_x, f"Precisión: {move.accuracy}%")
-    stdscr.addstr(9, start_x, f"PP:        {move.pp}")
+    stdscr.addstr(8, start_x, f"Poder:     {power_str}")
+    stdscr.addstr(9, start_x, f"Precisión: {move.accuracy}%")
+    stdscr.addstr(10, start_x, f"PP:        {move.pp}")
 
     # Status effect
     if move.status_effect:
         stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-        stdscr.addstr(11, start_x, "EFECTO:")
+        stdscr.addstr(12, start_x, "EFECTO:")
         stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
-        stdscr.addstr(12, start_x, f"{move.status_effect.value} ({move.status_chance}%)")
+        stdscr.addstr(13, start_x, f"{move.status_effect.value} ({move.status_chance}%)")
 
     # Stat changes
     if move.stat_changes:
         stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-        stdscr.addstr(14, start_x, "CAMBIOS DE STATS:")
+        stdscr.addstr(15, start_x, "CAMBIOS DE STATS:")
         stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
-        y = 15
+        y = 16
         for stat, change in move.stat_changes.items():
             sign = "+" if change > 0 else ""
             stdscr.addstr(y, start_x, f"  {stat}: {sign}{change}")
@@ -425,7 +459,8 @@ def select_moves_curses(stdscr, pokemon_name: str) -> Optional[list]:
     curses.curs_set(0)
     init_colors()
 
-    available_moves = get_pokemon_moves_gen1(pokemon_name)
+    move_sources = get_pokemon_moves_with_source(pokemon_name)
+    available_moves = list(move_sources.keys())
     selected_moves = []
     cursor_idx = 0
     scroll_offset = 0
@@ -437,11 +472,12 @@ def select_moves_curses(stdscr, pokemon_name: str) -> Optional[list]:
 
         # Draw move list
         draw_move_list(stdscr, available_moves, selected_moves, cursor_idx,
-                      scroll_offset, list_height)
+                      scroll_offset, list_height, move_sources)
 
         # Draw preview
         current_move = available_moves[cursor_idx] if cursor_idx < len(available_moves) else ""
-        draw_move_preview(stdscr, current_move, pokemon_name)
+        current_source = move_sources.get(current_move, "level-up")
+        draw_move_preview(stdscr, current_move, pokemon_name, current_source)
 
         stdscr.refresh()
 

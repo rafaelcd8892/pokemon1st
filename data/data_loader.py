@@ -83,7 +83,25 @@ def get_pokemon_moves_gen1(name_or_id) -> list[str]:
     """Get list of Gen 1 learnable moves for a Pokemon."""
     data = _get_learnsets_data()
     name = str(name_or_id).lower()
-    return data['learnsets'].get(name, [])
+    learnset = data['learnsets'].get(name, {})
+    # Support both old format (list) and new format (dict with sources)
+    if isinstance(learnset, list):
+        return learnset
+    return list(learnset.keys())
+
+
+def get_pokemon_moves_with_source(name_or_id) -> dict[str, str]:
+    """
+    Get Gen 1 learnable moves for a Pokemon with their source.
+    Returns dict mapping move_name -> source (level-up, tm, evolution)
+    """
+    data = _get_learnsets_data()
+    name = str(name_or_id).lower()
+    learnset = data['learnsets'].get(name, {})
+    # Support both old format (list) and new format (dict with sources)
+    if isinstance(learnset, list):
+        return {move: "level-up" for move in learnset}
+    return learnset
 
 
 def get_move_data(move_name: str) -> dict:

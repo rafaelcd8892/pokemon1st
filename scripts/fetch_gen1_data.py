@@ -115,16 +115,66 @@ def fetch_move_data(move_name):
     return response.json()
 
 
-def get_gen1_moves(pokemon_data):
-    """Extract Gen 1 level-up moves from Pokemon data."""
-    moves = []
+def get_gen1_moves_with_source(pokemon_data):
+    """Extract Gen 1 moves from Pokemon data with their learn method."""
+    moves = {}  # move_name -> source
     for move in pokemon_data["moves"]:
         for vgd in move["version_group_details"]:
-            if vgd["version_group"]["name"] in ["red-blue", "yellow"] and \
-               vgd["move_learn_method"]["name"] == "level-up":
-                moves.append(move["move"]["name"])
-                break
-    return list(set(moves))
+            if vgd["version_group"]["name"] in ["red-blue", "yellow"]:
+                move_name = move["move"]["name"]
+                method = vgd["move_learn_method"]["name"]
+
+                # Map learn methods to our categories
+                if method == "level-up":
+                    source = "level-up"
+                elif method == "machine":
+                    source = "tm"
+                else:
+                    continue  # Skip other methods for now
+
+                # Prefer level-up over TM if pokemon can learn both ways
+                if move_name not in moves or source == "level-up":
+                    moves[move_name] = source
+    return moves
+
+
+def get_evolution_chain(species_name):
+    """Fetch the evolution chain for a species and return all pre-evolutions."""
+    try:
+        # First get the species data to find the evolution chain
+        url = f"{POKEAPI_BASE_URL}pokemon-species/{species_name}/"
+        response = requests.get(url)
+        if response.status_code != 200:
+            return []
+        species_data = response.json()
+
+        # Get the evolution chain
+        chain_url = species_data["evolution_chain"]["url"]
+        response = requests.get(chain_url)
+        if response.status_code != 200:
+            return []
+        chain_data = response.json()
+
+        # Walk the chain to find pre-evolutions
+        pre_evolutions = []
+        current = chain_data["chain"]
+
+        def find_in_chain(node, target, path):
+            """Recursively find target in evolution chain and return path to it."""
+            if node["species"]["name"] == target:
+                return path
+            for evo in node.get("evolves_to", []):
+                result = find_in_chain(evo, target, path + [node["species"]["name"]])
+                if result is not None:
+                    return result
+            return None
+
+        path = find_in_chain(current, species_name, [])
+        return path if path else []
+
+    except Exception as e:
+        print(f"  Error getting evolution chain for {species_name}: {e}")
+        return []
 
 
 def transform_pokemon(api_data):
@@ -189,24 +239,42 @@ def main():
     print(f"Found {len(kanto_pokemon)} Kanto Pokemon")
 
     pokemon_list = []
-    learnsets = {}
+    learnsets = {}  # name -> {move_name: source}
     all_moves = set()
 
-    # Fetch each Pokemon
+    # First pass: Fetch each Pokemon and their direct moves
+    pokemon_data_cache = {}
     for i, name in enumerate(kanto_pokemon):
         print(f"Fetching {name} ({i+1}/{len(kanto_pokemon)})...")
         try:
             data = fetch_pokemon_data(name)
+            pokemon_data_cache[name] = data
             pokemon_list.append(transform_pokemon(data))
 
-            # Get Gen 1 moves
-            gen1_moves = get_gen1_moves(data)
+            # Get Gen 1 moves with source
+            gen1_moves = get_gen1_moves_with_source(data)
             learnsets[name] = gen1_moves
-            all_moves.update(gen1_moves)
+            all_moves.update(gen1_moves.keys())
 
             time.sleep(0.1)  # Be nice to the API
         except Exception as e:
             print(f"  Error fetching {name}: {e}")
+
+    # Second pass: Add moves from pre-evolutions
+    print("\nAdding evolution line moves...")
+    for name in kanto_pokemon:
+        if name not in learnsets:
+            continue
+
+        pre_evos = get_evolution_chain(name)
+        for pre_evo in pre_evos:
+            if pre_evo in learnsets:
+                # Add pre-evolution moves as "evolution" source
+                for move_name, source in learnsets[pre_evo].items():
+                    if move_name not in learnsets[name]:
+                        learnsets[name][move_name] = "evolution"
+                        all_moves.add(move_name)
+        time.sleep(0.05)  # Be nice to the API
 
     # Sort Pokemon by ID
     pokemon_list.sort(key=lambda p: p["id"])
@@ -241,6 +309,12 @@ def main():
     with open(DATA_DIR / "learnsets.json", "w", encoding="utf-8") as f:
         json.dump({"learnsets": learnsets}, f, indent=2, ensure_ascii=False)
     print(f"  Written: learnsets.json ({len(learnsets)} learnsets)")
+
+    # Print some stats
+    total_tm = sum(1 for ls in learnsets.values() for s in ls.values() if s == "tm")
+    total_evo = sum(1 for ls in learnsets.values() for s in ls.values() if s == "evolution")
+    total_level = sum(1 for ls in learnsets.values() for s in ls.values() if s == "level-up")
+    print(f"\n  Move breakdown: {total_level} level-up, {total_tm} TM, {total_evo} evolution")
 
     print("\nDone!")
 

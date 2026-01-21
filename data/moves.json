@@ -105,6 +105,18 @@
       "target_self": true
     },
     {
+      "name": "Bide",
+      "type": "NORMAL",
+      "category": "PHYSICAL",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 10,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Bind",
       "type": "NORMAL",
       "category": "PHYSICAL",
@@ -183,6 +195,18 @@
       "power": 40,
       "accuracy": 100,
       "pp": 30,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Bubble-Beam",
+      "type": "WATER",
+      "category": "SPECIAL",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 20,
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
@@ -279,6 +303,18 @@
       "power": 100,
       "accuracy": 90,
       "pp": 10,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Cut",
+      "type": "NORMAL",
+      "category": "PHYSICAL",
+      "power": 50,
+      "accuracy": 95,
+      "pp": 30,
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
@@ -433,6 +469,18 @@
       "target_self": false
     },
     {
+      "name": "Egg-Bomb",
+      "type": "NORMAL",
+      "category": "PHYSICAL",
+      "power": 100,
+      "accuracy": 75,
+      "pp": 10,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Ember",
       "type": "FIRE",
       "category": "SPECIAL",
@@ -453,6 +501,18 @@
       "pp": 5,
       "status_effect": null,
       "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Fire-Blast",
+      "type": "FIRE",
+      "category": "SPECIAL",
+      "power": 110,
+      "accuracy": 85,
+      "pp": 5,
+      "status_effect": "BURN",
+      "status_chance": 30,
       "stat_changes": null,
       "target_self": false
     },
@@ -481,6 +541,18 @@
       "target_self": false
     },
     {
+      "name": "Fissure",
+      "type": "GROUND",
+      "category": "PHYSICAL",
+      "power": 0,
+      "accuracy": 30,
+      "pp": 5,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Flamethrower",
       "type": "FIRE",
       "category": "SPECIAL",
@@ -490,6 +562,20 @@
       "status_effect": "BURN",
       "status_chance": 10,
       "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Flash",
+      "type": "NORMAL",
+      "category": "STATUS",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 20,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": {
+        "ACCURACY": -1
+      },
       "target_self": false
     },
     {
@@ -866,7 +952,7 @@
       "name": "Low-Kick",
       "type": "FIGHTING",
       "category": "PHYSICAL",
-      "power": 50,
+      "power": 0,
       "accuracy": 100,
       "pp": 20,
       "status_effect": null,
@@ -926,6 +1012,18 @@
     },
     {
       "name": "Metronome",
+      "type": "NORMAL",
+      "category": "STATUS",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 10,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Mimic",
       "type": "NORMAL",
       "category": "STATUS",
       "power": 0,
@@ -1107,6 +1205,18 @@
       "target_self": false
     },
     {
+      "name": "Psywave",
+      "type": "PSYCHIC",
+      "category": "SPECIAL",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Quick-Attack",
       "type": "NORMAL",
       "category": "PHYSICAL",
@@ -1197,6 +1307,18 @@
       "power": 0,
       "accuracy": 100,
       "pp": 20,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Rock-Slide",
+      "type": "ROCK",
+      "category": "PHYSICAL",
+      "power": 75,
+      "accuracy": 90,
+      "pp": 10,
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
@@ -1415,6 +1537,18 @@
       "target_self": false
     },
     {
+      "name": "Soft-Boiled",
+      "type": "NORMAL",
+      "category": "STATUS",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 5,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
       "name": "Solar-Beam",
       "type": "GRASS",
       "category": "SPECIAL",
@@ -1481,6 +1615,18 @@
       "power": 65,
       "accuracy": 100,
       "pp": 20,
+      "status_effect": null,
+      "status_chance": 0,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Strength",
+      "type": "NORMAL",
+      "category": "PHYSICAL",
+      "power": 80,
+      "accuracy": 100,
+      "pp": 15,
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
@@ -1557,6 +1703,18 @@
       "pp": 20,
       "status_effect": "CONFUSION",
       "status_chance": 100,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Surf",
+      "type": "WATER",
+      "category": "SPECIAL",
+      "power": 90,
+      "accuracy": 100,
+      "pp": 15,
+      "status_effect": null,
+      "status_chance": 0,
       "stat_changes": null,
       "target_self": false
     },
@@ -1705,6 +1863,18 @@
       "pp": 15,
       "status_effect": "PARALYSIS",
       "status_chance": 10,
+      "stat_changes": null,
+      "target_self": false
+    },
+    {
+      "name": "Toxic",
+      "type": "POISON",
+      "category": "STATUS",
+      "power": 0,
+      "accuracy": 90,
+      "pp": 10,
+      "status_effect": "POISON",
+      "status_chance": 100,
       "stat_changes": null,
       "target_self": false
     },

@@ -12,8 +12,9 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
 
 - **Complete Gen 1 Pokemon Database**
   - All 151 Kanto Pokemon with accurate base stats
-  - 147 Gen 1 moves with proper effects
-  - Pokemon learnsets from Red/Blue/Yellow
+  - 164 Gen 1 moves with proper effects
+  - Pokemon learnsets including level-up moves, TM moves, and evolution line moves
+  - Move sources displayed in UI (TM in yellow, EVO in green)
   - No internet required - all data stored locally
 
 - **Accurate Gen 1 Mechanics**
@@ -55,8 +56,8 @@ PokemonGen1/
 ├── main.py                # Entry point and battle orchestration
 ├── data/
 │   ├── pokemon.json       # All 151 Pokemon data
-│   ├── moves.json         # All Gen 1 moves with effects
-│   ├── learnsets.json     # Pokemon move learnsets
+│   ├── moves.json         # All 164 Gen 1 moves with effects
+│   ├── learnsets.json     # Pokemon move learnsets with sources (level-up/tm/evolution)
 │   └── data_loader.py     # Data access layer with caching
 ├── models/
 │   ├── enums.py           # Type, Status, and MoveCategory enums
@@ -104,6 +105,11 @@ python3 main.py
 - `Space` - Toggle move selection (select 4)
 - `Enter` - Confirm selection
 - `Esc` - Cancel
+
+Move sources are indicated:
+- **TM** (yellow) - Learnable via Technical Machine
+- **EVO** (green) - Inherited from pre-evolution
+- No tag - Learned by level-up
 
 ## Example Session
 

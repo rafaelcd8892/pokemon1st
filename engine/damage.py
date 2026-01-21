@@ -74,7 +74,12 @@ def calculate_damage(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[
     effectiveness = get_effectiveness(move.type, defender.types)
     random_factor = get_random_factor()
 
+    # If type effectiveness is 0 (immunity), no damage is dealt
+    if effectiveness == 0:
+        return 0, is_critical, effectiveness
+
     damage = int(damage * stab * effectiveness * random_factor)
     damage = apply_burn_modifier(damage, attacker, move)
 
+    # Minimum 1 damage for non-immune hits
     return max(1, damage), is_critical, effectiveness
