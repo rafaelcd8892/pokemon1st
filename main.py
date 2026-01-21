@@ -1,4 +1,3 @@
-
 import random
 import time
 from models.enums import Type
@@ -13,6 +12,8 @@ from data.data_loader import (
     get_pokemon_weaknesses_resistances,
     create_move
 )
+
+from ui.selection import interactive_pokemon_selection
 
 
 def select_pokemon_from_list():
@@ -130,8 +131,19 @@ def run_battle(pokemon1: Pokemon, pokemon2: Pokemon, max_turns: int = 50):
         print("¡Ambos Pokémon se debilitaron!")
 
 if __name__ == "__main__":
-    print("Selecciona tu Pokémon:")
-    pokemon1 = select_pokemon_from_list()
-    print("\nEl rival será aleatorio...")
-    pokemon2 = select_random_pokemon_and_moves()
-    run_battle(pokemon1, pokemon2)
+    print("=== BATALLA POKÉMON GEN 1 ===\n")
+
+    # Use interactive UI for player's Pokemon selection
+    pokemon1 = interactive_pokemon_selection()
+
+    if pokemon1 is None:
+        print("Selección cancelada. ¡Hasta luego!")
+    else:
+        print(f"\nTu Pokémon: {pokemon1.name.capitalize()}")
+        print(f"Movimientos: {', '.join([m.name for m in pokemon1.moves])}")
+
+        print("\nEl rival será aleatorio...")
+        pokemon2 = select_random_pokemon_and_moves()
+
+        input("\nPresiona ENTER para comenzar la batalla...")
+        run_battle(pokemon1, pokemon2)
