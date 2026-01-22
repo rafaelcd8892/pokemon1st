@@ -81,3 +81,8 @@ dmypy.json
 
 # Battle logs
 logs/
+engine/__pycache__/battle.cpython-314.pyc
+models/__pycache__/enums.cpython-314.pyc
+models/__pycache__/enums.cpython-314.pyc
+models/__pycache__/pokemon.cpython-314.pyc
+/models/__pycache__
