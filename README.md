@@ -19,10 +19,26 @@ A Python implementation of the Pokemon Generation 1 battle system with accurate 
 
 - **Accurate Gen 1 Mechanics**
   - Original damage calculation formula
+  - Gen 1 stat calculation with IVs (DVs) and level
   - Critical hit system based on Speed stat (Speed/512)
   - Random damage factor (217-255/255)
   - STAB (Same Type Attack Bonus) at 1.5x
   - Proper type effectiveness chart with all 15 Gen 1 types
+
+- **Pokemon Stadium-Style Rulesets**
+  - Standard (Level 50)
+  - Poke Cup (Lv 50-55, sum ≤ 155, no Mew/Mewtwo)
+  - Prime Cup (Level 100)
+  - Little Cup (Level 5, basic Pokemon only)
+  - Pika Cup (Lv 15-20, basic Pokemon only)
+  - Petit Cup (Lv 25-30, height/weight restrictions)
+  - Custom rulesets support
+
+- **Battle Logging**
+  - Individual battle log files for debugging
+  - Human-readable `.log` files with turn-by-turn events
+  - Machine-readable `.json` files for analysis
+  - Logs saved to `logs/battles/` directory
 
 - **Status Effects**
   - Burn: Reduces physical attack damage by 50%, deals 1/16 max HP damage per turn
@@ -63,15 +79,23 @@ PokemonGen1/
 │   ├── enums.py           # Type, Status, and MoveCategory enums
 │   ├── stats.py           # Stats dataclass
 │   ├── move.py            # Move dataclass with PP tracking
-│   └── pokemon.py         # Pokemon class with HP and status management
+│   ├── pokemon.py         # Pokemon class with HP and status management
+│   ├── ivs.py             # Individual Values (Gen 1 DVs)
+│   ├── ruleset.py         # Cup/Ruleset definitions (Stadium-style)
+│   └── team.py            # Team management for multi-Pokemon battles
 ├── engine/
 │   ├── battle.py          # Turn execution and battle flow
+│   ├── battle_logger.py   # Individual battle logging to files
 │   ├── damage.py          # Gen 1 damage calculation
 │   ├── display.py         # Console UI with ANSI colors
 │   ├── move_effects.py    # Special move mechanics
+│   ├── stat_calculator.py # Gen 1 stat formulas with IVs/EVs
 │   ├── stat_modifiers.py  # Stat stage modification system
 │   ├── status.py          # Status effect application
+│   ├── team_battle.py     # Multi-Pokemon battle engine
 │   └── type_chart.py      # Type effectiveness chart
+├── settings/
+│   └── battle_config.py   # Battle modes and settings
 ├── ui/
 │   └── selection.py       # Interactive Pokemon & move selection UI
 └── scripts/
@@ -144,33 +168,56 @@ Pikachu recibe 52 de daño! (HP: 43/95)
 ## Creating Custom Battles
 
 ```python
-from data.data_loader import get_pokemon_data, get_pokemon_moves_gen1, create_move
-from models.pokemon import Pokemon
-from models.stats import Stats
-from models.enums import Type
-from main import run_battle
+from data.data_loader import get_pokemon_data, create_move, create_pokemon_with_ruleset
+from models.ivs import IVs
+from models.ruleset import POKE_CUP_RULES, LITTLE_CUP_RULES
 
-# Load a Pokemon from the database
-poke_data = get_pokemon_data('pikachu')
-
-# Create moves
+# Easy way: Use the factory function with a ruleset
 moves = [create_move('thunderbolt'), create_move('thunder-wave'),
          create_move('quick-attack'), create_move('agility')]
+pikachu = create_pokemon_with_ruleset('pikachu', moves, ruleset=POKE_CUP_RULES)
 
-# Create the Pokemon
-stats = Stats(
-    hp=poke_data['stats']['hp'],
-    attack=poke_data['stats']['attack'],
-    defense=poke_data['stats']['defense'],
-    special=poke_data['stats']['special-attack'],
-    speed=poke_data['stats']['speed']
+# With custom level and IVs
+custom_ivs = IVs(attack=15, defense=12, special=15, speed=14)
+pikachu_custom = create_pokemon_with_ruleset(
+    'pikachu', moves,
+    level=55,
+    ivs=custom_ivs
 )
-types = [Type[t.upper()] for t in poke_data['types']]
-pikachu = Pokemon(poke_data['name'], types, stats, moves, level=50)
 
-# Create opponent and run battle
-# ... create opponent similarly ...
-run_battle(pikachu, opponent, max_turns=50)
+# For Little Cup (level 5 battles)
+pichu = create_pokemon_with_ruleset('pichu', moves, ruleset=LITTLE_CUP_RULES)
+```
+
+### Manual Pokemon Creation
+
+```python
+from models.pokemon import Pokemon
+from models.stats import Stats
+from models.ivs import IVs
+from models.enums import Type
+
+# Create Pokemon with Gen 1 stat calculation (default)
+stats = Stats(hp=35, attack=55, defense=40, special=50, speed=90)
+pikachu = Pokemon(
+    name='Pikachu',
+    types=[Type.ELECTRIC],
+    stats=stats,  # These are species base stats
+    moves=moves,
+    level=50,
+    ivs=IVs.perfect()  # Default: perfect IVs
+)
+# pikachu.base_stats now returns calculated stats based on level/IVs
+
+# For testing/legacy mode (uses raw stats directly)
+pikachu_legacy = Pokemon(
+    name='Pikachu',
+    types=[Type.ELECTRIC],
+    stats=stats,
+    moves=moves,
+    level=50,
+    use_calculated_stats=False
+)
 ```
 
 ## Configuration
@@ -209,6 +256,55 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 - Range from -6 to +6
 - Each stage modifies stat by specific multipliers
 - Mist protects against enemy stat reductions
+
+### Gen 1 Stat Calculation
+
+Stats are calculated using the authentic Gen 1 formulas with IVs (called DVs in Gen 1):
+
+**HP Formula:**
+```
+HP = floor(((Base + IV) * 2 + floor(sqrt(EV) / 4)) * Level / 100) + Level + 10
+```
+
+**Other Stats:**
+```
+Stat = floor(((Base + IV) * 2 + floor(sqrt(EV) / 4)) * Level / 100) + 5
+```
+
+**IVs (Individual Values):**
+- Range: 0-15 for Attack, Defense, Speed, Special
+- HP IV is derived from other IVs (Gen 1 mechanic)
+- Perfect IVs (15 in all stats) used by default for competitive play
+
+### Rulesets / Cups
+
+The game supports Pokemon Stadium-style rulesets:
+
+| Cup | Level Range | Team Size | Special Rules |
+|-----|-------------|-----------|---------------|
+| Standard | 50 | 6 | None |
+| Poke Cup | 50-55 | 3 | Sum ≤ 155, no Mew/Mewtwo |
+| Prime Cup | 100 | 6 | None |
+| Little Cup | 5 | 6 | Basic Pokemon only |
+| Pika Cup | 15-20 | 3 | Basic Pokemon only, sum ≤ 50 |
+| Petit Cup | 25-30 | 3 | Height ≤ 2m, weight ≤ 20kg |
+
+### Battle Logging
+
+Detailed battle logs are automatically saved for debugging and analysis:
+
+- **Location:** `logs/battles/`
+- **Files per battle:**
+  - `battle_YYYYMMDD_HHMMSS.log` - Human-readable turn-by-turn log
+  - `battle_YYYYMMDD_HHMMSS.json` - Structured data for programmatic analysis
+
+Example log entry:
+```
+=== TURN 5 ===
+Pikachu used Thunderbolt on Blastoise
+  -> 89 damage (Super effective!)
+  Blastoise: 69/158 HP (43.7%)
+```
 
 ## License
 

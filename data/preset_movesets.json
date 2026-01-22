@@ -1,0 +1,131 @@
+{
+  "_comment": "Competitive Gen 1 movesets for popular Pokemon",
+  "alakazam": {
+    "competitive": ["psychic", "thunder-wave", "recover", "seismic-toss"],
+    "alternative": ["psychic", "reflect", "thunder-wave", "recover"]
+  },
+  "chansey": {
+    "competitive": ["soft-boiled", "thunder-wave", "ice-beam", "seismic-toss"],
+    "alternative": ["soft-boiled", "thunderbolt", "ice-beam", "counter"]
+  },
+  "snorlax": {
+    "competitive": ["body-slam", "earthquake", "hyper-beam", "self-destruct"],
+    "alternative": ["body-slam", "earthquake", "rest", "amnesia"]
+  },
+  "tauros": {
+    "competitive": ["body-slam", "hyper-beam", "earthquake", "blizzard"],
+    "alternative": ["body-slam", "earthquake", "fire-blast", "hyper-beam"]
+  },
+  "exeggutor": {
+    "competitive": ["sleep-powder", "psychic", "mega-drain", "explosion"],
+    "alternative": ["sleep-powder", "stun-spore", "psychic", "mega-drain"]
+  },
+  "starmie": {
+    "competitive": ["thunderbolt", "blizzard", "recover", "thunder-wave"],
+    "alternative": ["surf", "psychic", "thunderbolt", "recover"]
+  },
+  "gengar": {
+    "competitive": ["hypnosis", "thunderbolt", "mega-drain", "explosion"],
+    "alternative": ["hypnosis", "dream-eater", "thunderbolt", "night-shade"]
+  },
+  "jynx": {
+    "competitive": ["lovely-kiss", "blizzard", "psychic", "rest"],
+    "alternative": ["lovely-kiss", "blizzard", "psychic", "seismic-toss"]
+  },
+  "lapras": {
+    "competitive": ["blizzard", "thunderbolt", "body-slam", "confuse-ray"],
+    "alternative": ["blizzard", "surf", "thunderbolt", "sing"]
+  },
+  "zapdos": {
+    "competitive": ["thunderbolt", "drill-peck", "thunder-wave", "agility"],
+    "alternative": ["thunder", "drill-peck", "light-screen", "rest"]
+  },
+  "articuno": {
+    "competitive": ["blizzard", "ice-beam", "hyper-beam", "agility"],
+    "alternative": ["blizzard", "rest", "reflect", "substitute"]
+  },
+  "moltres": {
+    "competitive": ["fire-blast", "hyper-beam", "agility", "fire-spin"],
+    "alternative": ["flamethrower", "hyper-beam", "double-team", "rest"]
+  },
+  "mewtwo": {
+    "competitive": ["psychic", "blizzard", "thunderbolt", "recover"],
+    "alternative": ["psychic", "amnesia", "recover", "thunder-wave"]
+  },
+  "dragonite": {
+    "competitive": ["wrap", "hyper-beam", "blizzard", "thunder-wave"],
+    "alternative": ["agility", "wrap", "hyper-beam", "surf"]
+  },
+  "pikachu": {
+    "competitive": ["thunderbolt", "thunder-wave", "surf", "seismic-toss"],
+    "alternative": ["thunderbolt", "thunder-wave", "body-slam", "agility"]
+  },
+  "charizard": {
+    "competitive": ["fire-blast", "earthquake", "body-slam", "swords-dance"],
+    "alternative": ["flamethrower", "slash", "earthquake", "fire-spin"]
+  },
+  "blastoise": {
+    "competitive": ["surf", "blizzard", "earthquake", "rest"],
+    "alternative": ["hydro-pump", "ice-beam", "body-slam", "rest"]
+  },
+  "venusaur": {
+    "competitive": ["razor-leaf", "sleep-powder", "body-slam", "swords-dance"],
+    "alternative": ["razor-leaf", "sleep-powder", "toxic", "leech-seed"]
+  },
+  "machamp": {
+    "competitive": ["submission", "earthquake", "hyper-beam", "counter"],
+    "alternative": ["submission", "earthquake", "rock-slide", "body-slam"]
+  },
+  "golem": {
+    "competitive": ["earthquake", "rock-slide", "body-slam", "explosion"],
+    "alternative": ["earthquake", "rock-slide", "counter", "explosion"]
+  },
+  "gyarados": {
+    "competitive": ["surf", "thunderbolt", "hyper-beam", "body-slam"],
+    "alternative": ["hydro-pump", "blizzard", "thunder", "hyper-beam"]
+  },
+  "jolteon": {
+    "competitive": ["thunderbolt", "thunder-wave", "pin-missile", "double-kick"],
+    "alternative": ["thunderbolt", "thunder-wave", "body-slam", "rest"]
+  },
+  "flareon": {
+    "competitive": ["fire-blast", "body-slam", "hyper-beam", "quick-attack"],
+    "alternative": ["flamethrower", "fire-spin", "body-slam", "rest"]
+  },
+  "vaporeon": {
+    "competitive": ["surf", "blizzard", "rest", "body-slam"],
+    "alternative": ["hydro-pump", "ice-beam", "rest", "haze"]
+  },
+  "rhydon": {
+    "competitive": ["earthquake", "rock-slide", "body-slam", "substitute"],
+    "alternative": ["earthquake", "rock-slide", "horn-drill", "rest"]
+  },
+  "nidoking": {
+    "competitive": ["earthquake", "blizzard", "thunderbolt", "body-slam"],
+    "alternative": ["earthquake", "thunder", "fire-blast", "horn-drill"]
+  },
+  "nidoqueen": {
+    "competitive": ["earthquake", "blizzard", "thunderbolt", "body-slam"],
+    "alternative": ["earthquake", "thunder", "fire-blast", "counter"]
+  },
+  "hypno": {
+    "competitive": ["hypnosis", "dream-eater", "psychic", "thunder-wave"],
+    "alternative": ["hypnosis", "psychic", "seismic-toss", "rest"]
+  },
+  "slowbro": {
+    "competitive": ["amnesia", "surf", "thunder-wave", "rest"],
+    "alternative": ["amnesia", "psychic", "surf", "thunder-wave"]
+  },
+  "cloyster": {
+    "competitive": ["blizzard", "clamp", "explosion", "hyper-beam"],
+    "alternative": ["blizzard", "surf", "rest", "toxic"]
+  },
+  "aerodactyl": {
+    "competitive": ["hyper-beam", "double-edge", "fire-blast", "sky-attack"],
+    "alternative": ["hyper-beam", "take-down", "fire-blast", "rest"]
+  },
+  "mew": {
+    "competitive": ["psychic", "soft-boiled", "thunderbolt", "explosion"],
+    "alternative": ["psychic", "soft-boiled", "transform", "swords-dance"]
+  }
+}

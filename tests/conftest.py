@@ -67,7 +67,8 @@ def create_test_pokemon(
         moves = [create_test_move()]
 
     stats = Stats(hp=hp, attack=attack, defense=defense, special=special, speed=speed)
-    return Pokemon(name, types, stats, moves, level=level)
+    # Use legacy mode (use_calculated_stats=False) for tests that expect raw stats
+    return Pokemon(name, types, stats, moves, level=level, use_calculated_stats=False)
 
 
 def create_test_move(

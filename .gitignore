@@ -78,3 +78,6 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Battle logs
+logs/

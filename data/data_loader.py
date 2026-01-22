@@ -17,6 +17,7 @@ DATA_DIR = Path(__file__).parent
 _pokemon_cache: Optional[dict] = None
 _moves_cache: Optional[dict] = None
 _learnsets_cache: Optional[dict] = None
+_presets_cache: Optional[dict] = None
 
 
 def _load_json(filename: str) -> dict:
@@ -47,6 +48,18 @@ def _get_learnsets_data() -> dict:
     if _learnsets_cache is None:
         _learnsets_cache = _load_json('learnsets.json')
     return _learnsets_cache
+
+
+def _get_presets_data() -> dict:
+    """Load and cache preset_movesets.json."""
+    global _presets_cache
+    if _presets_cache is None:
+        try:
+            _presets_cache = _load_json('preset_movesets.json')
+        except FileNotFoundError:
+            logger.warning("preset_movesets.json not found, using empty presets")
+            _presets_cache = {}
+    return _presets_cache
 
 
 def get_kanto_pokemon_list() -> list[str]:
@@ -203,3 +216,259 @@ def get_pokemon_weaknesses_resistances(types: list[str]) -> dict:
         'resistances': sorted(list(resistances)),
         'immunities': sorted(list(immunities))
     }
+
+
+# =============================================================================
+# Moveset Selection Functions
+# =============================================================================
+
+def get_preset_moveset(pokemon_name: str, variant: str = "competitive") -> Optional[list[str]]:
+    """
+    Get a preset moveset for a Pokemon.
+
+    Args:
+        pokemon_name: Name of the Pokemon
+        variant: Which preset variant ("competitive" or "alternative")
+
+    Returns:
+        List of move names, or None if no preset exists
+    """
+    presets = _get_presets_data()
+    name = pokemon_name.lower()
+
+    if name not in presets:
+        return None
+
+    pokemon_presets = presets[name]
+    if variant in pokemon_presets:
+        return pokemon_presets[variant]
+    elif "competitive" in pokemon_presets:
+        return pokemon_presets["competitive"]
+
+    return None
+
+
+def get_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
+    """
+    Get a random moveset from available moves.
+
+    Args:
+        pokemon_name: Name of the Pokemon
+        count: Number of moves to select (default 4)
+
+    Returns:
+        List of move names
+    """
+    import random
+    available_moves = get_pokemon_moves_gen1(pokemon_name)
+    return random.sample(available_moves, min(count, len(available_moves)))
+
+
+def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
+    """
+    Get a smart random moveset that ensures variety:
+    - At least one STAB move if available
+    - Mix of damaging and status moves
+    - Avoids duplicate types where possible
+
+    Args:
+        pokemon_name: Name of the Pokemon
+        count: Number of moves to select (default 4)
+
+    Returns:
+        List of move names
+    """
+    import random
+
+    available_moves = get_pokemon_moves_gen1(pokemon_name)
+    if len(available_moves) <= count:
+        return available_moves
+
+    # Get Pokemon types for STAB check
+    try:
+        poke_data = get_pokemon_data(pokemon_name)
+        pokemon_types = [t.lower() for t in poke_data['types']]
+    except ValueError:
+        pokemon_types = []
+
+    # Categorize available moves
+    stab_damaging = []
+    other_damaging = []
+    status_moves = []
+
+    for move_name in available_moves:
+        try:
+            move_data = get_move_data(move_name)
+            move_type = move_data['type'].lower()
+            category = move_data['category'].lower()
+            power = move_data.get('power') or 0
+
+            if category == 'status' or power == 0:
+                status_moves.append(move_name)
+            elif move_type in pokemon_types:
+                stab_damaging.append(move_name)
+            else:
+                other_damaging.append(move_name)
+        except ValueError:
+            # If move data not found, add to other
+            other_damaging.append(move_name)
+
+    selected = []
+    types_used = set()
+
+    # 1. Pick at least one STAB move if available
+    if stab_damaging:
+        move = random.choice(stab_damaging)
+        selected.append(move)
+        stab_damaging.remove(move)
+        try:
+            types_used.add(get_move_data(move)['type'].lower())
+        except ValueError:
+            pass
+
+    # 2. Pick 1-2 status moves for variety (if available)
+    status_count = min(random.randint(1, 2), len(status_moves), count - len(selected) - 1)
+    if status_count > 0:
+        status_picks = random.sample(status_moves, status_count)
+        selected.extend(status_picks)
+        for m in status_picks:
+            status_moves.remove(m)
+
+    # 3. Fill remaining slots with damaging moves, preferring type variety
+    remaining_damaging = stab_damaging + other_damaging
+    random.shuffle(remaining_damaging)
+
+    for move_name in remaining_damaging:
+        if len(selected) >= count:
+            break
+        try:
+            move_type = get_move_data(move_name)['type'].lower()
+            # Prefer moves of different types
+            if move_type not in types_used or len(selected) >= count - 1:
+                selected.append(move_name)
+                types_used.add(move_type)
+        except ValueError:
+            selected.append(move_name)
+
+    # If still need more, add from status or any remaining
+    remaining = [m for m in available_moves if m not in selected]
+    while len(selected) < count and remaining:
+        move = random.choice(remaining)
+        selected.append(move)
+        remaining.remove(move)
+
+    return selected[:count]
+
+
+def get_moveset_for_pokemon(pokemon_name: str, mode: str = "random") -> list[str]:
+    """
+    Get a moveset for a Pokemon based on the selection mode.
+
+    Args:
+        pokemon_name: Name of the Pokemon
+        mode: One of "random", "preset", "smart_random"
+
+    Returns:
+        List of move names
+    """
+    if mode == "preset":
+        preset = get_preset_moveset(pokemon_name)
+        if preset:
+            # Validate all moves exist in Pokemon's learnset
+            available = get_pokemon_moves_gen1(pokemon_name)
+            valid_moves = [m for m in preset if m in available]
+            if len(valid_moves) >= 4:
+                return valid_moves[:4]
+        # Fall back to smart random if no valid preset
+        return get_smart_random_moveset(pokemon_name)
+
+    elif mode == "smart_random":
+        return get_smart_random_moveset(pokemon_name)
+
+    else:  # random
+        return get_random_moveset(pokemon_name)
+
+
+# =============================================================================
+# Pokemon Factory Function
+# =============================================================================
+
+def create_pokemon_with_ruleset(
+    name: str,
+    moves: list,
+    ruleset=None,
+    level: int = None,
+    ivs=None,
+) -> 'Pokemon':
+    """
+    Create a Pokemon respecting ruleset rules.
+
+    This factory function creates a Pokemon with stats calculated according
+    to Gen 1 formulas, respecting any ruleset constraints.
+
+    Args:
+        name: Pokemon name (e.g., "Pikachu")
+        moves: List of Move objects
+        ruleset: Optional Ruleset for validation and defaults.
+                 If None, uses STANDARD_RULES.
+        level: Override level (otherwise uses ruleset default)
+        ivs: Override IVs (otherwise uses ruleset setting - perfect or random)
+
+    Returns:
+        Configured Pokemon instance
+
+    Example:
+        from data.data_loader import create_pokemon_with_ruleset, create_move
+        from models.ruleset import LITTLE_CUP_RULES
+
+        moves = [create_move('tackle'), create_move('thunder-wave')]
+        pikachu = create_pokemon_with_ruleset('pikachu', moves, LITTLE_CUP_RULES)
+        # Creates a level 5 Pikachu with Little Cup stats
+    """
+    from models.pokemon import Pokemon
+    from models.ivs import IVs
+
+    # Import ruleset lazily to avoid circular imports
+    if ruleset is None:
+        from models.ruleset import STANDARD_RULES
+        ruleset = STANDARD_RULES
+
+    # Get Pokemon data
+    poke_data = get_pokemon_data(name)
+
+    # Determine level
+    if level is None:
+        level = ruleset.default_level
+
+    # Determine IVs based on ruleset
+    if ivs is None:
+        ivs = IVs.perfect() if ruleset.perfect_ivs else IVs.random()
+
+    # Determine EVs based on ruleset
+    if ruleset.max_evs:
+        evs = None  # None means use max EVs (default)
+    else:
+        evs = {'hp': 0, 'attack': 0, 'defense': 0, 'special': 0, 'speed': 0}
+
+    # Create base stats from data
+    base_stats = Stats(
+        hp=poke_data['stats'].get('hp', 100),
+        attack=poke_data['stats'].get('attack', 50),
+        defense=poke_data['stats'].get('defense', 50),
+        special=poke_data['stats'].get('special-attack', 50),
+        speed=poke_data['stats'].get('speed', 50)
+    )
+
+    # Parse types
+    types = [getattr(Type, t.upper(), Type.NORMAL) for t in poke_data['types']]
+
+    return Pokemon(
+        name=poke_data['name'],
+        types=types,
+        stats=base_stats,
+        moves=moves,
+        level=level,
+        ivs=ivs,
+        evs=evs,
+        use_calculated_stats=ruleset.use_calculated_stats
+    )
