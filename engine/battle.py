@@ -1,7 +1,10 @@
 """Battle engine for executing turns and handling combat mechanics."""
 
 import random
+import logging
 from models.pokemon import Pokemon
+
+logger = logging.getLogger(__name__)
 from models.move import Move
 from models.enums import MoveCategory, StatType, Status
 from engine.damage import calculate_damage
@@ -20,9 +23,6 @@ from engine.move_effects import (
 # =============================================================================
 
 def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list = None):
-<<<<<<< Updated upstream
-    """Ejecuta un turno de batalla completo"""
-=======
     """
     Execute a complete battle turn.
 
@@ -33,7 +33,6 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
         all_moves: List of all available moves (for Metronome/Mirror Move)
     """
     logger.debug(f"Turn: {attacker.name} using {move.name} against {defender.name}")
->>>>>>> Stashed changes
 
     # Handle recharge state (e.g., after Hyper Beam)
     if _handle_recharge_state(attacker):
@@ -682,12 +681,7 @@ def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon,
     elif speed2 > speed1:
         return pokemon2, pokemon1
     else:
-<<<<<<< Updated upstream
-        # En caso de empate, aleatorio
-        return random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
-=======
         # Speed tie - random order
         result = random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
         logger.debug(f"Speed tie, random order: {result[0].name} goes first")
         return result
->>>>>>> Stashed changes

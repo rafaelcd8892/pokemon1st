@@ -11,14 +11,11 @@ from data.data_loader import (
     create_move,
     get_moveset_for_pokemon
 )
-from models.enums import Type
+from models.enums import Type, BattleFormat
 from models.stats import Stats
 from models.pokemon import Pokemon
-<<<<<<< Updated upstream
-=======
 from models.team import Team
 from settings.battle_config import BattleMode, MovesetMode, BattleSettings
->>>>>>> Stashed changes
 
 
 # Type color pairs for curses (foreground colors)
@@ -563,8 +560,6 @@ def interactive_pokemon_selection() -> Optional[Pokemon]:
     return Pokemon(poke_data['name'], types, stats, moves, level=50)
 
 
-<<<<<<< Updated upstream
-=======
 def draw_battle_format_menu(stdscr, selected_idx: int):
     """Draw the battle format selection menu"""
     stdscr.clear()
@@ -1385,7 +1380,6 @@ def interactive_team_selection_with_settings(
     return Team(team_pokemon, trainer_name)
 
 
->>>>>>> Stashed changes
 if __name__ == "__main__":
     # Test the selection UI
     pokemon = interactive_pokemon_selection()
