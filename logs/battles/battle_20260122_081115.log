@@ -1,0 +1,107 @@
+============================================================
+POKEMON GEN 1 BATTLE LOG
+Battle ID: battle_20260122_081115
+Started: 2026-01-22 08:11:15
+============================================================
+
+Equipo 1: Kingler
+Equipo 2: Butterfree
+
+------------------------------------------------------------
+Equipo 1 sends out Kingler
+Equipo 2 sends out Butterfree
+
+=== TURN 1 ===
+Kingler used Surf on Butterfree
+  -> 40 damage
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Whirlwind on Kingler
+  Kingler: 161/161 HP (100.0%)
+
+=== TURN 2 ===
+Kingler used Harden on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Gust on Kingler
+  -> 36 damage
+  Kingler: 125/161 HP (77.6%)
+
+=== TURN 3 ===
+Kingler used Rest on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Whirlwind on Kingler
+  Kingler: 161/161 HP (100.0%)
+
+=== TURN 4 ===
+Kingler used Rest on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Gust on Kingler
+  -> 35 damage
+  Kingler: 126/161 HP (78.3%)
+
+=== TURN 5 ===
+Kingler used Rest on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Take Down on Kingler
+  -> 14 damage
+  Kingler: 147/161 HP (91.3%)
+
+=== TURN 6 ===
+Kingler used Harden on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Whirlwind on Kingler
+  Kingler: 147/161 HP (91.3%)
+
+=== TURN 7 ===
+Kingler used Rest on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Whirlwind on Kingler
+  Kingler: 161/161 HP (100.0%)
+
+=== TURN 8 ===
+Kingler used Rage on Butterfree
+  Butterfree: 126/166 HP (75.9%)
+Butterfree used Gust on Kingler
+  -> 38 damage
+  Kingler: 123/161 HP (76.4%)
+
+=== TURN 9 ===
+Kingler used Surf on Butterfree
+  -> 39 damage
+  Butterfree: 87/166 HP (52.4%)
+Butterfree used Gust on Kingler
+  -> 37 damage
+  Kingler: 86/161 HP (53.4%)
+
+=== TURN 10 ===
+Kingler used Rage on Butterfree
+  -> 31 damage
+  Butterfree: 56/166 HP (33.7%)
+Butterfree used Gust on Kingler
+  -> 37 damage
+  Kingler: 49/161 HP (30.4%)
+
+=== TURN 11 ===
+Kingler used Rest on Butterfree
+  Butterfree: 56/166 HP (33.7%)
+Butterfree used Gust on Kingler
+  -> 36 damage
+  Kingler: 125/161 HP (77.6%)
+
+=== TURN 12 ===
+Kingler used Rage on Butterfree
+  Butterfree: 56/166 HP (33.7%)
+Butterfree used Gust on Kingler
+  -> 70 damage
+  Kingler: 55/161 HP (34.2%)
+
+=== TURN 13 ===
+Kingler used Rage on Butterfree
+  -> 56 damage
+  Butterfree: 0/166 HP (0.0%)
+  Butterfree fainted!
+
+============================================================
+WINNER: Equipo 1
+Total turns: 13
+End time: 2026-01-22 08:12:30
+============================================================
