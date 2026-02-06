@@ -1,6 +1,7 @@
 """Tests for moveset selection functionality"""
 
 import pytest
+import data.data_loader as data_loader
 from data.data_loader import (
     get_preset_moveset,
     get_random_moveset,
@@ -12,6 +13,24 @@ from data.data_loader import (
 
 class TestPresetMovesets:
     """Tests for preset moveset loading"""
+
+    def test_missing_preset_file_logs_warning_and_returns_none(self, monkeypatch, caplog):
+        """Test missing preset_movesets.json logs a warning and returns None"""
+        original_load_json = data_loader._load_json
+
+        def fake_load_json(filename: str) -> dict:
+            if filename == "preset_movesets.json":
+                raise FileNotFoundError(filename)
+            return original_load_json(filename)
+
+        monkeypatch.setattr(data_loader, "_presets_cache", None)
+        monkeypatch.setattr(data_loader, "_load_json", fake_load_json)
+
+        with caplog.at_level("WARNING"):
+            preset = get_preset_moveset("alakazam")
+
+        assert preset is None
+        assert "preset_movesets.json not found" in caplog.text
 
     def test_get_preset_for_known_pokemon(self):
         """Test getting preset for a Pokemon with presets"""

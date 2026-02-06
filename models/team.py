@@ -82,6 +82,8 @@ class Team:
         if not self._pokemon[index].is_alive():
             return False
 
+        # Clear volatile battle effects on the outgoing Pokemon
+        self._pokemon[self._active_index].reset_battle_effects()
         self._active_index = index
         return True
 

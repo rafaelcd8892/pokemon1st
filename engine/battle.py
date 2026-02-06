@@ -491,7 +491,7 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
 
     # Apply screens (Reflect/Light Screen reduce damage by half)
     is_physical = move.category == MoveCategory.PHYSICAL
-    damage = _apply_screen_reduction(defender, damage, is_physical)
+    damage = _apply_screen_reduction(defender, damage, is_physical, is_critical)
 
     if damage > 0:
         # Track damage for Counter
@@ -519,12 +519,12 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
     # Apply stat changes
     _apply_move_stat_changes(attacker, defender, move)
 
-    # End-of-turn status damage
-    apply_end_turn_status_damage(attacker)
 
-
-def _apply_screen_reduction(defender: Pokemon, damage: int, is_physical: bool) -> int:
+def _apply_screen_reduction(defender: Pokemon, damage: int, is_physical: bool, is_critical: bool) -> int:
     """Apply screen damage reduction (Reflect/Light Screen)."""
+    # Gen 1 critical hits ignore Reflect/Light Screen
+    if is_critical:
+        return damage
     if is_physical and defender.has_reflect:
         print("¡Reflect reduce el daño!")
         return damage // 2
@@ -620,6 +620,10 @@ def apply_end_of_turn_effects(pokemon1: Pokemon, pokemon2: Pokemon):
     # Trapping damage (Wrap, Bind, etc.)
     messages.extend(_apply_trapping_effects(pokemon1, pokemon2))
     messages.extend(_apply_trapping_effects(pokemon2, pokemon1))
+
+    # Status damage (burn/poison)
+    apply_end_turn_status_damage(pokemon1)
+    apply_end_turn_status_damage(pokemon2)
 
     # Decrement screen turns
     messages.extend(decrement_screen_turns(pokemon1))

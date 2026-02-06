@@ -10,10 +10,9 @@ def calculate_critical_hit(attacker: Pokemon) -> bool:
     """Determines if attack is critical using Gen1 formula: BaseSpeed/512"""
     crit_chance = attacker.base_stats.speed / 512
 
-    # Focus Energy multiplies crit chance by 4 (intended behavior)
-    # Note: In actual Gen 1, it was bugged and divided by 4 instead
+    # Gen 1 Focus Energy bug: crit chance is divided by 4 instead of increased
     if hasattr(attacker, 'focus_energy') and attacker.focus_energy:
-        crit_chance *= 4
+        crit_chance /= 4
 
     # Cap at 100%
     crit_chance = min(crit_chance, 1.0)
@@ -61,8 +60,16 @@ def calculate_damage(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[
     # Calculate critical hit
     is_critical = calculate_critical_hit(attacker)
 
-    # Get appropriate stats
-    attack, defense = get_attack_defense_stats(attacker, defender, move)
+    # Get appropriate stats (Gen 1 critical hits ignore stat stage modifiers)
+    if is_critical:
+        if move.category == MoveCategory.PHYSICAL:
+            attack = attacker.base_stats.attack
+            defense = defender.base_stats.defense
+        else:
+            attack = attacker.base_stats.special
+            defense = defender.base_stats.special
+    else:
+        attack, defense = get_attack_defense_stats(attacker, defender, move)
     if is_critical:
         attack *= config.CRIT_MULTIPLIER
 

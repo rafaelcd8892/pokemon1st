@@ -245,6 +245,8 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 - Probability = BaseSpeed / 512
 - Multiplies damage by 2
 - Ignores stat modifiers (Gen 1 behavior)
+- Ignores Reflect/Light Screen reductions
+- Focus Energy uses the Gen 1 bug (crit chance divided by 4)
 
 ### Type Effectiveness
 - Super effective: 2x damage
@@ -256,6 +258,9 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 - Range from -6 to +6
 - Each stage modifies stat by specific multipliers
 - Mist protects against enemy stat reductions
+
+### End-of-Turn Status Damage
+- Burn and poison damage are applied at the end of each turn
 
 ### Gen 1 Stat Calculation
 

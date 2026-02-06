@@ -4,6 +4,7 @@ Replaces PokeAPI calls with local JSON file lookups.
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +13,7 @@ from models.stats import Stats
 from models.move import Move
 
 DATA_DIR = Path(__file__).parent
+logger = logging.getLogger(__name__)
 
 # Cache loaded data
 _pokemon_cache: Optional[dict] = None

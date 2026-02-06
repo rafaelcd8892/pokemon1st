@@ -1,10 +1,13 @@
 """Tests for Gen 1 damage calculation"""
 
+import random
 import pytest
 from unittest.mock import patch
 
 from models.enums import Type, MoveCategory
+from engine.battle import execute_turn
 from engine.damage import calculate_damage
+import engine.damage as damage_module
 from tests.conftest import create_test_pokemon, create_test_move
 
 
@@ -119,6 +122,48 @@ class TestCriticalHits:
             ratio = avg_crit / avg_normal
             assert 1.5 < ratio < 2.5, f"Crit ratio should be ~2x, got {ratio:.2f}"
 
+    def test_critical_ignores_reflect(self, monkeypatch):
+        """Test that critical hits ignore Reflect in Gen 1"""
+        monkeypatch.setattr(damage_module, "calculate_critical_hit", lambda attacker: True)
+        monkeypatch.setattr(damage_module, "get_random_factor", lambda: 1.0)
+
+        move = create_test_move(power=100, category=MoveCategory.PHYSICAL, accuracy=100)
+
+        attacker_reflect = create_test_pokemon(attack=120, speed=10)
+        defender_reflect = create_test_pokemon(defense=100)
+        defender_reflect.has_reflect = True
+        execute_turn(attacker_reflect, defender_reflect, move)
+        damage_with_reflect = defender_reflect.max_hp - defender_reflect.current_hp
+
+        attacker_no_reflect = create_test_pokemon(attack=120, speed=10)
+        defender_no_reflect = create_test_pokemon(defense=100)
+        move_no_reflect = create_test_move(power=100, category=MoveCategory.PHYSICAL, accuracy=100)
+        execute_turn(attacker_no_reflect, defender_no_reflect, move_no_reflect)
+        damage_without_reflect = defender_no_reflect.max_hp - defender_no_reflect.current_hp
+
+        assert damage_with_reflect == damage_without_reflect, "Critical hits should ignore Reflect"
+
+    def test_critical_ignores_light_screen(self, monkeypatch):
+        """Test that critical hits ignore Light Screen in Gen 1"""
+        monkeypatch.setattr(damage_module, "calculate_critical_hit", lambda attacker: True)
+        monkeypatch.setattr(damage_module, "get_random_factor", lambda: 1.0)
+
+        move = create_test_move(power=100, category=MoveCategory.SPECIAL, accuracy=100)
+
+        attacker_screen = create_test_pokemon(special=120, speed=10)
+        defender_screen = create_test_pokemon(special=100)
+        defender_screen.has_light_screen = True
+        execute_turn(attacker_screen, defender_screen, move)
+        damage_with_screen = defender_screen.max_hp - defender_screen.current_hp
+
+        attacker_no_screen = create_test_pokemon(special=120, speed=10)
+        defender_no_screen = create_test_pokemon(special=100)
+        move_no_screen = create_test_move(power=100, category=MoveCategory.SPECIAL, accuracy=100)
+        execute_turn(attacker_no_screen, defender_no_screen, move_no_screen)
+        damage_without_screen = defender_no_screen.max_hp - defender_no_screen.current_hp
+
+        assert damage_with_screen == damage_without_screen, "Critical hits should ignore Light Screen"
+
     def test_higher_speed_more_crits(self):
         """Test that higher speed increases critical hit rate"""
         defender = create_test_pokemon(defense=100)
@@ -223,10 +268,11 @@ class TestSTAB:
 
     def test_stab_increases_damage(self):
         """Test that STAB adds 50% damage"""
+        random.seed(0)
         # Fire type using Fire move (STAB)
-        fire_pokemon = create_test_pokemon(types=[Type.FIRE], attack=100, special=100, speed=50)
+        fire_pokemon = create_test_pokemon(types=[Type.FIRE], attack=100, special=100, speed=10)
         # Normal type using Fire move (no STAB)
-        normal_pokemon = create_test_pokemon(types=[Type.NORMAL], attack=100, special=100, speed=50)
+        normal_pokemon = create_test_pokemon(types=[Type.NORMAL], attack=100, special=100, speed=10)
 
         defender = create_test_pokemon(defense=100, special=100)
 
@@ -237,8 +283,19 @@ class TestSTAB:
             category=MoveCategory.SPECIAL
         )
 
-        with_stab = [calculate_damage(fire_pokemon, defender, fire_move)[0] for _ in range(50)]
-        without_stab = [calculate_damage(normal_pokemon, defender, fire_move)[0] for _ in range(50)]
+        target_samples = 200
+        with_stab = []
+        without_stab = []
+
+        while len(with_stab) < target_samples:
+            damage, is_crit, _ = calculate_damage(fire_pokemon, defender, fire_move)
+            if not is_crit:
+                with_stab.append(damage)
+
+        while len(without_stab) < target_samples:
+            damage, is_crit, _ = calculate_damage(normal_pokemon, defender, fire_move)
+            if not is_crit:
+                without_stab.append(damage)
 
         avg_with = sum(with_stab) / len(with_stab)
         avg_without = sum(without_stab) / len(without_stab)
