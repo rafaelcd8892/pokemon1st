@@ -16,6 +16,7 @@ from engine.move_effects import (
     apply_leech_seed_damage, decrement_screen_turns,
     TWO_TURN_MOVES, TRAPPING_MOVES, get_multi_hit_count
 )
+from engine.battle_logger import get_battle_logger
 
 
 # =============================================================================
@@ -185,8 +186,11 @@ def _check_accuracy(attacker: Pokemon, defender: Pokemon, move: Move) -> bool:
 
     if random.randint(1, 100) > final_accuracy:
         print(f"¡El ataque falló!")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_miss(attacker.name, move.name)
         # Handle crash damage for High-Jump-Kick/Jump-Kick
-        if move.name in ("High-Jump-Kick", "Jump-Kick"):
+        if move.name in ("High Jump Kick", "Jump Kick"):
             crash_damage = max(1, attacker.max_hp // 8)
             attacker.take_damage(crash_damage)
             print(f"¡{attacker.name} se estrelló y recibió {crash_damage} de daño!")
@@ -431,6 +435,12 @@ def _deal_damage_with_messages(attacker: Pokemon, defender: Pokemon, move: Move)
     actual_damage = apply_damage_to_target(defender, actual_damage, True)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
+    blog = get_battle_logger()
+    if blog:
+        blog.log_move(attacker.name, move.name, defender.name,
+                      damage=actual_damage, is_critical=is_crit,
+                      effectiveness=effectiveness)
+
     if actual_damage > 0:
         print(f"{defender.name} recibe {actual_damage} de daño!")
         print(f"  {format_pokemon_status(defender)}")
@@ -514,6 +524,10 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
     # Check immunity first — no damage, no secondary effects
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_move(attacker.name, move.name, defender.name,
+                          damage=0, effectiveness=0)
         return
 
     # Apply screens (Reflect/Light Screen reduce damage by half)
@@ -531,6 +545,13 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
 
         _print_damage_messages(is_critical, effectiveness, defender.name)
 
+        # Log move with actual values
+        blog = get_battle_logger()
+        if blog:
+            blog.log_move(attacker.name, move.name, defender.name,
+                          damage=actual_damage, is_critical=is_critical,
+                          effectiveness=effectiveness)
+
         if actual_damage > 0:
             print(f"{defender.name} recibe {actual_damage} de daño!")
             print(f"  {format_pokemon_status(defender)}")
@@ -542,6 +563,12 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
             if defender.status == Status.FREEZE and move.type == Type.FIRE:
                 defender.status = Status.NONE
                 print(f"¡{defender.name} se descongeló!")
+    else:
+        # STATUS moves with 0 damage
+        blog = get_battle_logger()
+        if blog:
+            blog.log_move(attacker.name, move.name, defender.name,
+                          damage=0, effectiveness=effectiveness)
 
     # Apply status effect
     _apply_move_status_effect(defender, move)
@@ -668,10 +695,15 @@ def _apply_leech_seed_effects(seeded: Pokemon, seeder: Pokemon) -> list[str]:
     """Apply Leech Seed damage and healing."""
     messages = []
     if seeded.is_seeded:
+        hp_before = seeded.current_hp
         msg = apply_leech_seed_damage(seeded, seeder)
         if msg:
             messages.append(msg)
             messages.append(f"  {format_pokemon_status(seeded)}")
+            blog = get_battle_logger()
+            if blog:
+                drain = hp_before - seeded.current_hp
+                blog.log_effect("leech_seed", seeded.name, damage=drain)
     return messages
 
 
@@ -685,6 +717,9 @@ def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
         trapped.take_damage(trap_damage)
         messages.append(f"¡{trapped.name} sigue atrapado y recibe {trap_damage} de daño!")
         messages.append(f"  {format_pokemon_status(trapped)}")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_effect("trapping", trapped.name, damage=trap_damage)
         if trapped.trap_turns <= 0:
             trapped.is_trapped = False
             trapped.trapped_by = None

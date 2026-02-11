@@ -7,53 +7,53 @@ from models.enums import Status, Type
 
 # Moves with fixed damage (ignore stats)
 FIXED_DAMAGE_MOVES = {
-    "Dragon-Rage": 40,
-    "Sonic-Boom": 20,
+    "Dragon Rage": 40,
+    "Sonic Boom": 20,
 }
 
 # HP drain moves (heal 50% of damage dealt)
-HP_DRAIN_MOVES = {"Absorb", "Mega-Drain", "Leech-Life"}
+HP_DRAIN_MOVES = {"Absorb", "Mega Drain", "Leech Life"}
 
 # Dream Eater - only works on sleeping targets, heals 50%
-DREAM_EATER_MOVE = "Dream-Eater"
+DREAM_EATER_MOVE = "Dream Eater"
 
 # Self-destruct moves (user faints)
-SELF_DESTRUCT_MOVES = {"Explosion", "Self-Destruct"}
+SELF_DESTRUCT_MOVES = {"Explosion", "Self Destruct"}
 
 # Crash damage moves (take damage if miss)
-CRASH_DAMAGE_MOVES = {"High-Jump-Kick", "Jump-Kick"}
+CRASH_DAMAGE_MOVES = {"High Jump Kick", "Jump Kick"}
 
 # Two-turn moves (charge first turn, attack second)
 TWO_TURN_MOVES = {
-    "Hyper-Beam": {"recharge": True},      # Attack then recharge
-    "Solar-Beam": {"charge": True},         # Charge then attack
+    "Hyper Beam": {"recharge": True},      # Attack then recharge
+    "Solar Beam": {"charge": True},         # Charge then attack
     "Dig": {"charge": True, "semi_invulnerable": True},
     "Fly": {"charge": True, "semi_invulnerable": True},
-    "Skull-Bash": {"charge": True, "defense_boost": True},
-    "Sky-Attack": {"charge": True},
-    "Razor-Wind": {"charge": True},
+    "Skull Bash": {"charge": True, "defense_boost": True},
+    "Sky Attack": {"charge": True},
+    "Razor Wind": {"charge": True},
 }
 
 # Multi-turn moves (2-3 turns, then confusion)
-MULTI_TURN_MOVES = {"Thrash", "Petal-Dance"}
+MULTI_TURN_MOVES = {"Thrash", "Petal Dance"}
 
 # Rage - increases attack when hit
 RAGE_MOVE = "Rage"
 
 # Trapping moves (prevent switching, deal damage each turn)
-TRAPPING_MOVES = {"Wrap", "Bind", "Clamp", "Fire-Spin"}
+TRAPPING_MOVES = {"Wrap", "Bind", "Clamp", "Fire Spin"}
 
 # Multi-hit moves (2-5 hits with Gen 1 distribution: 37.5%, 37.5%, 12.5%, 12.5%)
-MULTI_HIT_MOVES = {"Fury-Attack", "Fury-Swipes", "Pin-Missile", "Spike-Cannon", "Barrage", "Comet-Punch", "Double-Slap"}
+MULTI_HIT_MOVES = {"Fury Attack", "Fury Swipes", "Pin Missile", "Spike Cannon", "Barrage", "Comet Punch", "Double Slap"}
 
 # Fixed 2-hit moves
-DOUBLE_HIT_MOVES = {"Double-Kick", "Bonemerang"}
+DOUBLE_HIT_MOVES = {"Double Kick", "Bonemerang"}
 
 # Twineedle - 2 hits with poison chance on each
 TWINEEDLE_MOVE = "Twineedle"
 
 # Moves that deal damage equal to user's level
-LEVEL_DAMAGE_MOVES = {"Night-Shade", "Seismic-Toss"}
+LEVEL_DAMAGE_MOVES = {"Night Shade", "Seismic Toss"}
 
 # OHKO moves (one-hit knockout)
 OHKO_MOVES = {"Guillotine", "Horn-Drill"}
@@ -61,25 +61,25 @@ OHKO_MOVES = {"Guillotine", "Horn-Drill"}
 # Moves that heal the user
 RECOVERY_MOVES = {
     "Recover": 0.5,      # Heals 50% of max HP
-    "Soft-Boiled": 0.5,  # Heals 50% of max HP
+    "Soft Boiled": 0.5,  # Heals 50% of max HP
 }
 
 # Screen moves (reduce damage)
-SCREEN_MOVES = {"Light-Screen", "Reflect"}
+SCREEN_MOVES = {"Light Screen", "Reflect"}
 
 # Moves with unique special effects
 SPECIAL_EFFECT_MOVES = {
-    "Super-Fang",    # Deals 50% of target's current HP
+    "Super Fang",    # Deals 50% of target's current HP
     "Haze",          # Resets all stat stages
     "Rest",          # Full heal + sleep
-    "Leech-Seed",    # Drains HP each turn
+    "Leech Seed",    # Drains HP each turn
     "Mist",          # Prevents stat reductions
-    "Focus-Energy",  # Increases crit rate
+    "Focus Energy",  # Increases crit rate
     "Substitute",    # Creates decoy
     "Counter",       # Returns 2x physical damage
     "Disable",       # Disables a move
     "Metronome",     # Uses random move
-    "Mirror-Move",   # Copies opponent's last move
+    "Mirror Move",   # Copies opponent's last move
     "Transform",     # Copies opponent
     "Splash",        # Does nothing
     "Teleport",      # Does nothing in battle
@@ -147,7 +147,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         return damage, "¡Es un golpe de un solo golpe!"
 
     # Super-Fang - deals 50% of target's current HP
-    if move.name == "Super-Fang":
+    if move.name == "Super Fang":
         damage = max(1, defender.current_hp // 2)
         return damage, f"¡{move.name} reduce los HP a la mitad!"
 
@@ -188,7 +188,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         return 0, f"¡{attacker.name} recuperó todos sus HP y se durmió!"
 
     # Leech Seed - plants a seed that drains HP each turn
-    if move.name == "Leech-Seed":
+    if move.name == "Leech Seed":
         # Grass types are immune
         if Type.GRASS in defender.types:
             return 0, f"¡No afecta a {defender.name}! (tipo Planta)"
@@ -198,7 +198,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         return 0, f"¡{defender.name} fue plantado con Leech Seed!"
 
     # Light Screen - reduces special damage for 5 turns
-    if move.name == "Light-Screen":
+    if move.name == "Light Screen":
         if attacker.has_light_screen:
             return 0, "¡Light Screen ya está activo!"
         attacker.has_light_screen = True
@@ -222,7 +222,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         return 0, f"¡{attacker.name} está protegido por Mist!"
 
     # Focus Energy - increases critical hit ratio
-    if move.name == "Focus-Energy":
+    if move.name == "Focus Energy":
         if attacker.focus_energy:
             return 0, f"¡{attacker.name} ya está concentrado!"
         attacker.focus_energy = True
@@ -269,7 +269,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         if all_moves is None:
             return 0, "¡Pero falló! (No hay movimientos disponibles)"
         # Exclude certain moves from Metronome
-        excluded = {"Metronome", "Struggle", "Mirror-Move"}
+        excluded = {"Metronome", "Struggle", "Mirror Move"}
         valid_moves = [m for m in all_moves if m.name not in excluded]
         if not valid_moves:
             return 0, "¡Pero falló!"
@@ -278,7 +278,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         return -1, f"¡Metronome eligió {chosen_move.name}!|{chosen_move.name}"
 
     # Mirror Move - uses the opponent's last move
-    if move.name == "Mirror-Move":
+    if move.name == "Mirror Move":
         if defender.last_move_used is None:
             return 0, "¡Pero falló! (El oponente no ha usado ningún movimiento)"
         # Return special code to indicate Mirror Move

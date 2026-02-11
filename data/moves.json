@@ -1978,7 +1978,7 @@
       "name": "Wing-Attack",
       "type": "FLYING",
       "category": "PHYSICAL",
-      "power": 60,
+      "power": 35,
       "accuracy": 100,
       "pp": 35,
       "status_effect": null,

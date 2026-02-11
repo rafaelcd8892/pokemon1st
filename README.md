@@ -311,6 +311,38 @@ Pikachu used Thunderbolt on Blastoise
   Blastoise: 69/158 HP (43.7%)
 ```
 
+## Roadmap
+
+### Phase 1 — Testing & Observability
+- Internal battle tester / headless runner for automated matchup validation
+- Route battle output through the event bus (decouple from `print()`)
+- Integration tests for full battle flows
+- Audit remaining move edge cases
+
+### Phase 2 — AI & Replayability
+- Type-aware AI (considers matchups, switches on disadvantage)
+- Battle replay from JSON logs
+- Battle statistics dashboard (win rates, move usage, avg battle length)
+
+### Phase 3 — Interface Expansion
+- Web UI (Flask/FastAPI backend + frontend)
+- Battle viewer / replay tool
+- Multiplayer support (two humans over network)
+
+### Phase 4 — Gen 2 Support
+- Parameterize engine by generation
+- Dark and Steel types, updated type chart
+- Split Special into Special Attack / Special Defense
+- Weather system (Rain, Sun, Sandstorm)
+- Held items
+- 100 new Pokemon and moves
+
+### Phase 5 — Gen 3+
+- Abilities system
+- Natures
+- Double battles
+- Additional weather types and terrains
+
 ## License
 
 MIT

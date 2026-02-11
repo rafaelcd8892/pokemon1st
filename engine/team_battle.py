@@ -195,19 +195,9 @@ class TeamBattle:
             if not attacker.is_alive():
                 return False
 
-            # Record HP before attack for logging
-            defender_hp_before = defender.current_hp
-
             execute_turn(attacker, defender, action.move)
 
-            # Log the move with damage dealt
-            damage_dealt = max(0, defender_hp_before - defender.current_hp)
-            self.battle_logger.log_move(
-                pokemon=attacker.name,
-                move=action.move.name,
-                target=defender.name,
-                damage=damage_dealt
-            )
+            # Log HP after the move (move itself is logged from battle.py)
             self.battle_logger.log_hp(defender.name, defender.current_hp, defender.max_hp)
 
             self._wait_for_action()
@@ -240,6 +230,9 @@ class TeamBattle:
         # Get turn order
         action_order = self.get_turn_order(action1, action2)
 
+        # Track Pokemon that fainted during actions to avoid duplicate faint logs
+        fainted_during_actions = set()
+
         # Execute actions in order
         for acting_team, action, opponent_team in action_order:
             # Skip if acting Pokemon fainted from previous action
@@ -251,6 +244,7 @@ class TeamBattle:
             # Check if defender fainted
             defender_team = opponent_team
             if not defender_team.active_pokemon.is_alive():
+                fainted_during_actions.add(id(defender_team.active_pokemon))
                 self.log(f"\n¡{defender_team.active_pokemon.name} se debilitó!")
                 self.battle_logger.log_faint(defender_team.active_pokemon.name)
 
@@ -264,9 +258,9 @@ class TeamBattle:
         # Apply end of turn effects
         apply_end_of_turn_effects(self.team1.active_pokemon, self.team2.active_pokemon)
 
-        # Check for fainting from end-of-turn effects
+        # Check for fainting from end-of-turn effects (skip already-fainted Pokemon)
         for team in [self.team1, self.team2]:
-            if not team.active_pokemon.is_alive():
+            if not team.active_pokemon.is_alive() and id(team.active_pokemon) not in fainted_during_actions:
                 self.log(f"\n¡{team.active_pokemon.name} se debilitó!")
                 self.battle_logger.log_faint(team.active_pokemon.name)
                 if team.is_defeated():

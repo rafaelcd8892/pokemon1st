@@ -2,6 +2,7 @@ import random
 from models.pokemon import Pokemon
 from models.enums import Status
 from engine.stat_modifiers import get_modified_attack, get_modified_defense
+from engine.battle_logger import get_battle_logger
 import config
 
 def apply_confusion_damage(pokemon: Pokemon) -> int:
@@ -67,8 +68,14 @@ def apply_end_turn_status_damage(pokemon: Pokemon):
         burn_damage = max(1, pokemon.max_hp // config.BURN_DAMAGE_FRACTION)
         pokemon.take_damage(burn_damage)
         print(f"{pokemon.name} sufre {burn_damage} de daño por quemadura!")
-    
+        blog = get_battle_logger()
+        if blog:
+            blog.log_effect("burn", pokemon.name, damage=burn_damage)
+
     if pokemon.status == Status.POISON:
         poison_damage = max(1, pokemon.max_hp // config.POISON_DAMAGE_FRACTION)
         pokemon.take_damage(poison_damage)
         print(f"{pokemon.name} sufre {poison_damage} de daño por envenenamiento!")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_effect("poison", pokemon.name, damage=poison_damage)
