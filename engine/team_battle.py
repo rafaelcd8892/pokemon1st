@@ -18,7 +18,7 @@ from models.enums import BattleFormat, Status
 from engine.battle import execute_turn, determine_turn_order, apply_end_of_turn_effects
 from engine.display import format_pokemon_status
 from engine.stat_modifiers import get_modified_speed
-from engine.battle_logger import BattleLogger, start_battle_log, end_battle_log
+from engine.battle_logger import start_battle_log, end_battle_log
 
 
 class BattleAction:
@@ -88,8 +88,10 @@ class TeamBattle:
         self.battle_log: list[str] = []
         self.action_delay = action_delay
 
-        # Initialize battle logger for detailed logging to file
-        self.battle_logger = BattleLogger(enabled=enable_battle_log)
+        # Initialize and register global battle logger so engine/battle.py
+        # and TeamBattle write to the same log instance.
+        self.battle_logger = start_battle_log(enabled=enable_battle_log)
+        self._assign_sides()
 
         # Validate team sizes
         if team1.size > battle_format.team_size:
@@ -101,6 +103,15 @@ class TeamBattle:
         """Add a message to the battle log and print it"""
         self.battle_log.append(message)
         print(message)
+
+    def _assign_sides(self):
+        """Assign stable side tags for audit-friendly logging."""
+        for p in self.team1.pokemon:
+            p.battle_side = "P1"
+            p.battle_team_name = self.team1.name
+        for p in self.team2.pokemon:
+            p.battle_side = "P2"
+            p.battle_team_name = self.team2.name
 
     def display_team_status(self, team: Team, full: bool = False):
         """Display the status of a team's Pokemon"""
@@ -183,9 +194,24 @@ class TeamBattle:
                 self.log(f"\n{acting_team.name} retira a {old_pokemon.name}!")
                 self.log(f"¡Adelante, {new_pokemon.name}!")
                 self.log(format_pokemon_status(new_pokemon))
-                self.battle_logger.log_switch(acting_team.name, old_pokemon.name, new_pokemon.name)
+                self.battle_logger.log_switch(
+                    acting_team.name,
+                    old_pokemon.name,
+                    new_pokemon.name,
+                    pokemon_side=getattr(new_pokemon, "battle_side", None),
+                )
+                # Record post-switch HP before any same-turn attacks.
+                self.battle_logger.log_hp(
+                    new_pokemon.name,
+                    new_pokemon.current_hp,
+                    new_pokemon.max_hp,
+                    pokemon_side=getattr(new_pokemon, "battle_side", None),
+                )
                 self._wait_for_action()
                 return True
+            self.battle_logger.log_info(
+                f"Invalid switch ignored for {acting_team.name}: index {action.switch_index}"
+            )
             return False
         else:
             # Attack
@@ -195,13 +221,29 @@ class TeamBattle:
             if not attacker.is_alive():
                 return False
 
-            execute_turn(attacker, defender, action.move)
+            execute_turn(attacker, defender, action.move, self._get_all_moves_pool())
 
-            # Log HP after the move (move itself is logged from battle.py)
-            self.battle_logger.log_hp(defender.name, defender.current_hp, defender.max_hp)
+            # Log HP snapshots for auditability (both actor and target).
+            self.battle_logger.log_hp(
+                attacker.name, attacker.current_hp, attacker.max_hp,
+                pokemon_side=getattr(attacker, "battle_side", None)
+            )
+            if defender != attacker:
+                self.battle_logger.log_hp(
+                    defender.name, defender.current_hp, defender.max_hp,
+                    pokemon_side=getattr(defender, "battle_side", None)
+                )
 
             self._wait_for_action()
             return True
+
+    def _get_all_moves_pool(self) -> list[Move]:
+        """Return all moves from both teams for effects like Metronome."""
+        all_moves: list[Move] = []
+        for team in (self.team1, self.team2):
+            for pokemon in team.pokemon:
+                all_moves.extend(pokemon.moves)
+        return all_moves
 
     def _wait_for_action(self):
         """Wait between actions so the player can read the output"""
@@ -246,10 +288,14 @@ class TeamBattle:
             if not defender_team.active_pokemon.is_alive():
                 fainted_during_actions.add(id(defender_team.active_pokemon))
                 self.log(f"\n¡{defender_team.active_pokemon.name} se debilitó!")
-                self.battle_logger.log_faint(defender_team.active_pokemon.name)
+                self.battle_logger.log_faint(
+                    defender_team.active_pokemon.name,
+                    pokemon_side=getattr(defender_team.active_pokemon, "battle_side", None),
+                )
 
                 # Check for win condition
                 if defender_team.is_defeated():
+                    self.battle_logger.end_turn()
                     return acting_team
 
                 # Force switch for the defeated Pokemon's team
@@ -262,11 +308,16 @@ class TeamBattle:
         for team in [self.team1, self.team2]:
             if not team.active_pokemon.is_alive() and id(team.active_pokemon) not in fainted_during_actions:
                 self.log(f"\n¡{team.active_pokemon.name} se debilitó!")
-                self.battle_logger.log_faint(team.active_pokemon.name)
+                self.battle_logger.log_faint(
+                    team.active_pokemon.name,
+                    pokemon_side=getattr(team.active_pokemon, "battle_side", None),
+                )
                 if team.is_defeated():
                     other_team = self.team2 if team == self.team1 else self.team1
+                    self.battle_logger.end_turn()
                     return other_team
 
+        self.battle_logger.end_turn()
         return None
 
     def check_winner(self) -> Optional[Team]:
@@ -327,14 +378,14 @@ class TeamBattle:
                 self.log("\n" + "═" * 50)
                 self.log(f"¡{winner.name} gana la batalla!")
                 self.log("═" * 50)
-                self.battle_logger.end_battle(winner.name, "All opponent Pokemon fainted")
+                end_battle_log(winner.name, "All opponent Pokemon fainted")
                 return winner
 
             if self.turn_count >= self.max_turns:
                 self.log("\n" + "═" * 50)
                 self.log("¡La batalla terminó en empate por límite de turnos!")
                 self.log("═" * 50)
-                self.battle_logger.end_battle(None, "Turn limit reached")
+                end_battle_log(None, "Turn limit reached")
                 return None
 
             # Handle forced switches first
@@ -342,9 +393,17 @@ class TeamBattle:
                 if self.needs_forced_switch(team) and get_action:
                     switch_idx = get_action(team)
                     if switch_idx is not None:
-                        team.switch_pokemon(switch_idx)
-                        self.log(f"\n{team.name} envía a {team.active_pokemon.name}!")
-                        self.display_team_status(team)
+                        if team.switch_pokemon(switch_idx):
+                            self.log(f"\n{team.name} envía a {team.active_pokemon.name}!")
+                            self.display_team_status(team)
+                            self.battle_logger.log_info(
+                                f"Forced switch: {team.name} sends out {team.active_pokemon.name}"
+                            )
+                        else:
+                            self.log(f"\n{team.name} intentó un cambio forzado inválido (index {switch_idx}).")
+                            self.battle_logger.log_info(
+                                f"Invalid forced switch ignored for {team.name}: index {switch_idx}"
+                            )
 
             # Get actions from both players
             action1 = get_player_action(self.team1, self.team2)
@@ -356,7 +415,7 @@ class TeamBattle:
                 self.log("\n" + "═" * 50)
                 self.log(f"¡{winner.name} gana la batalla!")
                 self.log("═" * 50)
-                self.battle_logger.end_battle(winner.name, "All opponent Pokemon fainted")
+                end_battle_log(winner.name, "All opponent Pokemon fainted")
                 return winner
 
             # Show team status at end of turn

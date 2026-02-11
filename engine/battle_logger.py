@@ -20,7 +20,9 @@ class BattleLogEntry:
     turn: int
     action_type: str  # "move", "switch", "damage", "status", "effect", "info"
     pokemon: str
+    pokemon_side: Optional[str] = None
     target: Optional[str] = None
+    target_side: Optional[str] = None
     details: Dict[str, Any] = field(default_factory=dict)
     message: str = ""
 
@@ -35,6 +37,11 @@ class BattleLogger:
     Creates a detailed log file for each battle that can be used
     for debugging and analysis.
     """
+    _SIDE_COLORS = {
+        "P1": "\033[96m",  # cyan
+        "P2": "\033[91m",  # red
+    }
+    _COLOR_RESET = "\033[0m"
 
     def __init__(self, battle_id: Optional[str] = None, enabled: bool = True):
         """
@@ -85,6 +92,16 @@ class BattleLogger:
             self._file_handle.write(line + "\n")
             self._file_handle.flush()
 
+    def _format_actor(self, name: str, side: Optional[str]) -> str:
+        """Format actor labels with side prefix and optional ANSI color."""
+        if not side:
+            return name
+        prefix = f"[{side}]"
+        color = self._SIDE_COLORS.get(side, "")
+        if color:
+            prefix = f"{color}{prefix}{self._COLOR_RESET}"
+        return f"{prefix} {name}"
+
     def set_teams(self, team1_pokemon: List[str], team2_pokemon: List[str],
                   team1_name: str = "Team 1", team2_name: str = "Team 2"):
         """Record the teams at battle start."""
@@ -107,35 +124,70 @@ class BattleLogger:
             return
 
         self._current_turn = turn_number
+        self.entries.append(
+            BattleLogEntry(
+                turn=self._current_turn,
+                action_type="turn_start",
+                pokemon="",
+                message=f"TURN {turn_number} START",
+            )
+        )
         self._write_line("")
         self._write_line(f"=== TURN {turn_number} ===")
 
+    def end_turn(self):
+        """Mark end of current turn (audit marker)."""
+        if not self.enabled:
+            return
+
+        self.entries.append(
+            BattleLogEntry(
+                turn=self._current_turn,
+                action_type="turn_end",
+                pokemon="",
+                message=f"TURN {self._current_turn} END",
+            )
+        )
+
     def log_move(self, pokemon: str, move: str, target: str,
                  damage: int = 0, is_critical: bool = False,
-                 effectiveness: float = 1.0, message: str = ""):
+                 effectiveness: float = 1.0, message: str = "",
+                 pokemon_side: Optional[str] = None,
+                 target_side: Optional[str] = None,
+                 move_result: str = "resolved",
+                 extra_details: Optional[Dict[str, Any]] = None):
         """Log a move being used."""
         if not self.enabled:
             return
+
+        details = {
+            "move": move,
+            "damage": damage,
+            "critical": is_critical,
+            "effectiveness": effectiveness,
+            "result": move_result,
+        }
+        if extra_details:
+            details.update(extra_details)
 
         entry = BattleLogEntry(
             turn=self._current_turn,
             action_type="move",
             pokemon=pokemon,
+            pokemon_side=pokemon_side,
             target=target,
-            details={
-                "move": move,
-                "damage": damage,
-                "critical": is_critical,
-                "effectiveness": effectiveness,
-            },
+            target_side=target_side,
+            details=details,
             message=message
         )
         self.entries.append(entry)
 
         # Write to file
-        line = f"{pokemon} used {move}"
+        actor_label = self._format_actor(pokemon, pokemon_side)
+        target_label = self._format_actor(target, target_side) if target else target
+        line = f"{actor_label} used {move}"
         if target and target != pokemon:
-            line += f" on {target}"
+            line += f" on {target_label}"
         self._write_line(line)
 
         if damage > 0:
@@ -151,9 +203,11 @@ class BattleLogger:
 
         if message:
             self._write_line(f"  {message}")
+        if move_result != "resolved":
+            self._write_line(f"  -> result: {move_result}")
 
     def log_status(self, pokemon: str, status: str, applied: bool = True,
-                   source: str = ""):
+                   source: str = "", pokemon_side: Optional[str] = None):
         """Log a status condition change."""
         if not self.enabled:
             return
@@ -162,6 +216,7 @@ class BattleLogger:
             turn=self._current_turn,
             action_type="status",
             pokemon=pokemon,
+            pokemon_side=pokemon_side,
             details={
                 "status": status,
                 "applied": applied,
@@ -170,10 +225,11 @@ class BattleLogger:
         )
         self.entries.append(entry)
 
+        actor_label = self._format_actor(pokemon, pokemon_side)
         if applied:
-            self._write_line(f"  {pokemon} is now {status}")
+            self._write_line(f"  {actor_label} is now {status}")
         else:
-            self._write_line(f"  {pokemon}'s {status} wore off")
+            self._write_line(f"  {actor_label}'s {status} wore off")
 
     def log_stat_change(self, pokemon: str, stat: str, stages: int):
         """Log a stat stage change."""
@@ -192,7 +248,8 @@ class BattleLogger:
         amount = "sharply " if abs(stages) >= 2 else ""
         self._write_line(f"  {pokemon}'s {stat} {amount}{direction}!")
 
-    def log_switch(self, team: str, pokemon_out: str, pokemon_in: str):
+    def log_switch(self, team: str, pokemon_out: str, pokemon_in: str,
+                   pokemon_side: Optional[str] = None):
         """Log a Pokemon switch."""
         if not self.enabled:
             return
@@ -201,13 +258,16 @@ class BattleLogger:
             turn=self._current_turn,
             action_type="switch",
             pokemon=pokemon_in,
+            pokemon_side=pokemon_side,
             details={"pokemon_out": pokemon_out, "team": team}
         )
         self.entries.append(entry)
 
-        self._write_line(f"{team}: {pokemon_out} switched out, {pokemon_in} sent in")
+        out_label = self._format_actor(pokemon_out, pokemon_side)
+        in_label = self._format_actor(pokemon_in, pokemon_side)
+        self._write_line(f"{team}: {out_label} switched out, {in_label} sent in")
 
-    def log_faint(self, pokemon: str):
+    def log_faint(self, pokemon: str, pokemon_side: Optional[str] = None):
         """Log a Pokemon fainting."""
         if not self.enabled:
             return
@@ -215,13 +275,16 @@ class BattleLogger:
         entry = BattleLogEntry(
             turn=self._current_turn,
             action_type="faint",
-            pokemon=pokemon
+            pokemon=pokemon,
+            pokemon_side=pokemon_side,
         )
         self.entries.append(entry)
 
-        self._write_line(f"  {pokemon} fainted!")
+        actor_label = self._format_actor(pokemon, pokemon_side)
+        self._write_line(f"  {actor_label} fainted!")
 
-    def log_hp(self, pokemon: str, current_hp: int, max_hp: int):
+    def log_hp(self, pokemon: str, current_hp: int, max_hp: int,
+               pokemon_side: Optional[str] = None):
         """Log HP status."""
         if not self.enabled:
             return
@@ -230,15 +293,17 @@ class BattleLogger:
             turn=self._current_turn,
             action_type="hp",
             pokemon=pokemon,
+            pokemon_side=pokemon_side,
             details={"current_hp": current_hp, "max_hp": max_hp}
         )
         self.entries.append(entry)
 
         pct = (current_hp / max_hp * 100) if max_hp > 0 else 0
-        self._write_line(f"  {pokemon}: {current_hp}/{max_hp} HP ({pct:.1f}%)")
+        actor_label = self._format_actor(pokemon, pokemon_side)
+        self._write_line(f"  {actor_label}: {current_hp}/{max_hp} HP ({pct:.1f}%)")
 
     def log_effect(self, effect: str, pokemon: str = "", damage: int = 0,
-                   message: str = ""):
+                   message: str = "", pokemon_side: Optional[str] = None):
         """Log a special effect (Leech Seed, weather, etc.)."""
         if not self.enabled:
             return
@@ -247,15 +312,17 @@ class BattleLogger:
             turn=self._current_turn,
             action_type="effect",
             pokemon=pokemon,
+            pokemon_side=pokemon_side,
             details={"effect": effect, "damage": damage},
             message=message
         )
         self.entries.append(entry)
 
+        actor_label = self._format_actor(pokemon, pokemon_side) if pokemon else pokemon
         if message:
             self._write_line(f"  {message}")
         elif damage > 0:
-            self._write_line(f"  {pokemon} took {damage} damage from {effect}")
+            self._write_line(f"  {actor_label} took {damage} damage from {effect}")
 
     def log_info(self, message: str):
         """Log general information."""
@@ -272,7 +339,7 @@ class BattleLogger:
 
         self._write_line(message)
 
-    def log_miss(self, pokemon: str, move: str):
+    def log_miss(self, pokemon: str, move: str, pokemon_side: Optional[str] = None):
         """Log a move missing."""
         if not self.enabled:
             return
@@ -281,11 +348,13 @@ class BattleLogger:
             turn=self._current_turn,
             action_type="miss",
             pokemon=pokemon,
+            pokemon_side=pokemon_side,
             details={"move": move}
         )
         self.entries.append(entry)
 
-        self._write_line(f"  {pokemon}'s {move} missed!")
+        actor_label = self._format_actor(pokemon, pokemon_side)
+        self._write_line(f"  {actor_label}'s {move} missed!")
 
     def end_battle(self, winner: Optional[str] = None, reason: str = ""):
         """Mark the end of the battle and save the log."""

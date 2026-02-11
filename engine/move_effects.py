@@ -56,7 +56,8 @@ TWINEEDLE_MOVE = "Twineedle"
 LEVEL_DAMAGE_MOVES = {"Night Shade", "Seismic Toss"}
 
 # OHKO moves (one-hit knockout)
-OHKO_MOVES = {"Guillotine", "Horn-Drill"}
+# Accept both source (hyphenated) and normalized display name variants.
+OHKO_MOVES = {"Guillotine", "Horn-Drill", "Horn Drill", "Fissure"}
 
 # Moves that heal the user
 RECOVERY_MOVES = {
@@ -286,6 +287,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
 
     # Transform - copies the opponent completely
     if move.name == "Transform":
+        attacker.snapshot_transform_state()
         # Copy stats (except HP)
         attacker.base_stats.attack = defender.base_stats.attack
         attacker.base_stats.defense = defender.base_stats.defense
@@ -307,6 +309,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
                 target_self=m.target_self
             )
             attacker.moves.append(copied_move)
+        attacker.is_transformed = True
         return 0, f"¡{attacker.name} se transformó en {defender.name}!"
 
     # Conversion - changes user's type to match one of their moves
