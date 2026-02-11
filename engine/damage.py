@@ -8,7 +8,9 @@ import config
 
 def calculate_critical_hit(attacker: Pokemon) -> bool:
     """Determines if attack is critical using Gen1 formula: BaseSpeed/512"""
-    crit_chance = attacker.base_stats.speed / 512
+    # Gen 1 uses species base Speed for crit chance, not level-calculated battle Speed.
+    speed_for_crit = attacker.species_base_stats.speed if hasattr(attacker, "species_base_stats") else attacker.base_stats.speed
+    crit_chance = speed_for_crit / 512
 
     # Gen 1 Focus Energy bug: crit chance is divided by 4 instead of increased
     if hasattr(attacker, 'focus_energy') and attacker.focus_energy:

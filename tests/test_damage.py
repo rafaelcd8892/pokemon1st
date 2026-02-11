@@ -195,9 +195,11 @@ class TestTypeEffectiveness:
             category=MoveCategory.SPECIAL
         )
 
-        # Compare damage vs Water (2x) and Normal (1x)
-        vs_water = [calculate_damage(attacker, water_defender, electric_move)[0] for _ in range(50)]
-        vs_normal = [calculate_damage(attacker, normal_defender, electric_move)[0] for _ in range(50)]
+        # Compare damage vs Water (2x) and Normal (1x) with crit/random noise removed.
+        with patch.object(damage_module, "calculate_critical_hit", return_value=False), \
+             patch.object(damage_module, "get_random_factor", return_value=1.0):
+            vs_water = [calculate_damage(attacker, water_defender, electric_move)[0] for _ in range(50)]
+            vs_normal = [calculate_damage(attacker, normal_defender, electric_move)[0] for _ in range(50)]
 
         avg_vs_water = sum(vs_water) / len(vs_water)
         avg_vs_normal = sum(vs_normal) / len(vs_normal)
@@ -218,9 +220,11 @@ class TestTypeEffectiveness:
             category=MoveCategory.SPECIAL
         )
 
-        # Compare damage vs Water (0.5x) and Grass (2x)
-        vs_water = [calculate_damage(attacker, water_defender, fire_move)[0] for _ in range(50)]
-        vs_grass = [calculate_damage(attacker, grass_defender, fire_move)[0] for _ in range(50)]
+        # Compare damage vs Water (0.5x) and Grass (2x) with crit/random noise removed.
+        with patch.object(damage_module, "calculate_critical_hit", return_value=False), \
+             patch.object(damage_module, "get_random_factor", return_value=1.0):
+            vs_water = [calculate_damage(attacker, water_defender, fire_move)[0] for _ in range(50)]
+            vs_grass = [calculate_damage(attacker, grass_defender, fire_move)[0] for _ in range(50)]
 
         avg_vs_water = sum(vs_water) / len(vs_water)
         avg_vs_grass = sum(vs_grass) / len(vs_grass)

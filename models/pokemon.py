@@ -119,6 +119,10 @@ class Pokemon:
         self.trap_turns = 0             # Turns remaining in trap
         self.trapped_by = None          # Pokemon trapping this one
 
+        # Transform state snapshot (restored on switch-out)
+        self.is_transformed = False
+        self._transform_snapshot = None
+
     @property
     def base_stats(self) -> Stats:
         """
@@ -195,6 +199,7 @@ class Pokemon:
 
     def reset_battle_effects(self):
         """Resets all volatile battle effects (called when switching out)"""
+        self.restore_transform_state()
         self.confusion_turns = 0
         self.is_seeded = False
         self.has_reflect = False
@@ -226,6 +231,54 @@ class Pokemon:
         self.trap_turns = 0
         self.trapped_by = None
         self.reset_stat_stages()
+
+    def snapshot_transform_state(self):
+        """Save original form state before Transform is applied."""
+        if self._transform_snapshot is not None:
+            return
+
+        stats_snapshot = Stats(
+            hp=self._calculated_stats.hp,
+            attack=self._calculated_stats.attack,
+            defense=self._calculated_stats.defense,
+            special=self._calculated_stats.special,
+            speed=self._calculated_stats.speed,
+        )
+
+        moves_snapshot = [
+            Move(
+                name=m.name,
+                type=m.type,
+                category=m.category,
+                power=m.power,
+                accuracy=m.accuracy,
+                pp=m.pp,
+                max_pp=m.max_pp,
+                status_effect=m.status_effect,
+                status_chance=m.status_chance,
+                stat_changes=m.stat_changes.copy() if m.stat_changes else {},
+                target_self=m.target_self,
+            )
+            for m in self.moves
+        ]
+
+        self._transform_snapshot = {
+            "stats": stats_snapshot,
+            "types": self.types.copy(),
+            "moves": moves_snapshot,
+        }
+
+    def restore_transform_state(self):
+        """Restore original form if the Pokemon is currently transformed."""
+        if not self.is_transformed or self._transform_snapshot is None:
+            return
+
+        snapshot = self._transform_snapshot
+        self._calculated_stats = snapshot["stats"]
+        self.types = snapshot["types"]
+        self.moves = snapshot["moves"]
+        self.is_transformed = False
+        self._transform_snapshot = None
 
     def is_confused(self) -> bool:
         """Check if Pokemon is confused"""

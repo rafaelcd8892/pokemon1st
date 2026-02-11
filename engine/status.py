@@ -64,13 +64,16 @@ def apply_status_effects(pokemon: Pokemon) -> bool:
 
 def apply_end_turn_status_damage(pokemon: Pokemon):
     """Aplica daño de estado al final del turno"""
+    if not pokemon.is_alive():
+        return
+
     if pokemon.status == Status.BURN:
         burn_damage = max(1, pokemon.max_hp // config.BURN_DAMAGE_FRACTION)
         pokemon.take_damage(burn_damage)
         print(f"{pokemon.name} sufre {burn_damage} de daño por quemadura!")
         blog = get_battle_logger()
         if blog:
-            blog.log_effect("burn", pokemon.name, damage=burn_damage)
+            blog.log_effect("burn", pokemon.name, damage=burn_damage, pokemon_side=getattr(pokemon, "battle_side", None))
 
     if pokemon.status == Status.POISON:
         poison_damage = max(1, pokemon.max_hp // config.POISON_DAMAGE_FRACTION)
@@ -78,4 +81,4 @@ def apply_end_turn_status_damage(pokemon: Pokemon):
         print(f"{pokemon.name} sufre {poison_damage} de daño por envenenamiento!")
         blog = get_battle_logger()
         if blog:
-            blog.log_effect("poison", pokemon.name, damage=poison_damage)
+            blog.log_effect("poison", pokemon.name, damage=poison_damage, pokemon_side=getattr(pokemon, "battle_side", None))
