@@ -1,19 +1,21 @@
 import random
 from models.pokemon import Pokemon
 from models.enums import Status
+from engine.stat_modifiers import get_modified_attack, get_modified_defense
 import config
 
 def apply_confusion_damage(pokemon: Pokemon) -> int:
     """
     Calculates confusion self-damage in Gen1.
-    Returns damage dealt to self (40 base power typeless physical attack)
+    Returns damage dealt to self (40 base power typeless physical attack).
+    Stat stage modifiers ARE applied in Gen 1.
     """
-    # Gen1 confusion: 40 base power, uses own Attack vs own Defense
-    attack = pokemon.base_stats.attack
-    defense = pokemon.base_stats.defense
+    # Gen1 confusion: 40 base power, uses own Attack vs own Defense with stat stages
+    attack = get_modified_attack(pokemon, is_physical=True)
+    defense = get_modified_defense(pokemon, is_physical=True)
     level = pokemon.level
 
-    # Simplified Gen1 confusion damage formula
+    # Gen1 confusion damage formula
     damage = ((2 * level / 5 + 2) * 40 * attack / defense) / 50 + 2
     return int(damage)
 
@@ -37,10 +39,8 @@ def apply_status_effects(pokemon: Pokemon) -> bool:
                 return False
 
     if pokemon.status == Status.FREEZE:
-        if random.random() < config.FREEZE_THAW_CHANCE:
-            pokemon.status = Status.NONE
-            print(f"{pokemon.name} se descongeló!")
-            return True
+        # Gen 1: Frozen Pokemon never thaw on their own.
+        # They can only be thawed by being hit by a Fire-type move.
         print(f"{pokemon.name} está congelado!")
         return False
     
@@ -49,7 +49,8 @@ def apply_status_effects(pokemon: Pokemon) -> bool:
         if pokemon.sleep_counter <= 0:
             pokemon.status = Status.NONE
             print(f"{pokemon.name} despertó!")
-            return True
+            # Gen 1: Pokemon cannot attack on the turn it wakes up
+            return False
         print(f"{pokemon.name} está dormido!")
         return False
     

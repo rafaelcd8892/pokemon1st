@@ -6,7 +6,7 @@ from models.pokemon import Pokemon
 
 logger = logging.getLogger(__name__)
 from models.move import Move
-from models.enums import MoveCategory, StatType, Status
+from models.enums import MoveCategory, StatType, Status, Type
 from engine.damage import calculate_damage
 from engine.status import apply_status_effects, apply_end_turn_status_damage
 from engine.stat_modifiers import get_stat_change_message, get_modified_speed, get_accuracy_multiplier
@@ -36,6 +36,11 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
 
     # Handle recharge state (e.g., after Hyper Beam)
     if _handle_recharge_state(attacker):
+        return
+
+    # Gen 1: Trapped Pokemon (Wrap, Bind, etc.) cannot act
+    if attacker.is_trapped:
+        print(f"\n{attacker.name} está atrapado y no puede moverse!")
         return
 
     # Check for locked/charging moves and get the actual move to use
@@ -171,6 +176,10 @@ def _check_accuracy(attacker: Pokemon, defender: Pokemon, move: Move) -> bool:
     Returns:
         True if the move hits, False if it misses
     """
+    # Always-hit moves (accuracy 0 means never misses)
+    if move.accuracy == 0:
+        return True
+
     accuracy_multiplier = get_accuracy_multiplier(attacker, defender)
     final_accuracy = move.accuracy * accuracy_multiplier
 
@@ -263,10 +272,11 @@ def _handle_hp_drain_move(attacker: Pokemon, defender: Pokemon, move: Move,
 
 def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
                                 message: str, all_moves: list):
-    """Handle Explosion/Self-Destruct (user faints, double damage)."""
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
-    # In Gen 1, Explosion/Self-Destruct halves defense (doubles damage)
-    actual_damage *= 2
+    """Handle Explosion/Self-Destruct (user faints, halves defender's defense)."""
+    # Gen 1: Explosion/Self-Destruct halves the defender's Defense in the formula
+    actual_damage, is_crit, effectiveness = calculate_damage(
+        attacker, defender, move, defense_modifier=0.5
+    )
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
@@ -315,8 +325,9 @@ def _handle_recharge_move(attacker: Pokemon, defender: Pokemon, move: Move,
     if actual_damage > 0:
         print(f"{defender.name} recibe {actual_damage} de daño!")
         print(f"  {format_pokemon_status(defender)}")
-        # Must recharge next turn (only if damage was dealt in Gen 1)
-        attacker.must_recharge = True
+        # Gen 1: Must recharge next turn, but skip recharge if target faints
+        if defender.is_alive():
+            attacker.must_recharge = True
 
 
 def _handle_charge_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -423,6 +434,10 @@ def _deal_damage_with_messages(attacker: Pokemon, defender: Pokemon, move: Move)
     if actual_damage > 0:
         print(f"{defender.name} recibe {actual_damage} de daño!")
         print(f"  {format_pokemon_status(defender)}")
+        # Gen 1: Fire-type moves thaw frozen targets
+        if defender.status == Status.FREEZE and move.type == Type.FIRE:
+            defender.status = Status.NONE
+            print(f"¡{defender.name} se descongeló!")
 
 
 def _execute_multi_hit_attack(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -487,7 +502,19 @@ def _print_damage_messages(is_crit: bool, effectiveness: float, defender_name: s
 
 def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
     """Execute a standard attack with damage calculation and effects."""
+    from engine.type_chart import get_effectiveness
+
     damage, is_critical, effectiveness = calculate_damage(attacker, defender, move)
+
+    # For STATUS moves, calculate_damage returns effectiveness=1.0 without checking the type chart.
+    # We must check type immunity separately so e.g. Thunder Wave can't paralyze Ground types.
+    if move.category == MoveCategory.STATUS:
+        effectiveness = get_effectiveness(move.type, defender.types)
+
+    # Check immunity first — no damage, no secondary effects
+    if effectiveness == 0:
+        print(f"No afecta a {defender.name}...")
+        return
 
     # Apply screens (Reflect/Light Screen reduce damage by half)
     is_physical = move.category == MoveCategory.PHYSICAL
@@ -497,21 +524,24 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
         # Track damage for Counter
         defender.last_damage_taken = damage
         defender.last_damage_physical = is_physical
+        defender.last_damage_move_type = move.type
 
         # Apply damage (respecting Substitute)
         actual_damage = apply_damage_to_target(defender, damage, is_physical)
 
         _print_damage_messages(is_critical, effectiveness, defender.name)
 
-        if effectiveness == 0:
-            print(f"No afecta a {defender.name}...")
-        elif actual_damage > 0:
+        if actual_damage > 0:
             print(f"{defender.name} recibe {actual_damage} de daño!")
             print(f"  {format_pokemon_status(defender)}")
             # Rage: Attack increases when hit
             if defender.is_raging:
                 defender.modify_stat_stage(StatType.ATTACK, 1)
                 print(f"¡La furia de {defender.name} aumenta!")
+            # Gen 1: Fire-type moves thaw frozen targets
+            if defender.status == Status.FREEZE and move.type == Type.FIRE:
+                defender.status = Status.NONE
+                print(f"¡{defender.name} se descongeló!")
 
     # Apply status effect
     _apply_move_status_effect(defender, move)

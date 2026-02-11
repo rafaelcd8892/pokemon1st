@@ -99,6 +99,7 @@ class Pokemon:
         self.last_move_used = None      # For Mirror Move
         self.last_damage_taken = 0      # For Counter
         self.last_damage_physical = False  # Was last damage physical?
+        self.last_damage_move_type = None  # Type of last damaging move received (for Counter)
 
         # Two-turn move states
         self.is_charging = False        # Charging a two-turn move
@@ -209,6 +210,7 @@ class Pokemon:
         self.last_move_used = None
         self.last_damage_taken = 0
         self.last_damage_physical = False
+        self.last_damage_move_type = None
         # Two-turn move states
         self.is_charging = False
         self.charging_move = None

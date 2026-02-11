@@ -48,10 +48,14 @@ def apply_burn_modifier(damage: int, attacker: Pokemon, move: Move) -> int:
         return int(damage * config.BURN_ATTACK_MULTIPLIER)
     return damage
 
-def calculate_damage(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[int, bool, float]:
+def calculate_damage(attacker: Pokemon, defender: Pokemon, move: Move,
+                     defense_modifier: float = 1.0) -> tuple[int, bool, float]:
     """
     Calcula el daño usando la fórmula de Gen 1.
     Retorna: (damage, is_critical, effectiveness)
+
+    Args:
+        defense_modifier: Multiplier applied to defense stat (e.g., 0.5 for Explosion)
     """
     # STATUS moves deal no damage
     if move.category == MoveCategory.STATUS:
@@ -70,6 +74,11 @@ def calculate_damage(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[
             defense = defender.base_stats.special
     else:
         attack, defense = get_attack_defense_stats(attacker, defender, move)
+
+    # Apply defense modifier (e.g., Explosion/Self-Destruct halves defense)
+    if defense_modifier != 1.0:
+        defense = max(1, int(defense * defense_modifier))
+
     if is_critical:
         attack *= config.CRIT_MULTIPLIER
 
