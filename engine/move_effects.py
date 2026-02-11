@@ -227,7 +227,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
             return 0, f"¡{attacker.name} ya está concentrado!"
         attacker.focus_energy = True
         # Note: In Gen 1, Focus Energy was bugged and actually DIVIDED crit rate by 4
-        # We implement the intended behavior (multiply by 4)
+        # This bug is implemented in damage.py's calculate_critical_hit function
         return 0, f"¡{attacker.name} se está concentrando!"
 
     # Substitute - creates a decoy with 25% of user's HP
@@ -238,12 +238,15 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         if attacker.current_hp <= hp_cost:
             return 0, f"¡{attacker.name} no tiene suficiente HP para crear un sustituto!"
         attacker.current_hp -= hp_cost
-        attacker.substitute_hp = hp_cost + 1  # Substitute has HP equal to cost + 1
+        attacker.substitute_hp = hp_cost  # Gen 1: Substitute HP equals 25% of max HP (rounded down)
         return 0, f"¡{attacker.name} creó un sustituto!"
 
-    # Counter - returns 2x the physical damage received
+    # Counter - returns 2x the physical damage received (Normal/Fighting only in Gen 1)
     if move.name == "Counter":
         if not attacker.last_damage_physical or attacker.last_damage_taken == 0:
+            return 0, "¡Pero falló!"
+        # Gen 1: Counter only works against Normal and Fighting type moves
+        if hasattr(attacker, 'last_damage_move_type') and attacker.last_damage_move_type not in (Type.NORMAL, Type.FIGHTING):
             return 0, "¡Pero falló!"
         damage = attacker.last_damage_taken * 2
         return damage, f"¡Counter devuelve {damage} de daño!"

@@ -3,42 +3,49 @@
 from models.enums import StatType
 from models.pokemon import Pokemon
 
-# Gen1 stat stage multipliers
+# Gen1 stat stage fractions as (numerator, denominator) pairs
+# Applied using integer math: stat * numerator // denominator
 # Stages range from -6 to +6
-# Multiplier = (2 + stage) / 2 for positive stages
-# Multiplier = 2 / (2 - stage) for negative stages
+STAT_STAGE_FRACTIONS = {
+    -6: (2, 8),
+    -5: (2, 7),
+    -4: (2, 6),
+    -3: (2, 5),
+    -2: (2, 4),
+    -1: (2, 3),
+     0: (2, 2),
+     1: (3, 2),
+     2: (4, 2),
+     3: (5, 2),
+     4: (6, 2),
+     5: (7, 2),
+     6: (8, 2),
+}
+
+# Float multipliers for accuracy/evasion stages (applied to percentage, not integer stats)
 STAT_STAGE_MULTIPLIERS = {
-    -6: 0.25,   # 2/8
-    -5: 0.286,  # 2/7
-    -4: 0.333,  # 2/6
-    -3: 0.40,   # 2/5
-    -2: 0.50,   # 2/4
-    -1: 0.66,   # 2/3
-     0: 1.0,    # 2/2
-     1: 1.5,    # 3/2
-     2: 2.0,    # 4/2
-     3: 2.5,    # 5/2
-     4: 3.0,    # 6/2
-     5: 3.5,    # 7/2
-     6: 4.0,    # 8/2
+    -6: 2/8, -5: 2/7, -4: 2/6, -3: 2/5, -2: 2/4, -1: 2/3,
+     0: 1.0,
+     1: 3/2,  2: 4/2,  3: 5/2,  4: 6/2,  5: 7/2,  6: 8/2,
 }
 
 def get_stat_multiplier(stage: int) -> float:
     """
-    Returns the multiplier for a given stat stage.
+    Returns the float multiplier for accuracy/evasion stages.
 
     Args:
         stage: Stat stage from -6 to +6
 
     Returns:
-        Multiplier to apply to the stat
+        Multiplier to apply to accuracy/evasion
     """
     stage = max(-6, min(6, stage))
     return STAT_STAGE_MULTIPLIERS[stage]
 
 def apply_stat_stage_to_stat(base_stat: int, stage: int) -> int:
     """
-    Applies stat stage multiplier to a base stat.
+    Applies stat stage to a stat using Gen 1 integer math.
+    Uses integer multiplication and floor division for accuracy.
 
     Args:
         base_stat: The base stat value
@@ -47,8 +54,9 @@ def apply_stat_stage_to_stat(base_stat: int, stage: int) -> int:
     Returns:
         Modified stat value
     """
-    multiplier = get_stat_multiplier(stage)
-    return int(base_stat * multiplier)
+    stage = max(-6, min(6, stage))
+    numerator, denominator = STAT_STAGE_FRACTIONS[stage]
+    return base_stat * numerator // denominator
 
 def get_modified_attack(pokemon: Pokemon, is_physical: bool) -> int:
     """
@@ -93,6 +101,7 @@ def get_modified_defense(pokemon: Pokemon, is_physical: bool) -> int:
 def get_modified_speed(pokemon: Pokemon) -> int:
     """
     Gets speed stat with stat stage modifications applied.
+    In Gen 1, Paralysis also quarters Speed.
 
     Args:
         pokemon: The Pokemon
@@ -100,9 +109,16 @@ def get_modified_speed(pokemon: Pokemon) -> int:
     Returns:
         Modified speed stat
     """
+    from models.enums import Status
     base_stat = pokemon.base_stats.speed
     stage = pokemon.stat_stages[StatType.SPEED]
-    return apply_stat_stage_to_stat(base_stat, stage)
+    modified = apply_stat_stage_to_stat(base_stat, stage)
+
+    # Gen 1: Paralysis quarters Speed
+    if pokemon.status == Status.PARALYSIS:
+        modified = modified // 4
+
+    return max(1, modified)
 
 def get_accuracy_multiplier(attacker: Pokemon, defender: Pokemon) -> float:
     """
