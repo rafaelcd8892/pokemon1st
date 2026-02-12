@@ -1,352 +1,326 @@
 # Pokemon Gen 1 Battle Simulator
 
-A Python implementation of the Pokemon Generation 1 battle system with accurate damage calculations, type effectiveness, status effects, and an interactive curses-based UI.
+A faithful Python recreation of the Pokemon Generation 1 battle system. Every mechanic is implemented from the original formulas: damage calculation, critical hits, stat stages, status effects, type chart, and IVs/EVs. Comes with an interactive curses-based UI, full audit logging, and a batch battle runner for automated testing.
 
-## Features
+## Quick Start
 
-- **Interactive UI**
-  - Curses-based Pokemon selection with real-time search
-  - Move selection with preview panel showing stats and effects
-  - Type-colored badges and stat bars
-  - Keyboard navigation (arrow keys, search by typing)
+```bash
+# Interactive battle
+python3 main.py
 
-- **Complete Gen 1 Pokemon Database**
-  - All 151 Kanto Pokemon with accurate base stats
-  - 164 Gen 1 moves with proper effects
-  - Pokemon learnsets including level-up moves, TM moves, and evolution line moves
-  - Move sources displayed in UI (TM in yellow, EVO in green)
-  - No internet required - all data stored locally
+# Run 100 automated battles and validate every log
+python scripts/batch_battle.py --battles 100 --format 3v3
+```
 
-- **Accurate Gen 1 Mechanics**
-  - Original damage calculation formula
-  - Gen 1 stat calculation with IVs (DVs) and level
-  - Critical hit system based on Speed stat (Speed/512)
-  - Random damage factor (217-255/255)
-  - STAB (Same Type Attack Bonus) at 1.5x
-  - Proper type effectiveness chart with all 15 Gen 1 types
+## What's In the Box
 
-- **Pokemon Stadium-Style Rulesets**
-  - Standard (Level 50)
-  - Poke Cup (Lv 50-55, sum ≤ 155, no Mew/Mewtwo)
-  - Prime Cup (Level 100)
-  - Little Cup (Level 5, basic Pokemon only)
-  - Pika Cup (Lv 15-20, basic Pokemon only)
-  - Petit Cup (Lv 25-30, height/weight restrictions)
-  - Custom rulesets support
+### 151 Pokemon, 164 Moves, Zero Internet Required
 
-- **Battle Logging**
-  - Individual battle log files for debugging
-  - Human-readable `.log` files with turn-by-turn events
-  - Machine-readable `.json` files for analysis
-  - Logs saved to `logs/battles/` directory
+All data is stored locally in JSON files. Every Kanto Pokemon with accurate base stats, every Gen 1 move with proper effects, and full learnsets including level-up, TM, and evolution-inherited moves.
 
-- **Status Effects**
-  - Burn: Reduces physical attack damage by 50%, deals 1/16 max HP damage per turn
-  - Freeze: 20% chance to thaw each turn
-  - Paralysis: 25% chance to prevent action
-  - Poison: Deals 1/16 max HP damage per turn
-  - Sleep: Lasts 1-7 turns
-  - Confusion: 1-4 turns with self-damage chance
+### Authentic Gen 1 Mechanics
 
-- **Advanced Move Effects**
-  - Two-turn moves (Hyper Beam, Solar Beam, Dig, Fly)
-  - Multi-hit moves (Fury Attack, Pin Missile)
-  - HP drain moves (Absorb, Mega Drain, Leech Life)
-  - Fixed damage moves (Dragon Rage, Sonic Boom)
-  - OHKO moves (Guillotine, Horn Drill)
-  - Recovery moves (Recover, Soft-Boiled, Rest)
-  - Screen moves (Light Screen, Reflect)
-  - Trapping moves (Wrap, Bind, Fire Spin)
-  - Stat modification moves with -6 to +6 stages
+The damage formula, stat calculation, critical hit system, and every quirk are implemented from the original game:
 
-- **Move Categories**
-  - Physical moves use Attack vs Defense
-  - Special moves use Special vs Special
-  - Status moves for applying conditions
+```
+damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
+         * STAB * Effectiveness * Random(217-255) / 255
+```
+
+- **Critical hits** use Speed/512 probability and ignore stat modifiers
+- **Focus Energy bug** divides crit chance by 4 instead of increasing it
+- **Stats** are calculated with the Gen 1 formula using IVs (0-15) and EVs (0-65535)
+- **HP IV** is derived from the least significant bits of the other four IVs
+- **Burn** halves physical attack damage, not the Attack stat
+- **Freeze** does not thaw naturally (only Fire-type moves thaw)
+- **Type chart** has all 15 Gen 1 types with Ghost/Psychic immunity bug
+
+### Battle Modes
+
+| Mode | Description |
+|------|-------------|
+| Player vs AI | You control your team against a random AI |
+| Autobattle | AI controls both sides |
+| Watch | Autobattle with longer delays for spectating |
+
+### Battle Formats
+
+| Format | Description |
+|--------|-------------|
+| 1v1 | Single Pokemon battle |
+| 3v3 | Three Pokemon per side |
+| 6v6 | Full team battle |
+
+### Pokemon Stadium Rulesets
+
+| Cup | Level | Team Size | Restrictions |
+|-----|-------|-----------|--------------|
+| Standard | 50 | 6 | None |
+| Poke Cup | 50-55 | 3 | Level sum <= 155, no legendaries |
+| Prime Cup | 100 | 6 | None |
+| Little Cup | 5 | 3 | Basic Pokemon only |
+| Pika Cup | 15-20 | 3 | Basic only, level sum <= 50 |
+| Petit Cup | 25-30 | 3 | No legendaries |
+
+### Move Mechanics
+
+Every major Gen 1 move mechanic is implemented:
+
+- Two-turn moves (Hyper Beam recharge, Dig/Fly invulnerability, Solar Beam charge)
+- Multi-hit moves (Fury Attack 2-5 hits, Double Kick fixed 2 hits, Twineedle with poison)
+- HP drain (Absorb, Mega Drain, Leech Life heal 50% of damage dealt)
+- Fixed damage (Dragon Rage always 40, Sonic Boom always 20)
+- OHKO moves (Horn Drill, Guillotine, Fissure)
+- Self-destruct moves (Explosion halves target defense)
+- Crash damage (High Jump Kick, Jump Kick on miss)
+- Recovery (Recover, Soft-Boiled restore 50% HP; Rest fully heals + sleeps)
+- Screens (Reflect halves physical, Light Screen halves special; crits bypass)
+- Trapping (Wrap, Bind, Fire Spin prevent switching for 2-5 turns)
+- Stat stages (-6 to +6 with Mist protection)
+- Status moves (Thunder Wave, Toxic, Hypnosis, etc.)
+- Multi-turn lock-in (Thrash, Petal Dance cause confusion after 2-3 turns)
+- Rage (attack rises each time the user is hit)
+- Transform, Disable, Metronome, Mirror Move, Counter
+
+### Status Effects
+
+| Status | Effect |
+|--------|--------|
+| Burn | 1/16 HP per turn, physical damage halved |
+| Freeze | Cannot act, thaws only from Fire-type hit |
+| Paralysis | 25% chance to skip turn |
+| Poison | 1/16 HP per turn |
+| Sleep | Lasts 1-7 turns, cannot act |
+| Confusion | 1-4 turns, 50% chance to hit self |
+
+## Battle Logging & Audit System
+
+Every battle produces dual-format logs in `logs/battles/` (or `logs/batch/` for batch runs):
+
+- **`.log`** file -- human-readable turn-by-turn narrative
+- **`.json`** file -- machine-readable structured data for analysis
+
+### What the Logs Capture
+
+Every log entry includes full context for auditing:
+
+- **Damage breakdowns** -- every formula input (power, attack/defense stats, stat stages, STAB, effectiveness, random roll 217-255, burn modifier, crit) so any damage number can be independently verified
+- **State snapshots** -- full Pokemon state at the start of every turn (HP, status, stat stages, volatile effects like confusion, screens, substitute, traps)
+- **Turn order reasoning** -- speed values and reason (speed, speed tie, switch priority)
+- **Move prevention context** -- explicit reasons when a Pokemon can't act (frozen, asleep, paralyzed, confused self-hit, disabled, recharging, trapped)
+- **Per-Pokemon battle summary** -- damage dealt/taken, residual damage, moves used, crits landed, times fainted
+
+### Event Bus
+
+The engine emits 56 typed events covering every battle mechanic (screen reduction, substitute blocked, trap damage, mist protection, etc.) through a global event bus. Events are bridged to the logger via `LogBridgeHandler`, ensuring nothing is invisible.
+
+### Log Validator
+
+```bash
+# Validate a single battle log
+python scripts/validate_battle_log.py logs/battles/battle_20260212_075856.json
+```
+
+Checks 10 invariants: turn boundaries, HP ranges, self-target consistency, switch-into-fainted prevention, duplicate move detection, faint causality, damage breakdown consistency, turn order speed correctness, state snapshot presence, and move prevention conflicts.
+
+## Batch Battle Simulator
+
+Run hundreds of battles automatically, validate every log, and surface anomalies:
+
+```bash
+# Basic run
+python scripts/batch_battle.py --battles 100 --format 3v3
+
+# With reproducible seed
+python scripts/batch_battle.py --battles 100 --format 6v6 --seed 42
+
+# Stop on first error
+python scripts/batch_battle.py --battles 200 --stop-on-error
+
+# All options
+python scripts/batch_battle.py \
+  --battles 100 \
+  --format 3v3 \
+  --moveset smart_random \
+  --seed 42 \
+  --output-dir logs/batch/ \
+  --verbose
+```
+
+Output:
+```
+Running 100 battles (3v3, smart_random movesets)
+Logs: logs/batch
+Base seed: 42
+
+  [  1/100] battle_20260212_084258_198853 turns= 16 winner=Team 1       OK
+  [  2/100] battle_20260212_084258_209302 turns= 28 winner=Team 1       OK
+  ...
+
+============================================================
+  BATCH BATTLE REPORT
+============================================================
+
+  Battles run:     100
+  Total time:      1.0s (0.01s per battle)
+  Average turns:   21.1
+
+  --- Win Distribution ---
+  Team 1         51 ( 51.0%) #########################
+  Team 2         49 ( 49.0%) ########################
+
+  --- Validation ---
+  Errors:   0
+  Warnings: 0
+
+============================================================
+```
+
+Exits with code 1 if any ERROR-level anomalies are found. Logs go to `logs/batch/` by default.
 
 ## Project Structure
 
 ```
 PokemonGen1/
-├── config.py              # Battle system constants
-├── main.py                # Entry point and battle orchestration
+├── main.py                          # Interactive battle entry point
+├── config.py                        # Battle system constants
+├── logging_config.py                # Logging setup
+│
 ├── data/
-│   ├── pokemon.json       # All 151 Pokemon data
-│   ├── moves.json         # All 164 Gen 1 moves with effects
-│   ├── learnsets.json     # Pokemon move learnsets with sources (level-up/tm/evolution)
-│   └── data_loader.py     # Data access layer with caching
+│   ├── pokemon.json                 # 151 Pokemon with base stats
+│   ├── moves.json                   # 164 moves with effects
+│   ├── learnsets.json               # Move learnsets (level-up/TM/evolution)
+│   ├── preset_movesets.json         # Competitive moveset presets
+│   └── data_loader.py              # Data access layer with caching
+│
 ├── models/
-│   ├── enums.py           # Type, Status, and MoveCategory enums
-│   ├── stats.py           # Stats dataclass
-│   ├── move.py            # Move dataclass with PP tracking
-│   ├── pokemon.py         # Pokemon class with HP and status management
-│   ├── ivs.py             # Individual Values (Gen 1 DVs)
-│   ├── ruleset.py         # Cup/Ruleset definitions (Stadium-style)
-│   └── team.py            # Team management for multi-Pokemon battles
+│   ├── enums.py                     # Type, Status, MoveCategory, BattleFormat
+│   ├── stats.py                     # Stats dataclass (hp/atk/def/spc/spe)
+│   ├── move.py                      # Move with PP tracking and stat changes
+│   ├── pokemon.py                   # Pokemon with full battle state
+│   ├── ivs.py                       # Gen 1 Individual Values (DVs)
+│   ├── ruleset.py                   # Stadium cup definitions
+│   └── team.py                      # Team management
+│
 ├── engine/
-│   ├── battle.py          # Turn execution and battle flow
-│   ├── battle_logger.py   # Individual battle logging to files
-│   ├── damage.py          # Gen 1 damage calculation
-│   ├── display.py         # Console UI with ANSI colors
-│   ├── move_effects.py    # Special move mechanics
-│   ├── stat_calculator.py # Gen 1 stat formulas with IVs/EVs
-│   ├── stat_modifiers.py  # Stat stage modification system
-│   ├── status.py          # Status effect application
-│   ├── team_battle.py     # Multi-Pokemon battle engine
-│   └── type_chart.py      # Type effectiveness chart
+│   ├── battle.py                    # Turn execution and combat mechanics
+│   ├── damage.py                    # Damage formula + DamageBreakdown audit
+│   ├── status.py                    # Status effect processing
+│   ├── move_effects.py              # Special move mechanics
+│   ├── stat_modifiers.py            # Stat stage system
+│   ├── stat_calculator.py           # Gen 1 stat formulas (IVs/EVs/level)
+│   ├── type_chart.py                # 15-type effectiveness matrix
+│   ├── team_battle.py               # Multi-Pokemon battle engine + AI
+│   ├── battle_logger.py             # Dual-format battle logging
+│   ├── display.py                   # ANSI color console output
+│   └── events/
+│       ├── types.py                 # 56 typed battle event dataclasses
+│       ├── bus.py                   # Global event bus (pub/sub)
+│       └── handlers/
+│           ├── cli.py               # CLI event handler
+│           └── log_bridge.py        # Event bus -> battle logger bridge
+│
 ├── settings/
-│   └── battle_config.py   # Battle modes and settings
+│   └── battle_config.py             # BattleMode, MovesetMode, BattleSettings
+│
 ├── ui/
-│   └── selection.py       # Interactive Pokemon & move selection UI
-└── scripts/
-    └── fetch_gen1_data.py # One-time data fetcher from PokeAPI
+│   └── selection.py                 # Curses-based Pokemon/move selection UI
+│
+├── scripts/
+│   ├── batch_battle.py              # Batch battle runner + auto-validation
+│   ├── validate_battle_log.py       # Log invariant checker (10 rules)
+│   ├── migrate_battle_logs.py       # Log format migration tool
+│   └── fetch_gen1_data.py           # One-time PokeAPI data fetcher
+│
+├── tests/                           # 229 tests
+│   ├── test_gen1_mechanics.py       # Core mechanic tests
+│   ├── test_damage.py               # Damage calculation tests
+│   ├── test_battle_audit_invariants.py  # Log validation tests
+│   ├── test_battle_integration_regressions.py
+│   ├── test_type_chart.py
+│   ├── test_stat_calculator.py
+│   ├── test_ruleset.py
+│   ├── test_events.py
+│   ├── test_battle_config.py
+│   ├── test_moveset_selection.py
+│   └── test_selection.py
+│
+└── logs/
+    ├── battles/                     # Interactive battle logs
+    └── batch/                       # Batch battle logs
+```
+
+## Programmatic Usage
+
+### Create Pokemon with Rulesets
+
+```python
+from data.data_loader import create_move, create_pokemon_with_ruleset
+from models.ruleset import POKE_CUP_RULES, LITTLE_CUP_RULES
+from models.ivs import IVs
+
+moves = [create_move('thunderbolt'), create_move('thunder-wave'),
+         create_move('quick-attack'), create_move('agility')]
+
+# Standard competitive Pokemon
+pikachu = create_pokemon_with_ruleset('pikachu', moves)
+
+# With custom IVs and level
+pikachu = create_pokemon_with_ruleset(
+    'pikachu', moves, level=55,
+    ivs=IVs(attack=15, defense=12, special=15, speed=14)
+)
+
+# Little Cup (level 5)
+pikachu_lc = create_pokemon_with_ruleset('pikachu', moves, ruleset=LITTLE_CUP_RULES)
+```
+
+### Run a Battle Programmatically
+
+```python
+from models.team import Team
+from models.enums import BattleFormat
+from engine.team_battle import TeamBattle, get_random_ai_action, get_random_forced_switch
+
+team1 = Team([pikachu], "Player")
+team2 = Team([blastoise], "Opponent")
+
+battle = TeamBattle(team1, team2, battle_format=BattleFormat.SINGLE, action_delay=0)
+winner = battle.run_battle(
+    get_player_action=get_random_ai_action,
+    get_opponent_action=get_random_ai_action,
+    get_forced_switch=get_random_forced_switch,
+)
+print(f"Winner: {winner.name if winner else 'Draw'}")
 ```
 
 ## Requirements
 
 - Python 3.10+
-- Terminal with curses support (macOS/Linux built-in, Windows needs windows-curses)
+- No external dependencies for core engine
+- Terminal with curses support for interactive UI (macOS/Linux built-in)
 
-## Usage
-
-Run the battle simulator:
+## Tests
 
 ```bash
-python3 main.py
+python -m pytest tests/ -v
 ```
 
-### Controls
-
-**Pokemon Selection:**
-- `↑/↓` - Navigate the list
-- `Type` - Search by name
-- `Backspace` - Clear search
-- `Enter` - Select Pokemon
-- `Esc` - Cancel
-
-**Move Selection:**
-- `↑/↓` - Navigate moves
-- `Space` - Toggle move selection (select 4)
-- `Enter` - Confirm selection
-- `Esc` - Cancel
-
-Move sources are indicated:
-- **TM** (yellow) - Learnable via Technical Machine
-- **EVO** (green) - Inherited from pre-evolution
-- No tag - Learned by level-up
-
-## Example Session
-
-```
-=== BATALLA POKÉMON GEN 1 ===
-
-[Interactive Pokemon selection UI appears]
-[Interactive move selection UI appears]
-
-Tu Pokémon: Pikachu
-Movimientos: thunderbolt, thunder-wave, quick-attack, agility
-
-El rival será aleatorio...
-Pokémon aleatorio: Blastoise | Movimientos: surf, ice-beam, skull-bash, withdraw
-
-Presiona ENTER para comenzar la batalla...
-
-=== BATALLA POKÉMON ===
-Pikachu (HP: 95/95)
-Blastoise (HP: 158/158)
-
---- Turno 1 ---
-
-Pikachu usa Thunderbolt!
-¡Es súper efectivo!
-Blastoise recibe 89 de daño! (HP: 69/158)
-
-Blastoise usa Surf!
-Pikachu recibe 52 de daño! (HP: 43/95)
-```
-
-## Creating Custom Battles
-
-```python
-from data.data_loader import get_pokemon_data, create_move, create_pokemon_with_ruleset
-from models.ivs import IVs
-from models.ruleset import POKE_CUP_RULES, LITTLE_CUP_RULES
-
-# Easy way: Use the factory function with a ruleset
-moves = [create_move('thunderbolt'), create_move('thunder-wave'),
-         create_move('quick-attack'), create_move('agility')]
-pikachu = create_pokemon_with_ruleset('pikachu', moves, ruleset=POKE_CUP_RULES)
-
-# With custom level and IVs
-custom_ivs = IVs(attack=15, defense=12, special=15, speed=14)
-pikachu_custom = create_pokemon_with_ruleset(
-    'pikachu', moves,
-    level=55,
-    ivs=custom_ivs
-)
-
-# For Little Cup (level 5 battles)
-pichu = create_pokemon_with_ruleset('pichu', moves, ruleset=LITTLE_CUP_RULES)
-```
-
-### Manual Pokemon Creation
-
-```python
-from models.pokemon import Pokemon
-from models.stats import Stats
-from models.ivs import IVs
-from models.enums import Type
-
-# Create Pokemon with Gen 1 stat calculation (default)
-stats = Stats(hp=35, attack=55, defense=40, special=50, speed=90)
-pikachu = Pokemon(
-    name='Pikachu',
-    types=[Type.ELECTRIC],
-    stats=stats,  # These are species base stats
-    moves=moves,
-    level=50,
-    ivs=IVs.perfect()  # Default: perfect IVs
-)
-# pikachu.base_stats now returns calculated stats based on level/IVs
-
-# For testing/legacy mode (uses raw stats directly)
-pikachu_legacy = Pokemon(
-    name='Pikachu',
-    types=[Type.ELECTRIC],
-    stats=stats,
-    moves=moves,
-    level=50,
-    use_calculated_stats=False
-)
-```
-
-## Configuration
-
-Adjust battle constants in `config.py`:
-
-```python
-CRIT_MULTIPLIER = 2              # Critical hit damage multiplier
-STAB_MULTIPLIER = 1.5            # Same Type Attack Bonus
-MIN_RANDOM_FACTOR = 217          # Minimum random damage factor
-MAX_RANDOM_FACTOR = 255          # Maximum random damage factor
-FREEZE_THAW_CHANCE = 0.2         # 20% chance to thaw per turn
-PARALYSIS_FAIL_CHANCE = 0.25     # 25% chance to be fully paralyzed
-```
-
-## Gen 1 Battle Mechanics
-
-### Damage Formula
-```
-damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
-         * STAB * Effectiveness * Random(217-255)/255
-```
-
-### Critical Hits
-- Probability = BaseSpeed / 512
-- Multiplies damage by 2
-- Ignores stat modifiers (Gen 1 behavior)
-- Ignores Reflect/Light Screen reductions
-- Focus Energy uses the Gen 1 bug (crit chance divided by 4)
-
-### Type Effectiveness
-- Super effective: 2x damage
-- Not very effective: 0.5x damage
-- No effect: 0x damage
-- Stacks for dual-type Pokemon (e.g., 4x, 0.25x)
-
-### Stat Stages
-- Range from -6 to +6
-- Each stage modifies stat by specific multipliers
-- Mist protects against enemy stat reductions
-
-### End-of-Turn Status Damage
-- Burn and poison damage are applied at the end of each turn
-
-### Gen 1 Stat Calculation
-
-Stats are calculated using the authentic Gen 1 formulas with IVs (called DVs in Gen 1):
-
-**HP Formula:**
-```
-HP = floor(((Base + IV) * 2 + floor(sqrt(EV) / 4)) * Level / 100) + Level + 10
-```
-
-**Other Stats:**
-```
-Stat = floor(((Base + IV) * 2 + floor(sqrt(EV) / 4)) * Level / 100) + 5
-```
-
-**IVs (Individual Values):**
-- Range: 0-15 for Attack, Defense, Speed, Special
-- HP IV is derived from other IVs (Gen 1 mechanic)
-- Perfect IVs (15 in all stats) used by default for competitive play
-
-### Rulesets / Cups
-
-The game supports Pokemon Stadium-style rulesets:
-
-| Cup | Level Range | Team Size | Special Rules |
-|-----|-------------|-----------|---------------|
-| Standard | 50 | 6 | None |
-| Poke Cup | 50-55 | 3 | Sum ≤ 155, no Mew/Mewtwo |
-| Prime Cup | 100 | 6 | None |
-| Little Cup | 5 | 6 | Basic Pokemon only |
-| Pika Cup | 15-20 | 3 | Basic Pokemon only, sum ≤ 50 |
-| Petit Cup | 25-30 | 3 | Height ≤ 2m, weight ≤ 20kg |
-
-### Battle Logging
-
-Detailed battle logs are automatically saved for debugging and analysis:
-
-- **Location:** `logs/battles/`
-- **Files per battle:**
-  - `battle_YYYYMMDD_HHMMSS.log` - Human-readable turn-by-turn log
-  - `battle_YYYYMMDD_HHMMSS.json` - Structured data for programmatic analysis
-
-Example log entry:
-```
-=== TURN 5 ===
-Pikachu used Thunderbolt on Blastoise
-  -> 89 damage (Super effective!)
-  Blastoise: 69/158 HP (43.7%)
-```
+229 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, battle audit invariants, rulesets, moveset selection, and event bus.
 
 ## Roadmap
 
-### Phase 1 — Testing & Observability
-- Internal battle tester / headless runner for automated matchup validation
-- Route battle output through the event bus (decouple from `print()`)
-- Integration tests for full battle flows
-- Audit remaining move edge cases
+### Next Up
+- Type-aware AI (picks moves by effectiveness, switches on disadvantage)
+- Deterministic replay (seeded RNG per battle, replay from JSON logs)
+- Mechanics profile system (toggle Gen 1 quirks: Toxic counter reset, 1/256 miss, sleep clause)
 
-### Phase 2 — AI & Replayability
-- Type-aware AI (considers matchups, switches on disadvantage)
-- Battle replay from JSON logs
-- Battle statistics dashboard (win rates, move usage, avg battle length)
-
-### Phase 3 — Interface Expansion
-- Web UI (Flask/FastAPI backend + frontend)
-- Battle viewer / replay tool
-- Multiplayer support (two humans over network)
-
-### Phase 4 — Gen 2 Support
-- Parameterize engine by generation
-- Dark and Steel types, updated type chart
-- Split Special into Special Attack / Special Defense
-- Weather system (Rain, Sun, Sandstorm)
-- Held items
-- 100 new Pokemon and moves
-
-### Phase 5 — Gen 3+
-- Abilities system
-- Natures
-- Double battles
-- Additional weather types and terrains
+### Future
+- Gen 2 support (Dark/Steel types, Special split, weather, held items)
+- Web UI for battles
+- Smarter AI (damage estimation, minimax search)
+- Franchise re-skinning support (configurable data packs)
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.

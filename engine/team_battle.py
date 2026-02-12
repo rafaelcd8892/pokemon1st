@@ -18,7 +18,8 @@ from models.enums import BattleFormat, Status
 from engine.battle import execute_turn, determine_turn_order, apply_end_of_turn_effects
 from engine.display import format_pokemon_status
 from engine.stat_modifiers import get_modified_speed
-from engine.battle_logger import start_battle_log, end_battle_log
+from engine.battle_logger import start_battle_log, end_battle_log, get_battle_logger
+from engine.events import get_event_bus, reset_event_bus
 
 
 class BattleAction:
@@ -68,7 +69,8 @@ class TeamBattle:
                  battle_format: BattleFormat = BattleFormat.FULL,
                  max_turns: int = 100,
                  action_delay: float = DEFAULT_ACTION_DELAY,
-                 enable_battle_log: bool = True):
+                 enable_battle_log: bool = True,
+                 log_dir=None):
         """
         Initialize a team battle.
 
@@ -79,6 +81,7 @@ class TeamBattle:
             max_turns: Maximum number of turns before draw
             action_delay: Seconds to wait between actions (default 3.0)
             enable_battle_log: If True, creates a detailed log file for this battle
+            log_dir: Optional custom directory for log files
         """
         self.team1 = team1
         self.team2 = team2
@@ -90,7 +93,14 @@ class TeamBattle:
 
         # Initialize and register global battle logger so engine/battle.py
         # and TeamBattle write to the same log instance.
-        self.battle_logger = start_battle_log(enabled=enable_battle_log)
+        self.battle_logger = start_battle_log(enabled=enable_battle_log, log_dir=log_dir)
+
+        # Initialize event bus and bridge handler
+        reset_event_bus()
+        self._event_bus = get_event_bus()
+        from engine.events.handlers.log_bridge import LogBridgeHandler
+        self._log_bridge = LogBridgeHandler(self._event_bus, self.battle_logger)
+
         self._assign_sides()
 
         # Validate team sizes
@@ -156,8 +166,18 @@ class TeamBattle:
         """
         # Switches always go first
         if action1.is_switch() and not action2.is_switch():
+            blog = get_battle_logger()
+            if blog:
+                blog.log_turn_order(
+                    self.team1.active_pokemon.name, self.team2.active_pokemon.name,
+                    0, 0, "P1", "P2", "switch_priority")
             return [(self.team1, action1, self.team2), (self.team2, action2, self.team1)]
         if action2.is_switch() and not action1.is_switch():
+            blog = get_battle_logger()
+            if blog:
+                blog.log_turn_order(
+                    self.team2.active_pokemon.name, self.team1.active_pokemon.name,
+                    0, 0, "P2", "P1", "switch_priority")
             return [(self.team2, action2, self.team1), (self.team1, action1, self.team2)]
 
         # Both switching - order doesn't matter for switches
@@ -268,6 +288,12 @@ class TeamBattle:
 
         # Log turn start
         self.battle_logger.start_turn(self.turn_count)
+
+        # State snapshot at turn boundary
+        self.battle_logger.log_state_snapshot(
+            self.team1.active_pokemon, self.team2.active_pokemon,
+            pokemon1_side="P1", pokemon2_side="P2"
+        )
 
         # Get turn order
         action_order = self.get_turn_order(action1, action2)

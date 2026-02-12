@@ -353,7 +353,7 @@ class TestFreezeThawMechanic:
 
         # Call apply_status_effects many times - should never thaw
         for _ in range(50):
-            can_attack = apply_status_effects(pokemon)
+            can_attack, _reason = apply_status_effects(pokemon)
             assert can_attack is False
             assert pokemon.status == Status.FREEZE
 
@@ -387,7 +387,7 @@ class TestSleepWakeUp:
         pokemon.status = Status.SLEEP
         pokemon.sleep_counter = 1  # Will reach 0 this turn
 
-        can_attack = apply_status_effects(pokemon)
+        can_attack, _reason = apply_status_effects(pokemon)
 
         assert pokemon.status == Status.NONE  # Woke up
         assert can_attack is False  # But cannot act this turn
@@ -398,7 +398,7 @@ class TestSleepWakeUp:
         pokemon.status = Status.SLEEP
         pokemon.sleep_counter = 3
 
-        can_attack = apply_status_effects(pokemon)
+        can_attack, _reason = apply_status_effects(pokemon)
 
         assert pokemon.status == Status.SLEEP
         assert can_attack is False

@@ -7,7 +7,7 @@ from models.pokemon import Pokemon
 logger = logging.getLogger(__name__)
 from models.move import Move
 from models.enums import MoveCategory, StatType, Status, Type
-from engine.damage import calculate_damage
+from engine.damage import calculate_damage, calculate_damage_with_breakdown
 from engine.status import apply_status_effects, apply_end_turn_status_damage
 from engine.stat_modifiers import get_stat_change_message, get_modified_speed, get_accuracy_multiplier
 from engine.display import format_pokemon_status, format_move_name
@@ -17,6 +17,7 @@ from engine.move_effects import (
     TWO_TURN_MOVES, TRAPPING_MOVES, get_multi_hit_count
 )
 from engine.battle_logger import get_battle_logger
+from engine.events import get_event_bus
 
 SELF_TARGET_LOG_MOVES = {
     "Agility",
@@ -70,13 +71,17 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
 
     if attacker.is_trapped:
         print(f"\n{attacker.name} está atrapado y no puede moverse!")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_move_prevented(attacker.name, move.name, "trapped",
+                                    pokemon_side=_pokemon_side(attacker))
         return
 
     # Check for locked/charging moves and get the actual move to use
     move, is_multi_turn, is_charging = _get_active_move(attacker, move)
 
     # Check status effects before announcing move
-    can_attack = apply_status_effects(attacker)
+    can_attack, _status_reason = apply_status_effects(attacker)
     if not can_attack:
         _handle_status_prevented_attack(attacker, is_multi_turn)
         return
@@ -133,6 +138,10 @@ def _handle_recharge_state(attacker: Pokemon) -> bool:
     """
     if attacker.must_recharge:
         print(f"\n{attacker.name} debe recargar!")
+        blog = get_battle_logger()
+        if blog:
+            blog.log_move_prevented(attacker.name, "", "recharging",
+                                    pokemon_side=_pokemon_side(attacker))
         attacker.must_recharge = False
         return True
     return False
@@ -200,6 +209,10 @@ def _announce_move(attacker: Pokemon, move: Move, is_multi_turn: bool, is_chargi
         if attacker.disabled_move and move.name == attacker.disabled_move:
             print(f"\n{attacker.name} intenta usar {move_display}!")
             print(f"¡{move.name} está deshabilitado!")
+            blog = get_battle_logger()
+            if blog:
+                blog.log_move_prevented(attacker.name, move.name, "disabled",
+                                        pokemon_side=_pokemon_side(attacker))
             return False
         print(f"\n{attacker.name} usa {move_display}!")
 
@@ -296,15 +309,15 @@ def _handle_metronome_mirror_move(attacker: Pokemon, defender: Pokemon, move: Mo
 def _handle_hp_drain_move(attacker: Pokemon, defender: Pokemon, move: Move,
                           message: str, all_moves: list):
     """Handle HP drain moves (Absorb, Mega Drain, etc.)."""
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
-        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0)
+        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
         return
 
     actual_damage = apply_damage_to_target(defender, actual_damage, False)
-    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
     if actual_damage > 0:
@@ -322,7 +335,7 @@ def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
                                 message: str, all_moves: list):
     """Handle Explosion/Self-Destruct (user faints, halves defender's defense)."""
     # Gen 1: Explosion/Self-Destruct halves the defender's Defense in the formula
-    actual_damage, is_crit, effectiveness = calculate_damage(
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(
         attacker, defender, move, defense_modifier=0.5
     )
 
@@ -336,6 +349,7 @@ def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
             is_critical=is_crit,
             effectiveness=0,
             extra_details={"self_faint": True},
+            breakdown=bd,
         )
     else:
         actual_damage = apply_damage_to_target(defender, actual_damage, True)
@@ -347,6 +361,7 @@ def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
             is_critical=is_crit,
             effectiveness=effectiveness,
             extra_details={"self_faint": True},
+            breakdown=bd,
         )
         _print_damage_messages(is_crit, effectiveness, defender.name)
         if actual_damage > 0:
@@ -361,15 +376,15 @@ def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
 def _handle_crash_damage_move(attacker: Pokemon, defender: Pokemon, move: Move,
                                message: str, all_moves: list):
     """Handle moves with crash damage on hit (normal damage calculation)."""
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
-        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0)
+        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
         return
 
     actual_damage = apply_damage_to_target(defender, actual_damage, True)
-    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
     if actual_damage > 0:
@@ -380,16 +395,16 @@ def _handle_crash_damage_move(attacker: Pokemon, defender: Pokemon, move: Move,
 def _handle_recharge_move(attacker: Pokemon, defender: Pokemon, move: Move,
                           message: str, all_moves: list):
     """Handle recharge moves like Hyper Beam."""
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
-        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0)
+        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
         return
 
     is_physical = move.category == MoveCategory.PHYSICAL
     actual_damage = apply_damage_to_target(defender, actual_damage, is_physical)
-    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
     if actual_damage > 0:
@@ -397,7 +412,10 @@ def _handle_recharge_move(attacker: Pokemon, defender: Pokemon, move: Move,
         print(f"  {format_pokemon_status(defender)}")
         # Gen 1: Must recharge next turn, but skip recharge if target faints
         if defender.is_alive():
+            from engine.events.types import RechargeNeededEvent
             attacker.must_recharge = True
+            bus = get_event_bus()
+            bus.emit(RechargeNeededEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move.name))
 
 
 def _handle_charge_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -417,18 +435,24 @@ def _handle_charge_move(attacker: Pokemon, defender: Pokemon, move: Move,
         move_result="charge_start",
     )
 
+    from engine.events.types import ChargingMoveEvent
+    bus = get_event_bus()
     if move_data.get("semi_invulnerable"):
         attacker.is_semi_invulnerable = True
         if move_name == "Dig":
             print(f"¡{attacker.name} se escondió bajo tierra!")
+            bus.emit(ChargingMoveEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move_name, message_key="dig_underground"))
         else:
             print(f"¡{attacker.name} voló muy alto!")
+            bus.emit(ChargingMoveEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move_name, message_key="fly_high"))
     elif move_data.get("defense_boost"):
         # Skull Bash raises defense
         attacker.modify_stat_stage(StatType.DEFENSE, 1)
         print(f"¡{attacker.name} está preparando el ataque!")
+        bus.emit(ChargingMoveEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move_name, message_key="skull_bash_defense"))
     else:
         print(f"¡{attacker.name} está cargando energía!")
+        bus.emit(ChargingMoveEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move_name, message_key="charging"))
 
 
 def _handle_multi_turn_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -454,22 +478,25 @@ def _handle_trapping_move(attacker: Pokemon, defender: Pokemon, move: Move,
     """Handle trapping moves like Wrap, Bind."""
     # Start trapping (2-5 turns in Gen 1)
     if not defender.is_trapped:
+        from engine.events.types import PokemonTrappedEvent
         defender.is_trapped = True
         defender.trap_turns = random.randint(2, 5)
         defender.trapped_by = attacker
+        bus = get_event_bus()
+        bus.emit(PokemonTrappedEvent(turn=bus.current_turn, pokemon_name=defender.name, move_name=move.name))
 
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
-        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0)
+        _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
         defender.is_trapped = False
         defender.trap_turns = 0
         defender.trapped_by = None
         return
 
     actual_damage = apply_damage_to_target(defender, actual_damage, True)
-    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
     if actual_damage > 0:
@@ -502,7 +529,7 @@ def _handle_twineedle_move(attacker: Pokemon, defender: Pokemon, move: Move,
 
 def _deal_damage_with_messages(attacker: Pokemon, defender: Pokemon, move: Move):
     """Calculate and apply damage with appropriate messages."""
-    actual_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+    actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
@@ -510,7 +537,7 @@ def _deal_damage_with_messages(attacker: Pokemon, defender: Pokemon, move: Move)
 
     actual_damage = apply_damage_to_target(defender, actual_damage, True)
     _print_damage_messages(is_crit, effectiveness, defender.name)
-    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
 
     if actual_damage > 0:
         print(f"{defender.name} recibe {actual_damage} de daño!")
@@ -538,15 +565,17 @@ def _execute_multi_hit_attack(attacker: Pokemon, defender: Pokemon, move: Move,
     hits = 0
     effectiveness = 1  # Track for message at end
 
+    last_bd = None
     for hit in range(num_hits):
         if not defender.is_alive():
             break
 
-        hit_damage, is_crit, effectiveness = calculate_damage(attacker, defender, move)
+        hit_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
+        last_bd = bd
 
         if effectiveness == 0:
             print(f"No afecta a {defender.name}...")
-            _log_move_event(attacker, defender, move, damage=0, effectiveness=0)
+            _log_move_event(attacker, defender, move, damage=0, effectiveness=0, breakdown=bd)
             return
 
         hit_damage = apply_damage_to_target(defender, hit_damage, is_physical)
@@ -570,7 +599,8 @@ def _execute_multi_hit_attack(attacker: Pokemon, defender: Pokemon, move: Move,
 
     print(f"¡Golpeó {hits} veces! Daño total: {total_damage}")
     print(f"  {format_pokemon_status(defender)}")
-    _log_move_event(attacker, defender, move, damage=total_damage, effectiveness=effectiveness)
+    _log_move_event(attacker, defender, move, damage=total_damage, effectiveness=effectiveness, breakdown=last_bd,
+                    extra_details={"multi_hit": True, "hits": hits})
 
 
 def _print_damage_messages(is_crit: bool, effectiveness: float, defender_name: str):
@@ -587,7 +617,7 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
     """Execute a standard attack with damage calculation and effects."""
     from engine.type_chart import get_effectiveness
 
-    damage, is_critical, effectiveness = calculate_damage(attacker, defender, move)
+    damage, is_critical, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     # For STATUS moves, calculate_damage returns effectiveness=1.0 without checking the type chart.
     # We must check type immunity separately so e.g. Thunder Wave can't paralyze Ground types.
@@ -599,7 +629,7 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
         _log_move_event(attacker, defender, move, damage=0, effectiveness=0,
-                        target_override=(attacker if move.target_self else defender))
+                        target_override=(attacker if move.target_self else defender), breakdown=bd)
         return
 
     # Apply screens (Reflect/Light Screen reduce damage by half)
@@ -620,24 +650,32 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
         _log_move_event(attacker, defender, move,
                         damage=actual_damage, is_critical=is_critical,
                         effectiveness=effectiveness,
-                        target_override=(attacker if move.target_self else defender))
+                        target_override=(attacker if move.target_self else defender),
+                        breakdown=bd)
 
         if actual_damage > 0:
             print(f"{defender.name} recibe {actual_damage} de daño!")
             print(f"  {format_pokemon_status(defender)}")
             # Rage: Attack increases when hit
             if defender.is_raging:
+                from engine.events.types import RageIncreasedEvent
                 defender.modify_stat_stage(StatType.ATTACK, 1)
                 print(f"¡La furia de {defender.name} aumenta!")
+                bus = get_event_bus()
+                bus.emit(RageIncreasedEvent(turn=bus.current_turn, pokemon_name=defender.name))
             # Gen 1: Fire-type moves thaw frozen targets
             if defender.status == Status.FREEZE and move.type == Type.FIRE:
+                from engine.events.types import StatusCuredEvent
                 defender.status = Status.NONE
                 print(f"¡{defender.name} se descongeló!")
+                bus = get_event_bus()
+                bus.emit(StatusCuredEvent(turn=bus.current_turn, pokemon_name=defender.name, status="freeze", reason="fire_move"))
     else:
         # STATUS/self-target moves with 0 damage
         _log_move_event(attacker, defender, move,
                         damage=0, effectiveness=effectiveness,
-                        target_override=(attacker if move.target_self else defender))
+                        target_override=(attacker if move.target_self else defender),
+                        breakdown=bd)
 
     # Apply status effect
     _apply_move_status_effect(defender, move)
@@ -648,14 +686,19 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
 
 def _apply_screen_reduction(defender: Pokemon, damage: int, is_physical: bool, is_critical: bool) -> int:
     """Apply screen damage reduction (Reflect/Light Screen)."""
+    from engine.events.types import ScreenReducedDamageEvent
     # Gen 1 critical hits ignore Reflect/Light Screen
     if is_critical:
         return damage
     if is_physical and defender.has_reflect:
         print("¡Reflect reduce el daño!")
+        bus = get_event_bus()
+        bus.emit(ScreenReducedDamageEvent(turn=bus.current_turn, pokemon_name=defender.name, screen="reflect"))
         return damage // 2
     elif not is_physical and defender.has_light_screen:
         print("¡Light Screen reduce el daño!")
+        bus = get_event_bus()
+        bus.emit(ScreenReducedDamageEvent(turn=bus.current_turn, pokemon_name=defender.name, screen="light_screen"))
         return damage // 2
     return damage
 
@@ -701,7 +744,10 @@ def _apply_move_stat_changes(attacker: Pokemon, defender: Pokemon, move: Move):
     if not move.target_self and target.has_mist:
         has_negative = any(change < 0 for change in move.stat_changes.values())
         if has_negative:
+            from engine.events.types import MistProtectionEvent
             print(f"¡Mist protege a {target.name} de la reducción de estadísticas!")
+            bus = get_event_bus()
+            bus.emit(MistProtectionEvent(turn=bus.current_turn, pokemon_name=target.name, stat="all"))
             return
 
     for stat, change in move.stat_changes.items():
@@ -730,12 +776,16 @@ def apply_damage_to_target(target: Pokemon, damage: int, is_physical: bool) -> i
         Actual damage dealt to the Pokemon (0 if absorbed by Substitute)
     """
     if target.substitute_hp > 0:
+        from engine.events.types import SubstituteBrokeEvent, SubstituteBlockedEvent
         target.substitute_hp -= damage
+        bus = get_event_bus()
         if target.substitute_hp <= 0:
             target.substitute_hp = 0
             print(f"¡El sustituto de {target.name} se rompió!")
+            bus.emit(SubstituteBrokeEvent(turn=bus.current_turn, pokemon_name=target.name))
         else:
             print(f"¡El sustituto absorbió el daño!")
+            bus.emit(SubstituteBlockedEvent(turn=bus.current_turn, pokemon_name=target.name))
         return 0
     else:
         hp_before = target.current_hp
@@ -779,20 +829,25 @@ def _apply_leech_seed_effects(seeded: Pokemon, seeder: Pokemon) -> list[str]:
     """Apply Leech Seed damage and healing."""
     messages = []
     if seeded.is_seeded:
+        from engine.events.types import LeechSeedDamageEvent
         hp_before = seeded.current_hp
         msg = apply_leech_seed_damage(seeded, seeder)
         if msg:
             messages.append(msg)
             messages.append(f"  {format_pokemon_status(seeded)}")
+            drain = hp_before - seeded.current_hp
             blog = get_battle_logger()
             if blog:
-                drain = hp_before - seeded.current_hp
                 blog.log_effect("leech_seed", seeded.name, damage=drain, pokemon_side=_pokemon_side(seeded))
+            bus = get_event_bus()
+            bus.emit(LeechSeedDamageEvent(turn=bus.current_turn, pokemon_name=seeded.name,
+                                          healer_name=seeder.name, damage=drain))
     return messages
 
 
 def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
     """Apply trapping move damage (Wrap, Bind, etc.)."""
+    from engine.events.types import TrapEscapedEvent, TrapDamageEvent
     messages = []
     if trapped.is_trapped:
         if trapped.trap_turns <= 0:
@@ -834,10 +889,14 @@ def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
         blog = get_battle_logger()
         if blog:
             blog.log_effect("trapping", trapped.name, damage=trap_damage, pokemon_side=_pokemon_side(trapped))
+        bus = get_event_bus()
+        bus.emit(TrapDamageEvent(turn=bus.current_turn, pokemon_name=trapped.name,
+                                 damage=trap_damage, current_hp=trapped.current_hp, max_hp=trapped.max_hp))
         if trapped.trap_turns <= 0:
             trapped.is_trapped = False
             trapped.trapped_by = None
             messages.append(f"¡{trapped.name} se liberó!")
+            bus.emit(TrapEscapedEvent(turn=bus.current_turn, pokemon_name=trapped.name))
     return messages
 
 
@@ -858,15 +917,25 @@ def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon,
     """
     speed1 = get_modified_speed(pokemon1)
     speed2 = get_modified_speed(pokemon2)
+    blog = get_battle_logger()
 
     if speed1 > speed2:
+        if blog:
+            blog.log_turn_order(pokemon1.name, pokemon2.name, speed1, speed2,
+                                _pokemon_side(pokemon1), _pokemon_side(pokemon2), "speed")
         return pokemon1, pokemon2
     elif speed2 > speed1:
+        if blog:
+            blog.log_turn_order(pokemon2.name, pokemon1.name, speed2, speed1,
+                                _pokemon_side(pokemon2), _pokemon_side(pokemon1), "speed")
         return pokemon2, pokemon1
     else:
         # Speed tie - random order
         result = random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
         logger.debug(f"Speed tie, random order: {result[0].name} goes first")
+        if blog:
+            blog.log_turn_order(result[0].name, result[1].name, speed1, speed2,
+                                _pokemon_side(result[0]), _pokemon_side(result[1]), "speed_tie_random")
         return result
 def _pokemon_side(pokemon: Pokemon) -> str | None:
     """Return side tag if available (P1/P2)."""
@@ -891,11 +960,17 @@ def _log_move_event(attacker: Pokemon, defender: Pokemon, move: Move,
                     effectiveness: float = 1.0, message: str = "",
                     target_override: Pokemon | None = None,
                     move_result: str = "resolved",
-                    extra_details: dict | None = None):
+                    extra_details: dict | None = None,
+                    breakdown=None):
     """Unified move logging with side-aware metadata."""
     blog = get_battle_logger()
     if not blog:
         return
+
+    if extra_details is None:
+        extra_details = {}
+    if breakdown is not None:
+        extra_details["damage_breakdown"] = breakdown.to_dict()
 
     target = _resolve_log_target(attacker, defender, move, target_override)
     blog.log_move(

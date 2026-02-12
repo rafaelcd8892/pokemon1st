@@ -146,6 +146,66 @@ def validate_log_data(data: Dict[str, Any]) -> List[Dict[str, Any]]:
             if not causal:
                 add("ERROR", turn, "faint_without_cause", f"{p} fainted without causal damage event in same turn")
 
+    # Invariant: damage_breakdown consistency (when present)
+    # damage <= breakdown.final_damage (actual damage is capped by target's remaining HP)
+    # Multi-hit moves are skipped: breakdown captures only the last hit's roll,
+    # but each hit has an independent random factor, so total may exceed last_hit * hits.
+    for e in entries:
+        if e.get("action_type") != "move":
+            continue
+        turn = int(e.get("turn", 0))
+        details = e.get("details", {})
+        bd = details.get("damage_breakdown")
+        if bd is None:
+            continue
+        # Skip multi-hit moves — breakdown only represents last hit
+        if details.get("multi_hit"):
+            continue
+        reported_damage = details.get("damage", 0)
+        breakdown_damage = bd.get("final_damage", 0)
+        if reported_damage > breakdown_damage:
+            add("ERROR", turn, "breakdown_damage_exceeded",
+                f"damage={reported_damage} exceeds breakdown.final_damage={breakdown_damage} "
+                f"for {details.get('move')} by {e.get('pokemon')}")
+
+    # Invariant: turn_order speed consistency
+    for e in entries:
+        if e.get("action_type") != "turn_order":
+            continue
+        turn = int(e.get("turn", 0))
+        details = e.get("details", {})
+        reason = details.get("reason", "")
+        first_speed = details.get("first_speed")
+        second_speed = details.get("second_speed")
+        if reason == "speed" and first_speed is not None and second_speed is not None:
+            if first_speed < second_speed:
+                add("ERROR", turn, "turn_order_speed_wrong",
+                    f"Reason is 'speed' but first_speed ({first_speed}) < second_speed ({second_speed})")
+
+    # Invariant: every turn > 0 should have state_snapshot (WARN if missing)
+    for turn, turn_entries in sorted(by_turn.items()):
+        if turn == 0:
+            continue
+        types = {e.get("action_type") for e in turn_entries}
+        if "state_snapshot" not in types:
+            add("WARN", turn, "missing_state_snapshot", "Turn has no state_snapshot")
+
+    # Invariant: move_prevented should not co-occur with successful move by same Pokemon
+    for turn, turn_entries in sorted(by_turn.items()):
+        prevented = set()
+        for e in turn_entries:
+            if e.get("action_type") == "move_prevented":
+                prevented.add(e.get("pokemon"))
+        for e in turn_entries:
+            if e.get("action_type") != "move":
+                continue
+            details = e.get("details", {})
+            result = details.get("result", "resolved")
+            actor = e.get("pokemon")
+            if actor in prevented and result == "resolved" and details.get("damage", 0) > 0:
+                add("WARN", turn, "prevented_but_attacked",
+                    f"{actor} was prevented from acting but also has a resolved move with damage")
+
     return anomalies
 
 

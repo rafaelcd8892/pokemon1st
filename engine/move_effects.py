@@ -4,6 +4,12 @@ import random
 from models.pokemon import Pokemon
 from models.move import Move
 from models.enums import Status, Type
+from engine.events import get_event_bus
+from engine.events.types import (
+    SubstituteCreatedEvent, LeechSeedPlantedEvent,
+    ScreenActivatedEvent, ScreenExpiredEvent, ScreenBlockedEvent,
+    PokemonHealedEvent, MoveDisabledEvent, MoveReenabledEvent,
+)
 
 # Moves with fixed damage (ignore stats)
 FIXED_DAMAGE_MOVES = {
@@ -159,6 +165,11 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         actual_heal = min(heal_amount, attacker.max_hp - attacker.current_hp)
         attacker.current_hp = min(attacker.max_hp, attacker.current_hp + heal_amount)
         if actual_heal > 0:
+            bus = get_event_bus()
+            bus.emit(PokemonHealedEvent(
+                turn=bus.current_turn, pokemon_name=attacker.name,
+                amount=actual_heal, current_hp=attacker.current_hp,
+                max_hp=attacker.max_hp, source=move.name))
             return 0, f"¡{attacker.name} recuperó {actual_heal} HP!"
         else:
             return 0, f"¡{attacker.name} ya tiene los HP al máximo!"
@@ -186,6 +197,11 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         attacker.current_hp = attacker.max_hp
         attacker.status = Status.SLEEP
         attacker.sleep_counter = 2  # Rest always sleeps for exactly 2 turns in Gen 1
+        bus = get_event_bus()
+        bus.emit(PokemonHealedEvent(
+            turn=bus.current_turn, pokemon_name=attacker.name,
+            amount=heal_amount, current_hp=attacker.current_hp,
+            max_hp=attacker.max_hp, source="Rest"))
         return 0, f"¡{attacker.name} recuperó todos sus HP y se durmió!"
 
     # Leech Seed - plants a seed that drains HP each turn
@@ -196,30 +212,51 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         if defender.is_seeded:
             return 0, f"¡{defender.name} ya está plantado!"
         defender.is_seeded = True
+        bus = get_event_bus()
+        bus.emit(LeechSeedPlantedEvent(
+            turn=bus.current_turn, pokemon_name=defender.name))
         return 0, f"¡{defender.name} fue plantado con Leech Seed!"
 
     # Light Screen - reduces special damage for 5 turns
     if move.name == "Light Screen":
         if attacker.has_light_screen:
+            bus = get_event_bus()
+            bus.emit(ScreenBlockedEvent(
+                turn=bus.current_turn, pokemon_name=attacker.name, screen="light_screen"))
             return 0, "¡Light Screen ya está activo!"
         attacker.has_light_screen = True
         attacker.light_screen_turns = 5
+        bus = get_event_bus()
+        bus.emit(ScreenActivatedEvent(
+            turn=bus.current_turn, pokemon_name=attacker.name, screen="light_screen"))
         return 0, f"¡{attacker.name} levantó Light Screen!"
 
     # Reflect - reduces physical damage for 5 turns
     if move.name == "Reflect":
         if attacker.has_reflect:
+            bus = get_event_bus()
+            bus.emit(ScreenBlockedEvent(
+                turn=bus.current_turn, pokemon_name=attacker.name, screen="reflect"))
             return 0, "¡Reflect ya está activo!"
         attacker.has_reflect = True
         attacker.reflect_turns = 5
+        bus = get_event_bus()
+        bus.emit(ScreenActivatedEvent(
+            turn=bus.current_turn, pokemon_name=attacker.name, screen="reflect"))
         return 0, f"¡{attacker.name} levantó Reflect!"
 
     # Mist - prevents stat reductions for 5 turns
     if move.name == "Mist":
         if attacker.has_mist:
+            bus = get_event_bus()
+            bus.emit(ScreenBlockedEvent(
+                turn=bus.current_turn, pokemon_name=attacker.name, screen="mist"))
             return 0, "¡Mist ya está activo!"
         attacker.has_mist = True
         attacker.mist_turns = 5
+        bus = get_event_bus()
+        bus.emit(ScreenActivatedEvent(
+            turn=bus.current_turn, pokemon_name=attacker.name, screen="mist"))
         return 0, f"¡{attacker.name} está protegido por Mist!"
 
     # Focus Energy - increases critical hit ratio
@@ -240,6 +277,9 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
             return 0, f"¡{attacker.name} no tiene suficiente HP para crear un sustituto!"
         attacker.current_hp -= hp_cost
         attacker.substitute_hp = hp_cost  # Gen 1: Substitute HP equals 25% of max HP (rounded down)
+        bus = get_event_bus()
+        bus.emit(SubstituteCreatedEvent(
+            turn=bus.current_turn, pokemon_name=attacker.name, hp_cost=hp_cost))
         return 0, f"¡{attacker.name} creó un sustituto!"
 
     # Counter - returns 2x the physical damage received (Normal/Fighting only in Gen 1)
@@ -263,6 +303,9 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         disabled = random.choice(available_moves)
         defender.disabled_move = disabled.name
         defender.disable_turns = random.randint(1, 8)  # Gen 1: 1-8 turns
+        bus = get_event_bus()
+        bus.emit(MoveDisabledEvent(
+            turn=bus.current_turn, pokemon_name=defender.name, move_name=disabled.name))
         return 0, f"¡{disabled.name} de {defender.name} fue deshabilitado!"
 
     # Metronome - uses a random move
@@ -438,28 +481,38 @@ def decrement_screen_turns(pokemon: Pokemon) -> list[str]:
         List of messages for expired screens
     """
     messages = []
+    bus = get_event_bus()
 
     if pokemon.has_reflect:
         pokemon.reflect_turns -= 1
         if pokemon.reflect_turns <= 0:
             pokemon.has_reflect = False
+            bus.emit(ScreenExpiredEvent(
+                turn=bus.current_turn, pokemon_name=pokemon.name, screen="reflect"))
             messages.append(f"¡El Reflect de {pokemon.name} se desvaneció!")
 
     if pokemon.has_light_screen:
         pokemon.light_screen_turns -= 1
         if pokemon.light_screen_turns <= 0:
             pokemon.has_light_screen = False
+            bus.emit(ScreenExpiredEvent(
+                turn=bus.current_turn, pokemon_name=pokemon.name, screen="light_screen"))
             messages.append(f"¡El Light Screen de {pokemon.name} se desvaneció!")
 
     if pokemon.has_mist:
         pokemon.mist_turns -= 1
         if pokemon.mist_turns <= 0:
             pokemon.has_mist = False
+            bus.emit(ScreenExpiredEvent(
+                turn=bus.current_turn, pokemon_name=pokemon.name, screen="mist"))
             messages.append(f"¡El Mist de {pokemon.name} se desvaneció!")
 
     if pokemon.disable_turns > 0:
         pokemon.disable_turns -= 1
         if pokemon.disable_turns <= 0:
+            bus.emit(MoveReenabledEvent(
+                turn=bus.current_turn, pokemon_name=pokemon.name,
+                move_name=pokemon.disabled_move or ""))
             messages.append(f"¡{pokemon.disabled_move} de {pokemon.name} ya no está deshabilitado!")
             pokemon.disabled_move = None
 
