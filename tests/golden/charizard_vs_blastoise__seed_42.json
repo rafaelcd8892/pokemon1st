@@ -1,0 +1,588 @@
+{
+  "metadata": {
+    "team1": [
+      "Charizard"
+    ],
+    "team2": [
+      "Blastoise"
+    ],
+    "team1_name": "Red",
+    "team2_name": "Blue",
+    "winner": "Blue",
+    "total_turns": 3,
+    "reason": "All opponent Pokemon fainted",
+    "summary": {
+      "per_pokemon": {
+        "Charizard": {
+          "damage_dealt": 99,
+          "damage_taken": 184,
+          "residual_damage": 0,
+          "moves_used": 3,
+          "crits_landed": 0,
+          "times_fainted": 1,
+          "turns_active": 3
+        },
+        "Blastoise": {
+          "damage_dealt": 184,
+          "damage_taken": 99,
+          "residual_damage": 0,
+          "moves_used": 3,
+          "crits_landed": 0,
+          "times_fainted": 0,
+          "turns_active": 3
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Red sends out Charizard"
+    },
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Blue sends out Blastoise"
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 START"
+    },
+    {
+      "turn": 1,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Charizard",
+          "hp": 184,
+          "max_hp": 184,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Blastoise",
+          "hp": 185,
+          "max_hp": 185,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_order",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "first_speed": 151,
+        "second_speed": 129,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "move",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "move": "Flamethrower",
+        "damage": 33,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Fire",
+          "attacker_level": 50,
+          "attack_stat": 160,
+          "defense_stat": 136,
+          "attack_base": 160,
+          "defense_base": 136,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 0.5,
+          "random_roll": 231,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 48.59,
+          "final_damage": 33
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 184,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 152,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "miss",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "Hydro Pump"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 152,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 184,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 END"
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 START"
+    },
+    {
+      "turn": 2,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Charizard",
+          "hp": 184,
+          "max_hp": 184,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Blastoise",
+          "hp": 152,
+          "max_hp": 185,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_order",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "first_speed": 151,
+        "second_speed": 129,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "move": "Flamethrower",
+        "damage": 31,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Fire",
+          "attacker_level": 50,
+          "attack_stat": 160,
+          "defense_stat": 136,
+          "attack_base": 160,
+          "defense_base": 136,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 0.5,
+          "random_roll": 218,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 48.59,
+          "final_damage": 31
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 184,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 121,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": "Charizard",
+      "target_side": "P1",
+      "details": {
+        "move": "Hydro Pump",
+        "damage": 129,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 110,
+          "move_category": "special",
+          "move_type": "Water",
+          "attacker_level": 50,
+          "attack_stat": 136,
+          "defense_stat": 160,
+          "attack_base": 136,
+          "defense_base": 160,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 2.0,
+          "random_roll": 255,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 43.14,
+          "final_damage": 129
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 121,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 55,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 END"
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 START"
+    },
+    {
+      "turn": 3,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Charizard",
+          "hp": 55,
+          "max_hp": 184,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Blastoise",
+          "hp": 121,
+          "max_hp": 185,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_order",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "first_speed": 151,
+        "second_speed": 129,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": "Blastoise",
+      "target_side": "P2",
+      "details": {
+        "move": "Flamethrower",
+        "damage": 35,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Fire",
+          "attacker_level": 50,
+          "attack_stat": 160,
+          "defense_stat": 136,
+          "attack_base": 160,
+          "defense_base": 136,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 0.5,
+          "random_roll": 251,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 48.59,
+          "final_damage": 35
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 55,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 86,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": "Charizard",
+      "target_side": "P1",
+      "details": {
+        "move": "Ice Beam",
+        "damage": 55,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Ice",
+          "attacker_level": 50,
+          "attack_stat": 136,
+          "defense_stat": 160,
+          "attack_base": 136,
+          "defense_base": 160,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.0,
+          "effectiveness": 2.0,
+          "random_roll": 234,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 35.66,
+          "final_damage": 65
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Blastoise",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 86,
+        "max_hp": 185
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 0,
+        "max_hp": 184
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "faint",
+      "pokemon": "Charizard",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 END"
+    }
+  ]
+}

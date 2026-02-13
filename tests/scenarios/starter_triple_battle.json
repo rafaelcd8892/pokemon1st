@@ -1,0 +1,46 @@
+{
+  "name": "starter_triple_battle",
+  "description": "Classic starter trio 3v3 — switching, forced switches after KOs",
+  "seed": 7,
+  "format": "3v3",
+  "team1": {
+    "name": "Ash",
+    "pokemon": [
+      {
+        "species": "venusaur",
+        "level": 50,
+        "moves": ["razor-leaf", "sleep-powder", "leech-seed", "body-slam"]
+      },
+      {
+        "species": "charizard",
+        "level": 50,
+        "moves": ["flamethrower", "slash", "fire-blast", "seismic-toss"]
+      },
+      {
+        "species": "blastoise",
+        "level": 50,
+        "moves": ["surf", "ice-beam", "body-slam", "skull-bash"]
+      }
+    ]
+  },
+  "team2": {
+    "name": "Gary",
+    "pokemon": [
+      {
+        "species": "charizard",
+        "level": 50,
+        "moves": ["flamethrower", "earthquake", "slash", "dragon-rage"]
+      },
+      {
+        "species": "blastoise",
+        "level": 50,
+        "moves": ["hydro-pump", "blizzard", "body-slam", "rest"]
+      },
+      {
+        "species": "venusaur",
+        "level": 50,
+        "moves": ["solar-beam", "sleep-powder", "toxic", "mega-drain"]
+      }
+    ]
+  }
+}

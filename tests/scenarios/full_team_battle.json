@@ -1,0 +1,76 @@
+{
+  "name": "full_team_battle",
+  "description": "6v6 endurance test — varied type composition, many switches and KOs",
+  "seed": 123,
+  "format": "6v6",
+  "team1": {
+    "name": "Champion",
+    "pokemon": [
+      {
+        "species": "alakazam",
+        "level": 50,
+        "moves": ["psychic", "thunder-wave", "recover", "reflect"]
+      },
+      {
+        "species": "starmie",
+        "level": 50,
+        "moves": ["surf", "psychic", "thunderbolt", "recover"]
+      },
+      {
+        "species": "snorlax",
+        "level": 50,
+        "moves": ["body-slam", "earthquake", "rest", "hyper-beam"]
+      },
+      {
+        "species": "jolteon",
+        "level": 50,
+        "moves": ["thunderbolt", "thunder-wave", "pin-missile", "double-kick"]
+      },
+      {
+        "species": "arcanine",
+        "level": 50,
+        "moves": ["flamethrower", "body-slam", "fire-blast", "dig"]
+      },
+      {
+        "species": "dragonite",
+        "level": 50,
+        "moves": ["wrap", "hyper-beam", "blizzard", "thunder-wave"]
+      }
+    ]
+  },
+  "team2": {
+    "name": "Rival",
+    "pokemon": [
+      {
+        "species": "gengar",
+        "level": 50,
+        "moves": ["hypnosis", "dream-eater", "thunderbolt", "night-shade"]
+      },
+      {
+        "species": "rhydon",
+        "level": 50,
+        "moves": ["earthquake", "rock-slide", "body-slam", "horn-drill"]
+      },
+      {
+        "species": "lapras",
+        "level": 50,
+        "moves": ["ice-beam", "thunderbolt", "body-slam", "surf"]
+      },
+      {
+        "species": "venusaur",
+        "level": 50,
+        "moves": ["razor-leaf", "sleep-powder", "leech-seed", "body-slam"]
+      },
+      {
+        "species": "charizard",
+        "level": 50,
+        "moves": ["flamethrower", "earthquake", "slash", "fire-blast"]
+      },
+      {
+        "species": "blastoise",
+        "level": 50,
+        "moves": ["hydro-pump", "ice-beam", "body-slam", "rest"]
+      }
+    ]
+  }
+}

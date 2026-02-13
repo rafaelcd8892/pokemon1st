@@ -229,21 +229,31 @@ PokemonGen1/
 ├── scripts/
 │   ├── batch_battle.py              # Batch battle runner + auto-validation
 │   ├── validate_battle_log.py       # Log invariant checker (10 rules)
+│   ├── run_golden.py                # Golden test runner (generate/update/verify)
 │   ├── migrate_battle_logs.py       # Log format migration tool
 │   └── fetch_gen1_data.py           # One-time PokeAPI data fetcher
 │
-├── tests/                           # 229 tests
+├── tests/
 │   ├── test_gen1_mechanics.py       # Core mechanic tests
 │   ├── test_damage.py               # Damage calculation tests
 │   ├── test_battle_audit_invariants.py  # Log validation tests
 │   ├── test_battle_integration_regressions.py
+│   ├── test_golden.py               # Golden log regression tests (pytest)
+│   ├── golden_utils.py              # Golden test utilities
 │   ├── test_type_chart.py
 │   ├── test_stat_calculator.py
 │   ├── test_ruleset.py
 │   ├── test_events.py
 │   ├── test_battle_config.py
 │   ├── test_moveset_selection.py
-│   └── test_selection.py
+│   ├── test_selection.py
+│   ├── scenarios/                   # Golden test scenario definitions (JSON)
+│   └── golden/                      # Golden baseline snapshots
+│
+├── docs/
+│   ├── agent_brief.md               # Agent onboarding: repo map + invariants
+│   ├── decisions.md                 # Engineering decision log
+│   └── known_quirks.md              # Gen 1 quirks policy (replicate/ignore)
 │
 └── logs/
     ├── battles/                     # Interactive battle logs

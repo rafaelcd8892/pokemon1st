@@ -1,0 +1,26 @@
+{
+  "name": "snorlax_vs_gengar",
+  "description": "Normal immunity vs Ghost type — Toxic/Rest stalling, type immunity interactions",
+  "seed": 13,
+  "format": "1v1",
+  "team1": {
+    "name": "Red",
+    "pokemon": [
+      {
+        "species": "snorlax",
+        "level": 50,
+        "moves": ["body-slam", "rest", "earthquake", "hyper-beam"]
+      }
+    ]
+  },
+  "team2": {
+    "name": "Blue",
+    "pokemon": [
+      {
+        "species": "gengar",
+        "level": 50,
+        "moves": ["hypnosis", "dream-eater", "toxic", "night-shade"]
+      }
+    ]
+  }
+}

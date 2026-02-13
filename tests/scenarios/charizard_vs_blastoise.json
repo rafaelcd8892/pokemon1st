@@ -1,0 +1,26 @@
+{
+  "name": "charizard_vs_blastoise",
+  "description": "Fire vs Water type matchup — tests type disadvantage and STAB",
+  "seed": 42,
+  "format": "1v1",
+  "team1": {
+    "name": "Red",
+    "pokemon": [
+      {
+        "species": "charizard",
+        "level": 50,
+        "moves": ["flamethrower", "slash", "earthquake", "dragon-rage"]
+      }
+    ]
+  },
+  "team2": {
+    "name": "Blue",
+    "pokemon": [
+      {
+        "species": "blastoise",
+        "level": 50,
+        "moves": ["hydro-pump", "ice-beam", "surf", "blizzard"]
+      }
+    ]
+  }
+}

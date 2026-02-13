@@ -1,0 +1,2369 @@
+{
+  "metadata": {
+    "team1": [
+      "Gengar"
+    ],
+    "team2": [
+      "Alakazam"
+    ],
+    "team1_name": "Agatha",
+    "team2_name": "Sabrina",
+    "winner": "Sabrina",
+    "total_turns": 14,
+    "reason": "All opponent Pokemon fainted",
+    "summary": {
+      "per_pokemon": {
+        "Gengar": {
+          "damage_dealt": 218,
+          "damage_taken": 166,
+          "residual_damage": 0,
+          "moves_used": 11,
+          "crits_landed": 2,
+          "times_fainted": 1,
+          "turns_active": 14
+        },
+        "Alakazam": {
+          "damage_dealt": 166,
+          "damage_taken": 218,
+          "residual_damage": 0,
+          "moves_used": 7,
+          "crits_landed": 0,
+          "times_fainted": 0,
+          "turns_active": 14
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Agatha sends out Gengar"
+    },
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Sabrina sends out Alakazam"
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 START"
+    },
+    {
+      "turn": 1,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 161,
+          "max_hp": 161,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "event_screen_activated",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "screen": "reflect"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Reflect",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Thunderbolt",
+        "damage": 71,
+        "critical": true,
+        "effectiveness": 1.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Electric",
+          "attacker_level": 50,
+          "attack_stat": 362,
+          "defense_stat": 186,
+          "attack_base": 181,
+          "defense_base": 186,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": true,
+          "stab": 1.0,
+          "effectiveness": 1.0,
+          "random_roll": 232,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 79.07,
+          "final_damage": 71
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 90,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 END"
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 START"
+    },
+    {
+      "turn": 2,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 90,
+          "max_hp": 161,
+          "status": "none",
+          "has_reflect": true,
+          "reflect_turns": 4
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "event_healed",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "amount": 71,
+        "current_hp": 161,
+        "max_hp": 161,
+        "source": "Recover"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Recover",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Hypnosis",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "status",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Sleep",
+        "applied": true,
+        "source": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 END"
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 START"
+    },
+    {
+      "turn": 3,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 161,
+          "max_hp": 161,
+          "status": "Sleep",
+          "has_reflect": true,
+          "reflect_turns": 3
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Hypnosis",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "status",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Sleep",
+        "applied": false,
+        "source": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 END"
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 4 START"
+    },
+    {
+      "turn": 4,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 161,
+          "max_hp": 161,
+          "status": "Sleep",
+          "has_reflect": true,
+          "reflect_turns": 2
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 161,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Dream Eater",
+        "damage": 20,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 100,
+          "move_category": "special",
+          "move_type": "Psychic",
+          "attacker_level": 50,
+          "attack_stat": 181,
+          "defense_stat": 186,
+          "attack_base": 181,
+          "defense_base": 186,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.0,
+          "effectiveness": 0.5,
+          "random_roll": 230,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 44.82,
+          "final_damage": 20
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 141,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 4 END"
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 5 START"
+    },
+    {
+      "turn": 5,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 141,
+          "max_hp": 161,
+          "status": "Sleep",
+          "has_reflect": true,
+          "reflect_turns": 1
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 141,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Dream Eater",
+        "damage": 43,
+        "critical": true,
+        "effectiveness": 0.5,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 100,
+          "move_category": "special",
+          "move_type": "Psychic",
+          "attacker_level": 50,
+          "attack_stat": 362,
+          "defense_stat": 186,
+          "attack_base": 181,
+          "defense_base": 186,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": true,
+          "stab": 1.0,
+          "effectiveness": 0.5,
+          "random_roll": 253,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 87.63,
+          "final_damage": 43
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 98,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "event_screen_expired",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "screen": "reflect"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 5 END"
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 6 START"
+    },
+    {
+      "turn": 6,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 98,
+          "max_hp": 161,
+          "status": "Sleep"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 98,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Night Shade",
+        "damage": 50,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 6 END"
+    },
+    {
+      "turn": 7,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 7 START"
+    },
+    {
+      "turn": 7,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 48,
+          "max_hp": 161,
+          "status": "Sleep"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Hypnosis",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "status",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Sleep",
+        "applied": false,
+        "source": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 7,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 7 END"
+    },
+    {
+      "turn": 8,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 8 START"
+    },
+    {
+      "turn": 8,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 48,
+          "max_hp": 161,
+          "status": "Sleep"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "event_status_cured",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep",
+        "reason": "natural"
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "miss",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 8,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 8 END"
+    },
+    {
+      "turn": 9,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 9 START"
+    },
+    {
+      "turn": 9,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 48,
+          "max_hp": 161,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "event_screen_activated",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "screen": "reflect"
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Reflect",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Hypnosis",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 0.5,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "status",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Sleep",
+        "applied": true,
+        "source": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 9,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 9 END"
+    },
+    {
+      "turn": 10,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 10 START"
+    },
+    {
+      "turn": 10,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 48,
+          "max_hp": 161,
+          "status": "Sleep",
+          "has_reflect": true,
+          "reflect_turns": 4
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "event_status_cured",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep",
+        "reason": "natural"
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "event_status_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "move_prevented",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 48,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Thunderbolt",
+        "damage": 34,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Electric",
+          "attacker_level": 50,
+          "attack_stat": 181,
+          "defense_stat": 186,
+          "attack_base": 181,
+          "defense_base": 186,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.0,
+          "effectiveness": 1.0,
+          "random_roll": 220,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 40.54,
+          "final_damage": 34
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 10,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 10 END"
+    },
+    {
+      "turn": 11,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 11 START"
+    },
+    {
+      "turn": 11,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 14,
+          "max_hp": 161,
+          "status": "none",
+          "has_reflect": true,
+          "reflect_turns": 3
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "miss",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "Thunder Wave"
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": "Alakazam",
+      "target_side": "P2",
+      "details": {
+        "move": "Dream Eater",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 11,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 11 END"
+    },
+    {
+      "turn": 12,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 12 START"
+    },
+    {
+      "turn": 12,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 14,
+          "max_hp": 161,
+          "status": "none",
+          "has_reflect": true,
+          "reflect_turns": 2
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 161,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "move": "Thunder Wave",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "status",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Paralysis",
+        "applied": true,
+        "source": "Thunder Wave"
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "event_status_prevented",
+      "pokemon": "Gengar",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "paralysis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "move_prevented",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "paralyzed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 12,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 12 END"
+    },
+    {
+      "turn": 13,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 13 START"
+    },
+    {
+      "turn": 13,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "Paralysis"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 14,
+          "max_hp": 161,
+          "status": "none",
+          "has_reflect": true,
+          "reflect_turns": 1
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 40,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "move": "Psychic",
+        "damage": 122,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Psychic",
+          "attacker_level": 50,
+          "attack_stat": 186,
+          "defense_stat": 181,
+          "attack_base": 186,
+          "defense_base": 181,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 2.0,
+          "random_roll": 243,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 42.69,
+          "final_damage": 122
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 44,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "event_status_prevented",
+      "pokemon": "Gengar",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "paralysis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "move_prevented",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "paralyzed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 44,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "event_screen_expired",
+      "pokemon": "Alakazam",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "screen": "reflect"
+      },
+      "message": ""
+    },
+    {
+      "turn": 13,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 13 END"
+    },
+    {
+      "turn": 14,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 14 START"
+    },
+    {
+      "turn": 14,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Gengar",
+          "hp": 44,
+          "max_hp": 166,
+          "status": "Paralysis"
+        },
+        "p2": {
+          "name": "Alakazam",
+          "hp": 14,
+          "max_hp": 161,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "turn_order",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 171,
+        "second_speed": 40,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "move",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": "Gengar",
+      "target_side": "P1",
+      "details": {
+        "move": "Psychic",
+        "damage": 44,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 90,
+          "move_category": "special",
+          "move_type": "Psychic",
+          "attacker_level": 50,
+          "attack_stat": 186,
+          "defense_stat": 181,
+          "attack_base": 186,
+          "defense_base": 181,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 2.0,
+          "random_roll": 217,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 42.69,
+          "final_damage": 108
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "hp",
+      "pokemon": "Alakazam",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 14,
+        "max_hp": 161
+      },
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 0,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "faint",
+      "pokemon": "Gengar",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": ""
+    },
+    {
+      "turn": 14,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 14 END"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "gengar_vs_alakazam",
+  "description": "Ghost/Psychic matchup — Hypnosis/Dream Eater combo, Night Shade, status effects",
+  "seed": 99,
+  "format": "1v1",
+  "team1": {
+    "name": "Agatha",
+    "pokemon": [
+      {
+        "species": "gengar",
+        "level": 50,
+        "moves": ["hypnosis", "dream-eater", "night-shade", "thunderbolt"]
+      }
+    ]
+  },
+  "team2": {
+    "name": "Sabrina",
+    "pokemon": [
+      {
+        "species": "alakazam",
+        "level": 50,
+        "moves": ["psychic", "thunder-wave", "recover", "reflect"]
+      }
+    ]
+  }
+}

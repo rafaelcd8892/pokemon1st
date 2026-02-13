@@ -1,0 +1,1133 @@
+{
+  "metadata": {
+    "team1": [
+      "Snorlax"
+    ],
+    "team2": [
+      "Gengar"
+    ],
+    "team1_name": "Red",
+    "team2_name": "Blue",
+    "winner": "Red",
+    "total_turns": 6,
+    "reason": "All opponent Pokemon fainted",
+    "summary": {
+      "per_pokemon": {
+        "Snorlax": {
+          "damage_dealt": 166,
+          "damage_taken": 0,
+          "residual_damage": 32,
+          "moves_used": 4,
+          "crits_landed": 0,
+          "times_fainted": 0,
+          "turns_active": 6
+        },
+        "Gengar": {
+          "damage_dealt": 0,
+          "damage_taken": 166,
+          "residual_damage": 0,
+          "moves_used": 6,
+          "crits_landed": 0,
+          "times_fainted": 1,
+          "turns_active": 6
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Red sends out Snorlax"
+    },
+    {
+      "turn": 0,
+      "action_type": "info",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "Blue sends out Gengar"
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 START"
+    },
+    {
+      "turn": 1,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 266,
+          "max_hp": 266,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 166,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Toxic",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "status",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Poison",
+        "applied": true,
+        "source": "Toxic"
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 166,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "move",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": "Gengar",
+      "target_side": "P2",
+      "details": {
+        "move": "Earthquake",
+        "damage": 116,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 100,
+          "move_category": "physical",
+          "move_type": "Ground",
+          "attacker_level": 50,
+          "attack_stat": 161,
+          "defense_stat": 111,
+          "attack_base": 161,
+          "defense_base": 111,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.0,
+          "effectiveness": 2.0,
+          "random_roll": 226,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 65.82,
+          "final_damage": 116
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "event_status_damage",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "poison",
+        "damage": 16,
+        "current_hp": 250,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "effect",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "effect": "poison",
+        "damage": 16
+      },
+      "message": ""
+    },
+    {
+      "turn": 1,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 1 END"
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 START"
+    },
+    {
+      "turn": 2,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 250,
+          "max_hp": 266,
+          "status": "Poison"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 50,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Dream Eater",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 250,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "event_healed",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "amount": 16,
+        "current_hp": 266,
+        "max_hp": 266,
+        "source": "Rest"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "move",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Rest",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 2,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 2 END"
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 START"
+    },
+    {
+      "turn": 3,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 266,
+          "max_hp": 266,
+          "status": "Sleep"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 50,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Toxic",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "status",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Poison",
+        "applied": false,
+        "source": "Toxic"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "event_status_prevented",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "move_prevented",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "asleep"
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 3,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 3 END"
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 4 START"
+    },
+    {
+      "turn": 4,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 266,
+          "max_hp": 266,
+          "status": "Sleep"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 50,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Hypnosis",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "status",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Sleep",
+        "applied": false,
+        "source": "Hypnosis"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "event_status_cured",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep",
+        "reason": "natural"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "event_status_prevented",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "move_prevented",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "move": "",
+        "reason": "sleep_wake"
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 4,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 4 END"
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 5 START"
+    },
+    {
+      "turn": 5,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 266,
+          "max_hp": 266,
+          "status": "none"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 50,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Toxic",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "status",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "Poison",
+        "applied": true,
+        "source": "Toxic"
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "move",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": "Gengar",
+      "target_side": "P2",
+      "details": {
+        "move": "Body Slam",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 85,
+          "move_category": "physical",
+          "move_type": "Normal",
+          "attacker_level": 50,
+          "attack_stat": 161,
+          "defense_stat": 111,
+          "attack_base": 161,
+          "defense_base": 111,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.5,
+          "effectiveness": 0.0,
+          "random_roll": 233,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 56.25,
+          "final_damage": 0
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 266,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "event_status_damage",
+      "pokemon": "Snorlax",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "status": "poison",
+        "damage": 16,
+        "current_hp": 250,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "effect",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "effect": "poison",
+        "damage": 16
+      },
+      "message": ""
+    },
+    {
+      "turn": 5,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 5 END"
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_start",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 6 START"
+    },
+    {
+      "turn": 6,
+      "action_type": "state_snapshot",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {
+        "p1": {
+          "name": "Snorlax",
+          "hp": 250,
+          "max_hp": 266,
+          "status": "Poison"
+        },
+        "p2": {
+          "name": "Gengar",
+          "hp": 50,
+          "max_hp": 166,
+          "status": "none"
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_order",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "first_speed": 161,
+        "second_speed": 81,
+        "reason": "speed"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "move",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": "Snorlax",
+      "target_side": "P1",
+      "details": {
+        "move": "Dream Eater",
+        "damage": 0,
+        "critical": false,
+        "effectiveness": 1.0,
+        "result": "resolved"
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 50,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 250,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "move",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": "Gengar",
+      "target_side": "P2",
+      "details": {
+        "move": "Earthquake",
+        "damage": 50,
+        "critical": false,
+        "effectiveness": 2.0,
+        "result": "resolved",
+        "damage_breakdown": {
+          "move_power": 100,
+          "move_category": "physical",
+          "move_type": "Ground",
+          "attacker_level": 50,
+          "attack_stat": 161,
+          "defense_stat": 111,
+          "attack_base": 161,
+          "defense_base": 111,
+          "attack_stage": 0,
+          "defense_stage": 0,
+          "is_critical": false,
+          "stab": 1.0,
+          "effectiveness": 2.0,
+          "random_roll": 244,
+          "burn_modifier": 1.0,
+          "defense_modifier": 1.0,
+          "base_damage": 65.82,
+          "final_damage": 125
+        }
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Snorlax",
+      "pokemon_side": "P1",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 250,
+        "max_hp": 266
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "hp",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {
+        "current_hp": 0,
+        "max_hp": 166
+      },
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "faint",
+      "pokemon": "Gengar",
+      "pokemon_side": "P2",
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": ""
+    },
+    {
+      "turn": 6,
+      "action_type": "turn_end",
+      "pokemon": "",
+      "pokemon_side": null,
+      "target": null,
+      "target_side": null,
+      "details": {},
+      "message": "TURN 6 END"
+    }
+  ]
+}
