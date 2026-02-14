@@ -8,6 +8,7 @@ from models.stats import Stats
 from models.move import Move
 from models.enums import Type, Status, MoveCategory
 from engine.events import BattleEventBus, BattleEvent, reset_event_bus, set_event_bus
+from engine.rng import FixedRNG, StandardRNG, set_rng, reset_rng
 from data.data_loader import get_pokemon_data, create_move, get_pokemon_moves_gen1
 
 
@@ -18,6 +19,24 @@ def event_bus():
     set_event_bus(bus)
     yield bus
     reset_event_bus()
+
+
+@pytest.fixture
+def fixed_rng():
+    """Provides a FixedRNG for deterministic test control"""
+    rng = FixedRNG()
+    set_rng(rng)
+    yield rng
+    reset_rng()
+
+
+@pytest.fixture
+def seeded_rng():
+    """Provides a seeded StandardRNG for reproducible tests"""
+    rng = StandardRNG(seed=42)
+    set_rng(rng)
+    yield rng
+    reset_rng()
 
 
 @pytest.fixture

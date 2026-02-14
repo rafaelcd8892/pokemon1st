@@ -289,9 +289,9 @@ def get_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
     Returns:
         List of move names
     """
-    import random
+    from engine.rng import get_rng, RNGContext
     available_moves = get_pokemon_moves_gen1(pokemon_name)
-    return random.sample(available_moves, min(count, len(available_moves)))
+    return get_rng().sample(available_moves, min(count, len(available_moves)), RNGContext.TEAM_GENERATION)
 
 
 def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
@@ -308,11 +308,13 @@ def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
     Returns:
         List of move names
     """
-    import random
+    from engine.rng import get_rng, RNGContext
 
     available_moves = get_pokemon_moves_gen1(pokemon_name)
     if len(available_moves) <= count:
         return available_moves
+
+    rng = get_rng()
 
     # Get Pokemon types for STAB check
     try:
@@ -348,7 +350,7 @@ def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
 
     # 1. Pick at least one STAB move if available
     if stab_damaging:
-        move = random.choice(stab_damaging)
+        move = rng.choice(stab_damaging, RNGContext.TEAM_GENERATION)
         selected.append(move)
         stab_damaging.remove(move)
         try:
@@ -357,16 +359,16 @@ def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
             pass
 
     # 2. Pick 1-2 status moves for variety (if available)
-    status_count = min(random.randint(1, 2), len(status_moves), count - len(selected) - 1)
+    status_count = min(rng.randint(1, 2, RNGContext.TEAM_GENERATION), len(status_moves), count - len(selected) - 1)
     if status_count > 0:
-        status_picks = random.sample(status_moves, status_count)
+        status_picks = rng.sample(status_moves, status_count, RNGContext.TEAM_GENERATION)
         selected.extend(status_picks)
         for m in status_picks:
             status_moves.remove(m)
 
     # 3. Fill remaining slots with damaging moves, preferring type variety
     remaining_damaging = stab_damaging + other_damaging
-    random.shuffle(remaining_damaging)
+    rng.shuffle(remaining_damaging, RNGContext.TEAM_GENERATION)
 
     for move_name in remaining_damaging:
         if len(selected) >= count:
@@ -383,7 +385,7 @@ def get_smart_random_moveset(pokemon_name: str, count: int = 4) -> list[str]:
     # If still need more, add from status or any remaining
     remaining = [m for m in available_moves if m not in selected]
     while len(selected) < count and remaining:
-        move = random.choice(remaining)
+        move = rng.choice(remaining, RNGContext.TEAM_GENERATION)
         selected.append(move)
         remaining.remove(move)
 

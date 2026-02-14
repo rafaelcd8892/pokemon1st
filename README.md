@@ -232,6 +232,7 @@ PokemonGen1/
 │   ├── stat_modifiers.py            # Stat stage system
 │   ├── stat_calculator.py           # Gen 1 stat formulas (IVs/EVs/level)
 │   ├── type_chart.py                # 15-type effectiveness matrix
+│   ├── rng.py                       # Modular RNG system (injectable, testable, auditable)
 │   ├── clauses.py                   # Battle clause enforcement (Sleep/Freeze/OHKO/Evasion)
 │   ├── team_battle.py               # Multi-Pokemon battle engine + AI
 │   ├── battle_logger.py             # Dual-format battle logging
@@ -268,6 +269,7 @@ PokemonGen1/
 │   ├── test_ruleset.py
 │   ├── test_clauses.py
 │   ├── test_gen_mechanics.py
+│   ├── test_rng.py                  # RNG system unit tests
 │   ├── test_events.py
 │   ├── test_battle_config.py
 │   ├── test_moveset_selection.py
@@ -341,13 +343,13 @@ print(f"Winner: {winner.name if winner else 'Draw'}")
 python -m pytest tests/ -v
 ```
 
-300 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, generation-specific P/S split, battle audit invariants, rulesets, battle clause enforcement, moveset selection, and event bus.
+329 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, generation-specific P/S split, battle audit invariants, rulesets, battle clause enforcement, moveset selection, event bus, and the modular RNG system.
 
 ## Roadmap
 
 ### Next Up
 - Type-aware AI (picks moves by effectiveness, switches on disadvantage)
-- Deterministic replay (seeded RNG per battle, replay from JSON logs)
+- Battle replay from recorded RNG sequences (RecordingRNG + ReplayRNG)
 - Mechanics profile system (toggle Gen 1 quirks: Toxic counter reset, 1/256 miss)
 
 ### Future

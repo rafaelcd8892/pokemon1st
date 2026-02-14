@@ -16,7 +16,6 @@ import argparse
 import io
 import json
 import os
-import random
 import sys
 import time
 from collections import Counter
@@ -31,6 +30,7 @@ from models.enums import BattleFormat, Type
 from models.stats import Stats
 from models.pokemon import Pokemon
 from models.team import Team
+from engine.rng import get_rng, set_rng, StandardRNG, RNGContext
 from engine.team_battle import TeamBattle, get_random_ai_action, get_random_forced_switch
 from data.data_loader import (
     get_kanto_pokemon_list,
@@ -53,7 +53,7 @@ FORMAT_MAP = {
 def create_team(size: int, name: str, moveset_mode: str) -> Team:
     """Create a random team with the given moveset mode."""
     kanto_list = get_kanto_pokemon_list()
-    selected_names = random.sample(kanto_list, min(size, len(kanto_list)))
+    selected_names = get_rng().sample(kanto_list, min(size, len(kanto_list)), RNGContext.TEAM_GENERATION)
 
     pokemon_list = []
     for poke_name in selected_names:
@@ -249,7 +249,7 @@ def main() -> int:
     for i in range(args.battles):
         # Seed RNG per battle for reproducibility
         if args.seed is not None:
-            random.seed(args.seed + i)
+            set_rng(StandardRNG(args.seed + i))
 
         result = run_single_battle(
             battle_format, args.moveset, log_dir, verbose=args.verbose

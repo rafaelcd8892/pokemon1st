@@ -1,6 +1,5 @@
 """Team battle engine for multi-Pokemon battles"""
 
-import random
 import time
 from typing import Optional, Callable
 
@@ -19,6 +18,7 @@ from engine.battle import execute_turn, determine_turn_order, apply_end_of_turn_
 from engine.display import format_pokemon_status
 from engine.stat_modifiers import get_modified_speed
 from engine.battle_logger import start_battle_log, end_battle_log, get_battle_logger
+from engine.rng import get_rng, set_rng, reset_rng, StandardRNG, BattleRNG, RNGContext
 from engine.events import get_event_bus, reset_event_bus
 
 
@@ -71,7 +71,9 @@ class TeamBattle:
                  action_delay: float = DEFAULT_ACTION_DELAY,
                  enable_battle_log: bool = True,
                  log_dir=None,
-                 clauses=None):
+                 clauses=None,
+                 rng: Optional[BattleRNG] = None,
+                 seed: Optional[int] = None):
         """
         Initialize a team battle.
 
@@ -84,6 +86,8 @@ class TeamBattle:
             enable_battle_log: If True, creates a detailed log file for this battle
             log_dir: Optional custom directory for log files
             clauses: Optional BattleClauses for clause enforcement
+            rng: Optional BattleRNG instance for deterministic battles
+            seed: Optional seed for StandardRNG (ignored if rng is provided)
         """
         self.team1 = team1
         self.team2 = team2
@@ -97,6 +101,12 @@ class TeamBattle:
         # Initialize and register global battle logger so engine/battle.py
         # and TeamBattle write to the same log instance.
         self.battle_logger = start_battle_log(enabled=enable_battle_log, log_dir=log_dir)
+
+        # Initialize RNG (before event bus, matching global singleton pattern)
+        if rng is not None:
+            set_rng(rng)
+        elif seed is not None:
+            set_rng(StandardRNG(seed))
 
         # Initialize event bus and bridge handler
         reset_event_bus()
@@ -483,13 +493,13 @@ def create_random_team(size: int, trainer_name: str = "Trainer") -> Team:
     from models.enums import Type
 
     kanto_list = get_kanto_pokemon_list()
-    selected_names = random.sample(kanto_list, min(size, len(kanto_list)))
+    selected_names = get_rng().sample(kanto_list, min(size, len(kanto_list)), RNGContext.TEAM_GENERATION)
 
     pokemon_list = []
     for name in selected_names:
         poke_data = get_pokemon_data(name)
         moves_gen1 = get_pokemon_moves_gen1(name)
-        moves_selected = random.sample(moves_gen1, min(4, len(moves_gen1)))
+        moves_selected = get_rng().sample(moves_gen1, min(4, len(moves_gen1)), RNGContext.TEAM_GENERATION)
         moves = [create_move(m) for m in moves_selected]
 
         stats = Stats(
@@ -525,9 +535,9 @@ def get_random_ai_action(team: Team, opponent_team: Team, clauses=None) -> Battl
 
     # 10% chance to switch if possible and Pokemon is low on HP
     if team.can_switch() and active.current_hp < active.max_hp * 0.3:
-        if random.random() < 0.3:  # 30% chance when low HP
+        if get_rng().random(RNGContext.AI_DECISION) < 0.3:  # 30% chance when low HP
             available = team.get_available_switches()
-            switch_idx = random.choice(available)[0]
+            switch_idx = get_rng().choice(available, RNGContext.AI_DECISION)[0]
             logger.debug(f"AI switching to index {switch_idx}")
             return BattleAction.switch(switch_idx)
 
@@ -540,7 +550,7 @@ def get_random_ai_action(team: Team, opponent_team: Team, clauses=None) -> Battl
             available_moves = legal_moves
 
     if available_moves:
-        move = random.choice(available_moves)
+        move = get_rng().choice(available_moves, RNGContext.AI_DECISION)
         return BattleAction.attack(move)
 
     # No moves with PP - use Struggle (first move as placeholder)
@@ -559,5 +569,5 @@ def get_random_forced_switch(team: Team) -> Optional[int]:
     """
     available = team.get_available_switches()
     if available:
-        return random.choice(available)[0]
+        return get_rng().choice(available, RNGContext.AI_DECISION)[0]
     return None

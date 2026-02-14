@@ -1,12 +1,12 @@
 """Tests for Gen 1 damage calculation"""
 
-import random
 import pytest
 from unittest.mock import patch
 
 from models.enums import Type, MoveCategory
 from engine.battle import execute_turn
 from engine.damage import calculate_damage
+from engine.rng import set_rng, reset_rng, StandardRNG
 import engine.damage as damage_module
 from tests.conftest import create_test_pokemon, create_test_move
 
@@ -272,7 +272,7 @@ class TestSTAB:
 
     def test_stab_increases_damage(self):
         """Test that STAB adds 50% damage"""
-        random.seed(0)
+        set_rng(StandardRNG(0))
         # Fire type using Fire move (STAB)
         fire_pokemon = create_test_pokemon(types=[Type.FIRE], attack=100, special=100, speed=10)
         # Normal type using Fire move (no STAB)

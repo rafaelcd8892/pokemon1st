@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from engine.battle import apply_damage_to_target, execute_turn
 from engine.damage import calculate_critical_hit
+from engine.rng import FixedRNG, set_rng, reset_rng
 from engine.status import apply_end_turn_status_damage
 from engine.team_battle import BattleAction, TeamBattle
 from models.enums import BattleFormat, MoveCategory, Status, Type
@@ -334,9 +335,12 @@ class TestRegressionSpecs:
         )
 
         # 0.30 should be above Gen1 base-speed chance for 130 (130/512 ~= 0.254)
-        with patch("engine.damage.random.random", return_value=0.30):
+        set_rng(FixedRNG(random_value=0.30))
+        try:
             assert calculate_critical_hit(low_level) is False
             assert calculate_critical_hit(high_level) is False
+        finally:
+            reset_rng()
 
     def test_trapped_state_should_decay_even_if_original_trapper_context_changes(self):
         """Trap timers should not require the original trapper to remain as active context."""
@@ -406,8 +410,26 @@ class TestRegressionSpecs:
 
         battle = TeamBattle(team1, team2, battle_format=BattleFormat.SINGLE, action_delay=0, enable_battle_log=False)
 
-        with patch("engine.move_effects.random.choice", return_value=dragon_rage):
+        # FixedRNG: randint=50 passes accuracy checks, random=0.99 avoids crits,
+        # choice always returns first element — but we need Metronome to pick dragon_rage.
+        # Patch choice on the RNG instance to return dragon_rage for the move selection.
+        rng = FixedRNG(randint_value=50, random_value=0.99)
+        rng_choice_orig = rng.choice
+        _choice_calls = []
+
+        def _choice_returning_dragon_rage(seq, context=None):
+            _choice_calls.append(1)
+            if len(_choice_calls) == 1:
+                # First choice call is Metronome's move selection
+                return dragon_rage
+            return rng_choice_orig(seq, context)
+
+        rng.choice = _choice_returning_dragon_rage
+        set_rng(rng)
+        try:
             battle.execute_turn_pair(BattleAction.attack(metronome), BattleAction.attack(splash))
+        finally:
+            reset_rng()
 
         assert foe.current_hp < foe.max_hp
 

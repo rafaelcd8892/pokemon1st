@@ -3,7 +3,7 @@ from models.enums import Type, Status, StatType
 from models.stats import Stats
 from models.move import Move
 from models.ivs import IVs
-import random
+from engine.rng import get_rng, RNGContext
 
 
 class Pokemon:
@@ -174,9 +174,9 @@ class Pokemon:
         if self.status == Status.NONE:
             self.status = status
             if status == Status.SLEEP:
-                self.sleep_counter = random.randint(1, 7)
+                self.sleep_counter = get_rng().randint(1, 7, RNGContext.DURATION)
             elif status == Status.CONFUSION:
-                self.confusion_turns = random.randint(1, 4)  # Gen1: 1-4 turns
+                self.confusion_turns = get_rng().randint(1, 4, RNGContext.DURATION)
             return True
         return False
 

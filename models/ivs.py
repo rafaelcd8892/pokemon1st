@@ -1,7 +1,7 @@
 """Gen 1 Individual Values (DVs) for Pokemon stats."""
 
-import random
 from dataclasses import dataclass
+from engine.rng import get_rng, RNGContext
 
 
 @dataclass
@@ -45,11 +45,12 @@ class IVs:
     @classmethod
     def random(cls) -> 'IVs':
         """Generate random IVs (0-15 for each stat)."""
+        rng = get_rng()
         return cls(
-            attack=random.randint(0, 15),
-            defense=random.randint(0, 15),
-            special=random.randint(0, 15),
-            speed=random.randint(0, 15)
+            attack=rng.randint(0, 15, RNGContext.IV_GENERATION),
+            defense=rng.randint(0, 15, RNGContext.IV_GENERATION),
+            special=rng.randint(0, 15, RNGContext.IV_GENERATION),
+            speed=rng.randint(0, 15, RNGContext.IV_GENERATION),
         )
 
     @classmethod

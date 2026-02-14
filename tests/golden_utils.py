@@ -10,7 +10,6 @@ import copy
 import io
 import json
 import math
-import random
 import sys
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -25,6 +24,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from data.data_loader import get_pokemon_data, create_move
+from engine.rng import set_rng, StandardRNG
 from engine.team_battle import TeamBattle, get_random_ai_action, get_random_forced_switch
 from models.enums import BattleFormat, Type
 from models.pokemon import Pokemon
@@ -126,7 +126,7 @@ def run_scenario(scenario: dict, log_dir: Path) -> dict:
     import logging
     logging.getLogger().setLevel(logging.WARNING)
 
-    random.seed(scenario["seed"])
+    set_rng(StandardRNG(scenario["seed"]))
 
     team1 = build_team_from_spec(scenario["team1"])
     team2 = build_team_from_spec(scenario["team2"])

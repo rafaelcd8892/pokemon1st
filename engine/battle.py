@@ -1,6 +1,5 @@
 """Battle engine for executing turns and handling combat mechanics."""
 
-import random
 import logging
 from models.pokemon import Pokemon
 
@@ -17,6 +16,7 @@ from engine.move_effects import (
     apply_leech_seed_damage, decrement_screen_turns,
     TWO_TURN_MOVES, TRAPPING_MOVES, get_multi_hit_count
 )
+from engine.rng import get_rng, RNGContext
 from engine.battle_logger import get_battle_logger
 from engine.events import get_event_bus
 
@@ -199,7 +199,7 @@ def _handle_status_prevented_attack(attacker: Pokemon, is_multi_turn: bool):
     # Reset multi-turn if interrupted by status
     if is_multi_turn and attacker.multi_turn_counter <= 0:
         attacker.multi_turn_move = None
-        attacker.confusion_turns = random.randint(2, 5)
+        attacker.confusion_turns = get_rng().randint(2, 5, RNGContext.DURATION)
         print(f"¡{attacker.name} está confundido por el cansancio!")
 
 
@@ -217,7 +217,7 @@ def _announce_move(attacker: Pokemon, move: Move, is_multi_turn: bool, is_chargi
         if attacker.multi_turn_counter <= 0:
             # End multi-turn, become confused
             attacker.multi_turn_move = None
-            attacker.confusion_turns = random.randint(2, 5)
+            attacker.confusion_turns = get_rng().randint(2, 5, RNGContext.DURATION)
             print(f"¡{attacker.name} está confundido por el cansancio!")
     elif is_charging:
         print(f"\n{attacker.name} ataca con {move_display}!")
@@ -250,7 +250,7 @@ def _check_accuracy(attacker: Pokemon, defender: Pokemon, move: Move) -> bool:
     accuracy_multiplier = get_accuracy_multiplier(attacker, defender)
     final_accuracy = move.accuracy * accuracy_multiplier
 
-    if random.randint(1, 100) > final_accuracy:
+    if get_rng().randint(1, 100, RNGContext.BATTLE_MECHANIC) > final_accuracy:
         print(f"¡El ataque falló!")
         blog = get_battle_logger()
         if blog:
@@ -477,7 +477,7 @@ def _handle_multi_turn_move(attacker: Pokemon, defender: Pokemon, move: Move,
     """Handle multi-turn moves like Thrash, Petal-Dance."""
     # Start multi-turn attack (2-3 turns)
     attacker.multi_turn_move = move
-    attacker.multi_turn_counter = random.randint(2, 3)
+    attacker.multi_turn_counter = get_rng().randint(2, 3, RNGContext.DURATION)
     # Deal damage normally
     _deal_damage_with_messages(attacker, defender, move)
 
@@ -497,7 +497,7 @@ def _handle_trapping_move(attacker: Pokemon, defender: Pokemon, move: Move,
     if not defender.is_trapped:
         from engine.events.types import PokemonTrappedEvent
         defender.is_trapped = True
-        defender.trap_turns = random.randint(2, 5)
+        defender.trap_turns = get_rng().randint(2, 5, RNGContext.DURATION)
         defender.trapped_by = attacker
         bus = get_event_bus()
         bus.emit(PokemonTrappedEvent(turn=bus.current_turn, pokemon_name=defender.name, move_name=move.name))
@@ -604,7 +604,7 @@ def _execute_multi_hit_attack(attacker: Pokemon, defender: Pokemon, move: Move,
 
         # Handle poison chance (for Twineedle)
         if poison_chance > 0 and defender.substitute_hp == 0 and defender.status == Status.NONE:
-            if random.randint(1, 100) <= poison_chance:
+            if get_rng().randint(1, 100, RNGContext.BATTLE_MECHANIC) <= poison_chance:
                 defender.status = Status.POISON
                 print(f"¡{defender.name} fue envenenado!")
 
@@ -726,7 +726,7 @@ def _apply_move_status_effect(defender: Pokemon, move: Move,
     """Apply the move's status effect if applicable."""
     # Status moves don't work through Substitute, and don't apply to fainted Pokemon
     if defender.substitute_hp == 0 and defender.is_alive():
-        if move.status_effect and random.randint(1, 100) <= move.status_chance:
+        if move.status_effect and get_rng().randint(1, 100, RNGContext.BATTLE_MECHANIC) <= move.status_chance:
             # Check sleep/freeze clauses before applying status
             if clauses is not None and defender_team is not None:
                 from engine.clauses import check_status_clause
@@ -967,7 +967,7 @@ def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon,
         return pokemon2, pokemon1
     else:
         # Speed tie - random order
-        result = random.choice([(pokemon1, pokemon2), (pokemon2, pokemon1)])
+        result = get_rng().choice([(pokemon1, pokemon2), (pokemon2, pokemon1)], RNGContext.BATTLE_MECHANIC)
         logger.debug(f"Speed tie, random order: {result[0].name} goes first")
         if blog:
             blog.log_turn_order(result[0].name, result[1].name, speed1, speed2,

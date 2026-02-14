@@ -1,4 +1,3 @@
-import random
 from dataclasses import dataclass
 from typing import Optional
 from models.pokemon import Pokemon
@@ -7,6 +6,7 @@ from models.enums import MoveCategory, StatType, Status, Type
 from engine.type_chart import get_effectiveness
 from engine.stat_modifiers import get_modified_attack, get_modified_defense
 from engine.gen_mechanics import is_physical as _is_physical_move
+from engine.rng import get_rng, RNGContext
 import config
 
 
@@ -80,7 +80,7 @@ def calculate_critical_hit(attacker: Pokemon) -> bool:
     # Cap at 100%
     crit_chance = min(crit_chance, 1.0)
 
-    return random.random() < crit_chance
+    return get_rng().random(RNGContext.BATTLE_MECHANIC) < crit_chance
 
 def get_attack_defense_stats(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[int, int]:
     """Selects appropriate attack/defense stats based on move category with stat stages applied"""
@@ -103,11 +103,11 @@ def get_stab_multiplier(move_type: Type, attacker_types: list[Type]) -> float:
 
 def get_random_factor() -> float:
     """Gen1 random factor: 217-255 / 255"""
-    return random.randint(config.MIN_RANDOM_FACTOR, config.MAX_RANDOM_FACTOR) / config.RANDOM_DIVISOR
+    return get_rng().randint(config.MIN_RANDOM_FACTOR, config.MAX_RANDOM_FACTOR, RNGContext.BATTLE_MECHANIC) / config.RANDOM_DIVISOR
 
 def get_random_factor_with_roll() -> tuple[float, int]:
     """Gen1 random factor with raw roll for audit trail."""
-    roll = random.randint(config.MIN_RANDOM_FACTOR, config.MAX_RANDOM_FACTOR)
+    roll = get_rng().randint(config.MIN_RANDOM_FACTOR, config.MAX_RANDOM_FACTOR, RNGContext.BATTLE_MECHANIC)
     return roll / config.RANDOM_DIVISOR, roll
 
 def apply_burn_modifier(damage: int, attacker: Pokemon, move: Move) -> int:

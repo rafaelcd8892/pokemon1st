@@ -1,4 +1,3 @@
-import random
 import logging
 from models.enums import BattleFormat
 from engine.team_battle import (
@@ -9,6 +8,7 @@ from settings.battle_config import BattleMode, MovesetMode, BattleSettings
 
 logger = logging.getLogger(__name__)
 
+from engine.rng import get_rng, RNGContext
 from data.data_loader import (
     get_kanto_pokemon_list,
     create_move,
@@ -127,7 +127,7 @@ def create_team_with_moveset(size: int, trainer_name: str, moveset_mode: Moveset
     if ruleset is not None:
         kanto_list = filter_pokemon_by_ruleset(kanto_list, ruleset)
 
-    selected_names = random.sample(kanto_list, min(size, len(kanto_list)))
+    selected_names = get_rng().sample(kanto_list, min(size, len(kanto_list)), RNGContext.TEAM_GENERATION)
 
     pokemon_list = []
     mode_map = {

@@ -1,8 +1,8 @@
-import random
 from models.pokemon import Pokemon
 from models.enums import Status
 from engine.stat_modifiers import get_modified_attack, get_modified_defense
 from engine.battle_logger import get_battle_logger
+from engine.rng import get_rng, RNGContext
 from engine.events import get_event_bus
 from engine.events.types import (
     StatusPreventedActionEvent, ConfusionSelfHitEvent,
@@ -41,7 +41,7 @@ def apply_status_effects(pokemon: Pokemon) -> tuple[bool, str | None]:
         else:
             print(f"{pokemon.name} is confused!")
             # 50% chance to hurt itself
-            if random.random() < 0.5:
+            if get_rng().random(RNGContext.BATTLE_MECHANIC) < 0.5:
                 confusion_damage = apply_confusion_damage(pokemon)
                 pokemon.take_damage(confusion_damage)
                 print(f"{pokemon.name} hurt itself in confusion for {confusion_damage} damage!")
@@ -96,7 +96,7 @@ def apply_status_effects(pokemon: Pokemon) -> tuple[bool, str | None]:
         return False, "asleep"
 
     if pokemon.status == Status.PARALYSIS:
-        if random.random() < config.PARALYSIS_FAIL_CHANCE:
+        if get_rng().random(RNGContext.BATTLE_MECHANIC) < config.PARALYSIS_FAIL_CHANCE:
             print(f"{pokemon.name} está paralizado!")
             bus = get_event_bus()
             bus.emit(StatusPreventedActionEvent(

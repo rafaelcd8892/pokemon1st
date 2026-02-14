@@ -2,6 +2,34 @@
 
 ## [Unreleased] - 2026-02-14
 
+### Added
+
+#### Modular RNG System (`engine/rng.py`) - 2026-02-14
+Replaced all 40 direct `random.*()` calls across 12 files with an injectable, testable RNG abstraction.
+
+**Classes:**
+- `BattleRNG` (ABC) — abstract base with `random()`, `randint()`, `choice()`, `sample()`, `shuffle()`, `seed()`
+- `StandardRNG` — production implementation wrapping an isolated `random.Random()` instance
+- `FixedRNG` — returns predetermined/queued values for unit tests
+- `RecordingRNG` — decorator that records every roll with context tags for audit trails
+- `ReplayRNG` — replays a recorded RNG sequence for battle replay
+
+**Context tags** (`RNGContext` enum): `BATTLE_MECHANIC`, `DURATION`, `AI_DECISION`, `TEAM_GENERATION`, `IV_GENERATION` — categorize every RNG call for filtering and analysis.
+
+**Global accessors** (matching `engine/events/bus.py` pattern): `get_rng()`, `set_rng()`, `reset_rng()`.
+
+**Key design decisions:**
+- Single RNG stream with context tags (not separate streams) preserves golden baseline compatibility
+- Global singleton avoids 20+ function signature changes
+- Isolated `random.Random()` instance prevents interference from external code
+- Fisher-Yates shuffle implemented via `self.randint()` so shuffles are recorded
+
+**Migration scope:** `engine/damage.py`, `engine/status.py`, `engine/move_effects.py`, `engine/battle.py`, `models/pokemon.py`, `models/ivs.py`, `data/data_loader.py`, `engine/team_battle.py`, `main.py`, `scripts/batch_battle.py`, `tests/conftest.py`, `tests/golden_utils.py`, `tests/test_damage.py`, `tests/test_battle_integration_regressions.py`.
+
+`TeamBattle.__init__()` now accepts optional `rng` and `seed` parameters for deterministic battles.
+
+29 new unit tests in `tests/test_rng.py`. All 329 tests pass. Golden baselines unchanged.
+
 ### Fixed
 
 #### Gen 1 Physical/Special Split (`engine/gen_mechanics.py`)

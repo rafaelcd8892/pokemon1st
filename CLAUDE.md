@@ -20,7 +20,7 @@ Pokemon Gen 1 Battle engine. Modular. Looking to step by step increase.
 - Stat modifiers: `engine/stat_modifiers.py` (stat stage system)
 - Stat calculator: `engine/stat_calculator.py` (Gen 1 stat formulas with IVs/EVs/level)
 - Type chart: `engine/type_chart.py` (15-type effectiveness matrix)
-- RNG / seeding: `random` stdlib, seeded via `random.seed()` in callers
+- RNG / seeding: `engine/rng.py` (modular BattleRNG system with global accessors)
 - Log formatting: `engine/battle_logger.py` (dual-format .log + .json)
 - Event bus: `engine/events/bus.py` (pub/sub), `engine/events/types.py` (56 event dataclasses)
 - Event handlers: `engine/events/handlers/cli.py`, `engine/events/handlers/log_bridge.py`

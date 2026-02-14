@@ -1,9 +1,9 @@
 """Special move effects for moves with unique mechanics"""
 
-import random
 from models.pokemon import Pokemon
 from models.move import Move
 from models.enums import Status, Type
+from engine.rng import get_rng, RNGContext
 from engine.events import get_event_bus
 from engine.events.types import (
     SubstituteCreatedEvent, LeechSeedPlantedEvent,
@@ -300,9 +300,9 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         available_moves = [m for m in defender.moves if m.pp > 0]
         if not available_moves:
             return 0, "¡Pero falló!"
-        disabled = random.choice(available_moves)
+        disabled = get_rng().choice(available_moves, RNGContext.BATTLE_MECHANIC)
         defender.disabled_move = disabled.name
-        defender.disable_turns = random.randint(1, 8)  # Gen 1: 1-8 turns
+        defender.disable_turns = get_rng().randint(1, 8, RNGContext.DURATION)
         bus = get_event_bus()
         bus.emit(MoveDisabledEvent(
             turn=bus.current_turn, pokemon_name=defender.name, move_name=disabled.name))
@@ -317,7 +317,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         valid_moves = [m for m in all_moves if m.name not in excluded]
         if not valid_moves:
             return 0, "¡Pero falló!"
-        chosen_move = random.choice(valid_moves)
+        chosen_move = get_rng().choice(valid_moves, RNGContext.BATTLE_MECHANIC)
         # Return special code to indicate Metronome chose a move
         return -1, f"¡Metronome eligió {chosen_move.name}!|{chosen_move.name}"
 
@@ -438,7 +438,7 @@ def get_multi_hit_count() -> int:
     4 hits: 12.5% (1/8)
     5 hits: 12.5% (1/8)
     """
-    roll = random.randint(1, 8)
+    roll = get_rng().randint(1, 8, RNGContext.BATTLE_MECHANIC)
     if roll <= 3:
         return 2
     elif roll <= 6:
