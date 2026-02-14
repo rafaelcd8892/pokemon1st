@@ -764,9 +764,19 @@ def select_team_curses(stdscr, team_size: int) -> Optional[list[str]]:
         elif key == curses.KEY_UP:
             if selected_idx > 0:
                 selected_idx -= 1
+                # Adjust scroll if selection moved above visible area
+                filtered_idx = next((i for i, (orig, _) in enumerate(filtered_list)
+                                    if orig == selected_idx), 0)
+                if filtered_idx < scroll_offset:
+                    scroll_offset = max(0, filtered_idx)
         elif key == curses.KEY_DOWN:
             if selected_idx < len(pokemon_list) - 1:
                 selected_idx += 1
+                # Adjust scroll if selection moved below visible area
+                filtered_idx = next((i for i, (orig, _) in enumerate(filtered_list)
+                                    if orig == selected_idx), 0)
+                if filtered_idx >= scroll_offset + list_height:
+                    scroll_offset = filtered_idx - list_height + 1
         elif key == curses.KEY_BACKSPACE or key == 127:
             if search_query:
                 search_query = search_query[:-1]
@@ -1378,6 +1388,322 @@ def interactive_team_selection_with_settings(
             print(f"  {pokemon.name}: {', '.join([m.name for m in pokemon.moves])}")
 
     return Team(team_pokemon, trainer_name)
+
+
+# =============================================================================
+# Ruleset Selection
+# =============================================================================
+
+def draw_ruleset_menu(stdscr, selected_idx: int):
+    """Draw the ruleset selection menu"""
+    from models.ruleset import ALL_RULESETS
+    stdscr.clear()
+    max_y, max_x = stdscr.getmaxyx()
+
+    rulesets = ALL_RULESETS
+
+    # Title
+    title_width = 44
+    stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
+    stdscr.addstr(1, max_x // 2 - title_width // 2, "═" * title_width)
+    stdscr.addstr(2, max_x // 2 - 17, " SELECCIONA LAS REGLAS DE BATALLA ")
+    stdscr.addstr(3, max_x // 2 - title_width // 2, "═" * title_width)
+    stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
+
+    # Options
+    for i, ruleset in enumerate(rulesets):
+        y = 5 + i * 2
+        if y >= max_y - 4:
+            break
+
+        if i == selected_idx:
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, max_x // 2 - 22, f" ► {ruleset.name.ljust(20)} ")
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(y, max_x // 2 - 22, f"   {ruleset.name.ljust(20)} ")
+
+        # Description on same line
+        desc = ruleset.get_description()
+        # Remove the name from description since we already show it
+        desc_parts = desc.split(" | ")[1:]
+        desc_short = " | ".join(desc_parts) if desc_parts else ""
+        stdscr.addstr(y, max_x // 2 + 2, desc_short[:max_x - max_x // 2 - 4])
+
+    # Custom option
+    custom_y = 5 + len(rulesets) * 2
+    if custom_y < max_y - 4:
+        if selected_idx == len(rulesets):
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(custom_y, max_x // 2 - 22, f" ► {'Personalizado...'.ljust(20)} ")
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(custom_y, max_x // 2 - 22, f"   {'Personalizado...'.ljust(20)} ")
+        stdscr.addstr(custom_y, max_x // 2 + 2, "Configura tus propias reglas")
+
+    # Instructions
+    stdscr.addstr(max_y - 3, max_x // 2 - 15, "↑/↓: Navegar")
+    stdscr.addstr(max_y - 2, max_x // 2 - 15, "ENTER: Seleccionar | ESC: Salir")
+
+
+def select_ruleset_curses(stdscr) -> 'Optional[Ruleset]':
+    """Interactive ruleset selection"""
+    from models.ruleset import ALL_RULESETS
+    curses.curs_set(0)
+    init_colors()
+
+    rulesets = ALL_RULESETS
+    total_options = len(rulesets) + 1  # +1 for Custom
+    # Default to Prime Cup (index 2)
+    selected_idx = 2
+
+    while True:
+        draw_ruleset_menu(stdscr, selected_idx)
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == 27:  # ESC
+            return None
+        elif key == curses.KEY_UP:
+            selected_idx = max(0, selected_idx - 1)
+        elif key == curses.KEY_DOWN:
+            selected_idx = min(total_options - 1, selected_idx + 1)
+        elif key == 10:  # Enter
+            if selected_idx < len(rulesets):
+                return rulesets[selected_idx]
+            else:
+                # Custom ruleset
+                custom = select_custom_ruleset_curses(stdscr)
+                if custom is not None:
+                    return custom
+                # If cancelled, stay in ruleset menu
+
+
+def select_ruleset():
+    """Select a ruleset (public wrapper)"""
+    return curses.wrapper(select_ruleset_curses)
+
+
+# =============================================================================
+# Custom Ruleset Editor
+# =============================================================================
+
+def draw_custom_ruleset_editor(stdscr, config: dict, cursor_idx: int):
+    """Draw the custom ruleset editor form"""
+    stdscr.clear()
+    max_y, max_x = stdscr.getmaxyx()
+
+    # Title
+    title_width = 40
+    stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
+    stdscr.addstr(1, max_x // 2 - title_width // 2, "═" * title_width)
+    stdscr.addstr(2, max_x // 2 - 14, " REGLAS PERSONALIZADAS ")
+    stdscr.addstr(3, max_x // 2 - title_width // 2, "═" * title_width)
+    stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
+
+    fields = [
+        ("Nivel Mínimo", "min_level", "number", 1, 100),
+        ("Nivel Máximo", "max_level", "number", 1, 100),
+        ("Nivel por Defecto", "default_level", "number", 1, 100),
+        ("Tamaño del Equipo", "max_team_size", "number", 1, 6),
+        ("Límite Suma Niveles", "level_sum_limit", "optional_number", 0, 600),
+        ("Legendarios", "allow_legendaries", "toggle", None, None),
+        ("Solo Básicos", "basic_pokemon_only", "toggle", None, None),
+        ("Sleep Clause", "sleep_clause", "toggle", None, None),
+        ("Freeze Clause", "freeze_clause", "toggle", None, None),
+        ("OHKO Clause", "ohko_clause", "toggle", None, None),
+        ("Evasion Clause", "evasion_clause", "toggle", None, None),
+    ]
+
+    for i, (label, key, field_type, min_val, max_val) in enumerate(fields):
+        y = 5 + i
+        if y >= max_y - 4:
+            break
+
+        # Label
+        if i == cursor_idx:
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, max_x // 2 - 22, f" ► {label.ljust(22)} ")
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(y, max_x // 2 - 22, f"   {label.ljust(22)} ")
+
+        # Value
+        value = config[key]
+        if field_type == "toggle":
+            val_str = "SÍ" if value else "NO"
+            color = curses.color_pair(4) if value else curses.color_pair(6)
+            stdscr.attron(color | curses.A_BOLD)
+            stdscr.addstr(y, max_x // 2 + 4, f"◄ {val_str:3} ►")
+            stdscr.attroff(color | curses.A_BOLD)
+        elif field_type == "optional_number":
+            if value is None or value == 0:
+                stdscr.addstr(y, max_x // 2 + 4, "◄ --- ►")
+            else:
+                stdscr.addstr(y, max_x // 2 + 4, f"◄ {value:3} ►")
+        else:
+            stdscr.addstr(y, max_x // 2 + 4, f"◄ {value:3} ►")
+
+    # Confirm option
+    confirm_y = 5 + len(fields) + 1
+    if confirm_y < max_y - 3:
+        if cursor_idx == len(fields):
+            stdscr.attron(curses.color_pair(4) | curses.A_BOLD)
+            stdscr.addstr(confirm_y, max_x // 2 - 8, " ► CONFIRMAR ")
+            stdscr.attroff(curses.color_pair(4) | curses.A_BOLD)
+        else:
+            stdscr.addstr(confirm_y, max_x // 2 - 8, "   CONFIRMAR ")
+
+    # Instructions
+    stdscr.addstr(max_y - 3, max_x // 2 - 20, "↑/↓: Navegar | ←/→: Cambiar valor")
+    stdscr.addstr(max_y - 2, max_x // 2 - 20, "ENTER: Confirmar | ESC: Cancelar")
+
+
+def select_custom_ruleset_curses(stdscr) -> 'Optional[Ruleset]':
+    """Interactive custom ruleset editor"""
+    from models.ruleset import Ruleset, CupType, BattleClauses
+    curses.curs_set(0)
+    init_colors()
+
+    # Default config values
+    config = {
+        "min_level": 1,
+        "max_level": 100,
+        "default_level": 50,
+        "max_team_size": 3,
+        "level_sum_limit": None,
+        "allow_legendaries": True,
+        "basic_pokemon_only": False,
+        "sleep_clause": False,
+        "freeze_clause": False,
+        "ohko_clause": False,
+        "evasion_clause": False,
+    }
+
+    fields = [
+        ("Nivel Mínimo", "min_level", "number", 1, 100),
+        ("Nivel Máximo", "max_level", "number", 1, 100),
+        ("Nivel por Defecto", "default_level", "number", 1, 100),
+        ("Tamaño del Equipo", "max_team_size", "number", 1, 6),
+        ("Límite Suma Niveles", "level_sum_limit", "optional_number", 0, 600),
+        ("Legendarios", "allow_legendaries", "toggle", None, None),
+        ("Solo Básicos", "basic_pokemon_only", "toggle", None, None),
+        ("Sleep Clause", "sleep_clause", "toggle", None, None),
+        ("Freeze Clause", "freeze_clause", "toggle", None, None),
+        ("OHKO Clause", "ohko_clause", "toggle", None, None),
+        ("Evasion Clause", "evasion_clause", "toggle", None, None),
+    ]
+
+    total_options = len(fields) + 1  # +1 for confirm button
+    cursor_idx = 0
+
+    while True:
+        draw_custom_ruleset_editor(stdscr, config, cursor_idx)
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == 27:  # ESC
+            return None
+        elif key == curses.KEY_UP:
+            cursor_idx = max(0, cursor_idx - 1)
+        elif key == curses.KEY_DOWN:
+            cursor_idx = min(total_options - 1, cursor_idx + 1)
+        elif key in (curses.KEY_LEFT, curses.KEY_RIGHT) and cursor_idx < len(fields):
+            _, field_key, field_type, min_val, max_val = fields[cursor_idx]
+            if field_type == "toggle":
+                config[field_key] = not config[field_key]
+            elif field_type == "number":
+                delta = 1 if key == curses.KEY_RIGHT else -1
+                config[field_key] = max(min_val, min(max_val, config[field_key] + delta))
+            elif field_type == "optional_number":
+                current = config[field_key] or 0
+                delta = 5 if key == curses.KEY_RIGHT else -5
+                new_val = current + delta
+                if new_val <= 0:
+                    config[field_key] = None
+                else:
+                    config[field_key] = min(max_val, new_val)
+        elif key == 10:  # Enter
+            if cursor_idx == len(fields):
+                # Confirm — build the Ruleset
+                clauses = BattleClauses(
+                    sleep_clause=config["sleep_clause"],
+                    freeze_clause=config["freeze_clause"],
+                    ohko_clause=config["ohko_clause"],
+                    evasion_clause=config["evasion_clause"],
+                )
+                return Ruleset(
+                    name="Custom",
+                    cup_type=CupType.CUSTOM,
+                    min_level=config["min_level"],
+                    max_level=config["max_level"],
+                    default_level=config["default_level"],
+                    max_team_size=config["max_team_size"],
+                    level_sum_limit=config["level_sum_limit"],
+                    allow_legendaries=config["allow_legendaries"],
+                    basic_pokemon_only=config["basic_pokemon_only"],
+                    clauses=clauses,
+                )
+
+
+# =============================================================================
+# Pokemon Filtering by Ruleset
+# =============================================================================
+
+def filter_pokemon_by_ruleset(pokemon_list: list[str], ruleset) -> list[str]:
+    """
+    Filter a list of Pokemon names by ruleset restrictions.
+
+    Checks: banned list, legendaries, basic-only, and height/weight.
+
+    Args:
+        pokemon_list: List of Pokemon names (lowercase)
+        ruleset: Ruleset to filter against
+
+    Returns:
+        Filtered list of allowed Pokemon names
+    """
+    from models.ruleset import BASIC_POKEMON, LEGENDARY_POKEMON
+
+    filtered = []
+    for name in pokemon_list:
+        name_lower = name.lower()
+
+        # Check banned
+        if name_lower in {p.lower() for p in ruleset.banned_pokemon}:
+            continue
+
+        # Check allowed whitelist
+        if ruleset.allowed_pokemon is not None:
+            if name_lower not in {p.lower() for p in ruleset.allowed_pokemon}:
+                continue
+
+        # Check legendaries
+        if not ruleset.allow_legendaries and name_lower in LEGENDARY_POKEMON:
+            continue
+
+        # Check basic-only
+        if ruleset.basic_pokemon_only and name_lower not in BASIC_POKEMON:
+            continue
+
+        # Check height/weight restrictions
+        if ruleset.max_height_m is not None or ruleset.max_weight_kg is not None:
+            try:
+                from data.data_loader import get_pokemon_physical_data
+                physical = get_pokemon_physical_data(name)
+                valid, _ = ruleset.validate_pokemon_physical(
+                    name, physical['height'], physical['weight']
+                )
+                if not valid:
+                    continue
+            except (ValueError, KeyError):
+                pass  # If no physical data, allow through
+
+        filtered.append(name)
+
+    return filtered
 
 
 if __name__ == "__main__":

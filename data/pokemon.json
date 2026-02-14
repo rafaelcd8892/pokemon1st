@@ -13,7 +13,9 @@
         "defense": 49,
         "special": 65,
         "speed": 45
-      }
+      },
+      "height": 0.7,
+      "weight": 6.9
     },
     {
       "id": 2,
@@ -28,7 +30,9 @@
         "defense": 63,
         "special": 80,
         "speed": 60
-      }
+      },
+      "height": 1.0,
+      "weight": 13.0
     },
     {
       "id": 3,
@@ -43,7 +47,9 @@
         "defense": 83,
         "special": 100,
         "speed": 80
-      }
+      },
+      "height": 2.0,
+      "weight": 100.0
     },
     {
       "id": 4,
@@ -57,7 +63,9 @@
         "defense": 43,
         "special": 60,
         "speed": 65
-      }
+      },
+      "height": 0.6,
+      "weight": 8.5
     },
     {
       "id": 5,
@@ -71,7 +79,9 @@
         "defense": 58,
         "special": 80,
         "speed": 80
-      }
+      },
+      "height": 1.1,
+      "weight": 19.0
     },
     {
       "id": 6,
@@ -86,7 +96,9 @@
         "defense": 78,
         "special": 109,
         "speed": 100
-      }
+      },
+      "height": 1.7,
+      "weight": 90.5
     },
     {
       "id": 7,
@@ -100,7 +112,9 @@
         "defense": 65,
         "special": 50,
         "speed": 43
-      }
+      },
+      "height": 0.5,
+      "weight": 9.0
     },
     {
       "id": 8,
@@ -114,7 +128,9 @@
         "defense": 80,
         "special": 65,
         "speed": 58
-      }
+      },
+      "height": 1.0,
+      "weight": 22.5
     },
     {
       "id": 9,
@@ -128,7 +144,9 @@
         "defense": 100,
         "special": 85,
         "speed": 78
-      }
+      },
+      "height": 1.6,
+      "weight": 85.5
     },
     {
       "id": 10,
@@ -142,7 +160,9 @@
         "defense": 35,
         "special": 20,
         "speed": 45
-      }
+      },
+      "height": 0.3,
+      "weight": 2.9
     },
     {
       "id": 11,
@@ -156,7 +176,9 @@
         "defense": 55,
         "special": 25,
         "speed": 30
-      }
+      },
+      "height": 0.7,
+      "weight": 9.9
     },
     {
       "id": 12,
@@ -171,7 +193,9 @@
         "defense": 50,
         "special": 90,
         "speed": 70
-      }
+      },
+      "height": 1.1,
+      "weight": 32.0
     },
     {
       "id": 13,
@@ -186,7 +210,9 @@
         "defense": 30,
         "special": 20,
         "speed": 50
-      }
+      },
+      "height": 0.3,
+      "weight": 3.2
     },
     {
       "id": 14,
@@ -201,7 +227,9 @@
         "defense": 50,
         "special": 25,
         "speed": 35
-      }
+      },
+      "height": 0.6,
+      "weight": 10.0
     },
     {
       "id": 15,
@@ -216,7 +244,9 @@
         "defense": 40,
         "special": 45,
         "speed": 75
-      }
+      },
+      "height": 1.0,
+      "weight": 29.5
     },
     {
       "id": 16,
@@ -231,7 +261,9 @@
         "defense": 40,
         "special": 35,
         "speed": 56
-      }
+      },
+      "height": 0.3,
+      "weight": 1.8
     },
     {
       "id": 17,
@@ -246,7 +278,9 @@
         "defense": 55,
         "special": 50,
         "speed": 71
-      }
+      },
+      "height": 1.1,
+      "weight": 30.0
     },
     {
       "id": 18,
@@ -261,7 +295,9 @@
         "defense": 75,
         "special": 70,
         "speed": 101
-      }
+      },
+      "height": 1.5,
+      "weight": 39.5
     },
     {
       "id": 19,
@@ -275,7 +311,9 @@
         "defense": 35,
         "special": 25,
         "speed": 72
-      }
+      },
+      "height": 0.3,
+      "weight": 3.5
     },
     {
       "id": 20,
@@ -289,7 +327,9 @@
         "defense": 60,
         "special": 50,
         "speed": 97
-      }
+      },
+      "height": 0.7,
+      "weight": 18.5
     },
     {
       "id": 21,
@@ -304,7 +344,9 @@
         "defense": 30,
         "special": 31,
         "speed": 70
-      }
+      },
+      "height": 0.3,
+      "weight": 2.0
     },
     {
       "id": 22,
@@ -319,7 +361,9 @@
         "defense": 65,
         "special": 61,
         "speed": 100
-      }
+      },
+      "height": 1.2,
+      "weight": 38.0
     },
     {
       "id": 23,
@@ -333,7 +377,9 @@
         "defense": 44,
         "special": 40,
         "speed": 55
-      }
+      },
+      "height": 2.0,
+      "weight": 6.9
     },
     {
       "id": 24,
@@ -347,7 +393,9 @@
         "defense": 69,
         "special": 65,
         "speed": 80
-      }
+      },
+      "height": 3.5,
+      "weight": 65.0
     },
     {
       "id": 25,
@@ -361,7 +409,9 @@
         "defense": 40,
         "special": 50,
         "speed": 90
-      }
+      },
+      "height": 0.4,
+      "weight": 6.0
     },
     {
       "id": 26,
@@ -375,7 +425,9 @@
         "defense": 55,
         "special": 90,
         "speed": 110
-      }
+      },
+      "height": 0.8,
+      "weight": 30.0
     },
     {
       "id": 27,
@@ -389,7 +441,9 @@
         "defense": 85,
         "special": 20,
         "speed": 40
-      }
+      },
+      "height": 0.6,
+      "weight": 12.0
     },
     {
       "id": 28,
@@ -403,7 +457,9 @@
         "defense": 110,
         "special": 45,
         "speed": 65
-      }
+      },
+      "height": 1.0,
+      "weight": 29.5
     },
     {
       "id": 29,
@@ -417,7 +473,9 @@
         "defense": 52,
         "special": 40,
         "speed": 41
-      }
+      },
+      "height": 0.4,
+      "weight": 7.0
     },
     {
       "id": 30,
@@ -431,7 +489,9 @@
         "defense": 67,
         "special": 55,
         "speed": 56
-      }
+      },
+      "height": 0.8,
+      "weight": 20.0
     },
     {
       "id": 31,
@@ -446,7 +506,9 @@
         "defense": 87,
         "special": 75,
         "speed": 76
-      }
+      },
+      "height": 1.3,
+      "weight": 60.0
     },
     {
       "id": 32,
@@ -460,7 +522,9 @@
         "defense": 40,
         "special": 40,
         "speed": 50
-      }
+      },
+      "height": 0.5,
+      "weight": 9.0
     },
     {
       "id": 33,
@@ -474,7 +538,9 @@
         "defense": 57,
         "special": 55,
         "speed": 65
-      }
+      },
+      "height": 0.9,
+      "weight": 19.5
     },
     {
       "id": 34,
@@ -489,7 +555,9 @@
         "defense": 77,
         "special": 85,
         "speed": 85
-      }
+      },
+      "height": 1.4,
+      "weight": 62.0
     },
     {
       "id": 35,
@@ -503,7 +571,9 @@
         "defense": 48,
         "special": 60,
         "speed": 35
-      }
+      },
+      "height": 0.6,
+      "weight": 7.5
     },
     {
       "id": 36,
@@ -517,7 +587,9 @@
         "defense": 73,
         "special": 95,
         "speed": 60
-      }
+      },
+      "height": 1.3,
+      "weight": 40.0
     },
     {
       "id": 37,
@@ -531,7 +603,9 @@
         "defense": 40,
         "special": 50,
         "speed": 65
-      }
+      },
+      "height": 0.6,
+      "weight": 9.9
     },
     {
       "id": 38,
@@ -545,7 +619,9 @@
         "defense": 75,
         "special": 81,
         "speed": 100
-      }
+      },
+      "height": 1.1,
+      "weight": 19.9
     },
     {
       "id": 39,
@@ -560,7 +636,9 @@
         "defense": 20,
         "special": 45,
         "speed": 20
-      }
+      },
+      "height": 0.5,
+      "weight": 5.5
     },
     {
       "id": 40,
@@ -575,7 +653,9 @@
         "defense": 45,
         "special": 85,
         "speed": 45
-      }
+      },
+      "height": 1.0,
+      "weight": 12.0
     },
     {
       "id": 41,
@@ -590,7 +670,9 @@
         "defense": 35,
         "special": 30,
         "speed": 55
-      }
+      },
+      "height": 0.8,
+      "weight": 7.5
     },
     {
       "id": 42,
@@ -605,7 +687,9 @@
         "defense": 70,
         "special": 65,
         "speed": 90
-      }
+      },
+      "height": 1.6,
+      "weight": 55.0
     },
     {
       "id": 43,
@@ -620,7 +704,9 @@
         "defense": 55,
         "special": 75,
         "speed": 30
-      }
+      },
+      "height": 0.5,
+      "weight": 5.4
     },
     {
       "id": 44,
@@ -635,7 +721,9 @@
         "defense": 70,
         "special": 85,
         "speed": 40
-      }
+      },
+      "height": 0.8,
+      "weight": 8.6
     },
     {
       "id": 45,
@@ -650,7 +738,9 @@
         "defense": 85,
         "special": 110,
         "speed": 50
-      }
+      },
+      "height": 1.2,
+      "weight": 18.6
     },
     {
       "id": 46,
@@ -665,7 +755,9 @@
         "defense": 55,
         "special": 45,
         "speed": 25
-      }
+      },
+      "height": 0.3,
+      "weight": 5.4
     },
     {
       "id": 47,
@@ -680,7 +772,9 @@
         "defense": 80,
         "special": 60,
         "speed": 30
-      }
+      },
+      "height": 1.0,
+      "weight": 29.5
     },
     {
       "id": 48,
@@ -695,7 +789,9 @@
         "defense": 50,
         "special": 40,
         "speed": 45
-      }
+      },
+      "height": 1.0,
+      "weight": 30.0
     },
     {
       "id": 49,
@@ -710,7 +806,9 @@
         "defense": 60,
         "special": 90,
         "speed": 90
-      }
+      },
+      "height": 1.5,
+      "weight": 12.5
     },
     {
       "id": 50,
@@ -724,7 +822,9 @@
         "defense": 25,
         "special": 35,
         "speed": 95
-      }
+      },
+      "height": 0.2,
+      "weight": 0.8
     },
     {
       "id": 51,
@@ -738,7 +838,9 @@
         "defense": 50,
         "special": 50,
         "speed": 120
-      }
+      },
+      "height": 0.7,
+      "weight": 33.3
     },
     {
       "id": 52,
@@ -752,7 +854,9 @@
         "defense": 35,
         "special": 40,
         "speed": 90
-      }
+      },
+      "height": 0.4,
+      "weight": 4.2
     },
     {
       "id": 53,
@@ -766,7 +870,9 @@
         "defense": 60,
         "special": 65,
         "speed": 115
-      }
+      },
+      "height": 1.0,
+      "weight": 32.0
     },
     {
       "id": 54,
@@ -780,7 +886,9 @@
         "defense": 48,
         "special": 65,
         "speed": 55
-      }
+      },
+      "height": 0.8,
+      "weight": 19.6
     },
     {
       "id": 55,
@@ -794,7 +902,9 @@
         "defense": 78,
         "special": 95,
         "speed": 85
-      }
+      },
+      "height": 1.7,
+      "weight": 76.6
     },
     {
       "id": 56,
@@ -808,7 +918,9 @@
         "defense": 35,
         "special": 35,
         "speed": 70
-      }
+      },
+      "height": 0.5,
+      "weight": 28.0
     },
     {
       "id": 57,
@@ -822,7 +934,9 @@
         "defense": 60,
         "special": 60,
         "speed": 95
-      }
+      },
+      "height": 1.0,
+      "weight": 32.0
     },
     {
       "id": 58,
@@ -836,7 +950,9 @@
         "defense": 45,
         "special": 70,
         "speed": 60
-      }
+      },
+      "height": 0.7,
+      "weight": 19.0
     },
     {
       "id": 59,
@@ -850,7 +966,9 @@
         "defense": 80,
         "special": 100,
         "speed": 95
-      }
+      },
+      "height": 1.9,
+      "weight": 155.0
     },
     {
       "id": 60,
@@ -864,7 +982,9 @@
         "defense": 40,
         "special": 40,
         "speed": 90
-      }
+      },
+      "height": 0.6,
+      "weight": 12.4
     },
     {
       "id": 61,
@@ -878,7 +998,9 @@
         "defense": 65,
         "special": 50,
         "speed": 90
-      }
+      },
+      "height": 1.0,
+      "weight": 20.0
     },
     {
       "id": 62,
@@ -893,7 +1015,9 @@
         "defense": 95,
         "special": 70,
         "speed": 70
-      }
+      },
+      "height": 1.3,
+      "weight": 54.0
     },
     {
       "id": 63,
@@ -907,7 +1031,9 @@
         "defense": 15,
         "special": 105,
         "speed": 90
-      }
+      },
+      "height": 0.9,
+      "weight": 19.5
     },
     {
       "id": 64,
@@ -921,7 +1047,9 @@
         "defense": 30,
         "special": 120,
         "speed": 105
-      }
+      },
+      "height": 1.3,
+      "weight": 56.5
     },
     {
       "id": 65,
@@ -935,7 +1063,9 @@
         "defense": 45,
         "special": 135,
         "speed": 120
-      }
+      },
+      "height": 1.5,
+      "weight": 48.0
     },
     {
       "id": 66,
@@ -949,7 +1079,9 @@
         "defense": 50,
         "special": 35,
         "speed": 35
-      }
+      },
+      "height": 0.8,
+      "weight": 19.5
     },
     {
       "id": 67,
@@ -963,7 +1095,9 @@
         "defense": 70,
         "special": 50,
         "speed": 45
-      }
+      },
+      "height": 1.5,
+      "weight": 70.5
     },
     {
       "id": 68,
@@ -977,7 +1111,9 @@
         "defense": 80,
         "special": 65,
         "speed": 55
-      }
+      },
+      "height": 1.6,
+      "weight": 130.0
     },
     {
       "id": 69,
@@ -992,7 +1128,9 @@
         "defense": 35,
         "special": 70,
         "speed": 40
-      }
+      },
+      "height": 0.7,
+      "weight": 4.0
     },
     {
       "id": 70,
@@ -1007,7 +1145,9 @@
         "defense": 50,
         "special": 85,
         "speed": 55
-      }
+      },
+      "height": 1.0,
+      "weight": 6.4
     },
     {
       "id": 71,
@@ -1022,7 +1162,9 @@
         "defense": 65,
         "special": 100,
         "speed": 70
-      }
+      },
+      "height": 1.7,
+      "weight": 15.5
     },
     {
       "id": 72,
@@ -1037,7 +1179,9 @@
         "defense": 35,
         "special": 50,
         "speed": 70
-      }
+      },
+      "height": 0.9,
+      "weight": 45.5
     },
     {
       "id": 73,
@@ -1052,7 +1196,9 @@
         "defense": 65,
         "special": 80,
         "speed": 100
-      }
+      },
+      "height": 1.6,
+      "weight": 55.0
     },
     {
       "id": 74,
@@ -1067,7 +1213,9 @@
         "defense": 100,
         "special": 30,
         "speed": 20
-      }
+      },
+      "height": 0.4,
+      "weight": 20.0
     },
     {
       "id": 75,
@@ -1082,7 +1230,9 @@
         "defense": 115,
         "special": 45,
         "speed": 35
-      }
+      },
+      "height": 1.0,
+      "weight": 105.0
     },
     {
       "id": 76,
@@ -1097,7 +1247,9 @@
         "defense": 130,
         "special": 55,
         "speed": 45
-      }
+      },
+      "height": 1.4,
+      "weight": 300.0
     },
     {
       "id": 77,
@@ -1111,7 +1263,9 @@
         "defense": 55,
         "special": 65,
         "speed": 90
-      }
+      },
+      "height": 1.0,
+      "weight": 30.0
     },
     {
       "id": 78,
@@ -1125,7 +1279,9 @@
         "defense": 70,
         "special": 80,
         "speed": 105
-      }
+      },
+      "height": 1.7,
+      "weight": 95.0
     },
     {
       "id": 79,
@@ -1140,7 +1296,9 @@
         "defense": 65,
         "special": 40,
         "speed": 15
-      }
+      },
+      "height": 1.2,
+      "weight": 36.0
     },
     {
       "id": 80,
@@ -1155,7 +1313,9 @@
         "defense": 110,
         "special": 100,
         "speed": 30
-      }
+      },
+      "height": 1.6,
+      "weight": 78.5
     },
     {
       "id": 81,
@@ -1170,7 +1330,9 @@
         "defense": 70,
         "special": 95,
         "speed": 45
-      }
+      },
+      "height": 0.3,
+      "weight": 6.0
     },
     {
       "id": 82,
@@ -1185,7 +1347,9 @@
         "defense": 95,
         "special": 120,
         "speed": 70
-      }
+      },
+      "height": 1.0,
+      "weight": 60.0
     },
     {
       "id": 83,
@@ -1200,7 +1364,9 @@
         "defense": 55,
         "special": 58,
         "speed": 60
-      }
+      },
+      "height": 0.8,
+      "weight": 15.0
     },
     {
       "id": 84,
@@ -1215,7 +1381,9 @@
         "defense": 45,
         "special": 35,
         "speed": 75
-      }
+      },
+      "height": 1.4,
+      "weight": 39.2
     },
     {
       "id": 85,
@@ -1230,7 +1398,9 @@
         "defense": 70,
         "special": 60,
         "speed": 110
-      }
+      },
+      "height": 1.8,
+      "weight": 85.2
     },
     {
       "id": 86,
@@ -1244,7 +1414,9 @@
         "defense": 55,
         "special": 45,
         "speed": 45
-      }
+      },
+      "height": 1.1,
+      "weight": 90.0
     },
     {
       "id": 87,
@@ -1259,7 +1431,9 @@
         "defense": 80,
         "special": 70,
         "speed": 70
-      }
+      },
+      "height": 1.7,
+      "weight": 120.0
     },
     {
       "id": 88,
@@ -1273,7 +1447,9 @@
         "defense": 50,
         "special": 40,
         "speed": 25
-      }
+      },
+      "height": 0.9,
+      "weight": 30.0
     },
     {
       "id": 89,
@@ -1287,7 +1463,9 @@
         "defense": 75,
         "special": 65,
         "speed": 50
-      }
+      },
+      "height": 1.2,
+      "weight": 30.0
     },
     {
       "id": 90,
@@ -1301,7 +1479,9 @@
         "defense": 100,
         "special": 45,
         "speed": 40
-      }
+      },
+      "height": 0.3,
+      "weight": 4.0
     },
     {
       "id": 91,
@@ -1316,7 +1496,9 @@
         "defense": 180,
         "special": 85,
         "speed": 70
-      }
+      },
+      "height": 1.5,
+      "weight": 132.5
     },
     {
       "id": 92,
@@ -1331,7 +1513,9 @@
         "defense": 30,
         "special": 100,
         "speed": 80
-      }
+      },
+      "height": 1.3,
+      "weight": 0.1
     },
     {
       "id": 93,
@@ -1346,7 +1530,9 @@
         "defense": 45,
         "special": 115,
         "speed": 95
-      }
+      },
+      "height": 1.6,
+      "weight": 0.1
     },
     {
       "id": 94,
@@ -1361,7 +1547,9 @@
         "defense": 60,
         "special": 130,
         "speed": 110
-      }
+      },
+      "height": 1.5,
+      "weight": 40.5
     },
     {
       "id": 95,
@@ -1376,7 +1564,9 @@
         "defense": 160,
         "special": 30,
         "speed": 70
-      }
+      },
+      "height": 8.8,
+      "weight": 210.0
     },
     {
       "id": 96,
@@ -1390,7 +1580,9 @@
         "defense": 45,
         "special": 43,
         "speed": 42
-      }
+      },
+      "height": 1.0,
+      "weight": 32.4
     },
     {
       "id": 97,
@@ -1404,7 +1596,9 @@
         "defense": 70,
         "special": 73,
         "speed": 67
-      }
+      },
+      "height": 1.6,
+      "weight": 75.6
     },
     {
       "id": 98,
@@ -1418,7 +1612,9 @@
         "defense": 90,
         "special": 25,
         "speed": 50
-      }
+      },
+      "height": 0.4,
+      "weight": 6.5
     },
     {
       "id": 99,
@@ -1432,7 +1628,9 @@
         "defense": 115,
         "special": 50,
         "speed": 75
-      }
+      },
+      "height": 1.3,
+      "weight": 60.0
     },
     {
       "id": 100,
@@ -1446,7 +1644,9 @@
         "defense": 50,
         "special": 55,
         "speed": 100
-      }
+      },
+      "height": 0.5,
+      "weight": 10.4
     },
     {
       "id": 101,
@@ -1460,7 +1660,9 @@
         "defense": 70,
         "special": 80,
         "speed": 150
-      }
+      },
+      "height": 1.2,
+      "weight": 66.6
     },
     {
       "id": 102,
@@ -1475,7 +1677,9 @@
         "defense": 80,
         "special": 60,
         "speed": 40
-      }
+      },
+      "height": 0.4,
+      "weight": 2.5
     },
     {
       "id": 103,
@@ -1490,7 +1694,9 @@
         "defense": 85,
         "special": 125,
         "speed": 55
-      }
+      },
+      "height": 2.0,
+      "weight": 120.0
     },
     {
       "id": 104,
@@ -1504,7 +1710,9 @@
         "defense": 95,
         "special": 40,
         "speed": 35
-      }
+      },
+      "height": 0.4,
+      "weight": 6.5
     },
     {
       "id": 105,
@@ -1518,7 +1726,9 @@
         "defense": 110,
         "special": 50,
         "speed": 45
-      }
+      },
+      "height": 1.0,
+      "weight": 45.0
     },
     {
       "id": 106,
@@ -1532,7 +1742,9 @@
         "defense": 53,
         "special": 35,
         "speed": 87
-      }
+      },
+      "height": 1.5,
+      "weight": 49.8
     },
     {
       "id": 107,
@@ -1546,7 +1758,9 @@
         "defense": 79,
         "special": 35,
         "speed": 76
-      }
+      },
+      "height": 1.4,
+      "weight": 50.2
     },
     {
       "id": 108,
@@ -1560,7 +1774,9 @@
         "defense": 75,
         "special": 60,
         "speed": 30
-      }
+      },
+      "height": 1.2,
+      "weight": 65.5
     },
     {
       "id": 109,
@@ -1574,7 +1790,9 @@
         "defense": 95,
         "special": 60,
         "speed": 35
-      }
+      },
+      "height": 0.6,
+      "weight": 1.0
     },
     {
       "id": 110,
@@ -1588,7 +1806,9 @@
         "defense": 120,
         "special": 85,
         "speed": 60
-      }
+      },
+      "height": 1.2,
+      "weight": 9.5
     },
     {
       "id": 111,
@@ -1603,7 +1823,9 @@
         "defense": 95,
         "special": 30,
         "speed": 25
-      }
+      },
+      "height": 1.0,
+      "weight": 115.0
     },
     {
       "id": 112,
@@ -1618,7 +1840,9 @@
         "defense": 120,
         "special": 45,
         "speed": 40
-      }
+      },
+      "height": 1.9,
+      "weight": 120.0
     },
     {
       "id": 113,
@@ -1632,7 +1856,9 @@
         "defense": 5,
         "special": 35,
         "speed": 50
-      }
+      },
+      "height": 1.1,
+      "weight": 34.6
     },
     {
       "id": 114,
@@ -1646,7 +1872,9 @@
         "defense": 115,
         "special": 100,
         "speed": 60
-      }
+      },
+      "height": 1.0,
+      "weight": 35.0
     },
     {
       "id": 115,
@@ -1660,7 +1888,9 @@
         "defense": 80,
         "special": 40,
         "speed": 90
-      }
+      },
+      "height": 2.2,
+      "weight": 80.0
     },
     {
       "id": 116,
@@ -1674,7 +1904,9 @@
         "defense": 70,
         "special": 70,
         "speed": 60
-      }
+      },
+      "height": 0.4,
+      "weight": 8.0
     },
     {
       "id": 117,
@@ -1688,7 +1920,9 @@
         "defense": 95,
         "special": 95,
         "speed": 85
-      }
+      },
+      "height": 1.2,
+      "weight": 25.0
     },
     {
       "id": 118,
@@ -1702,7 +1936,9 @@
         "defense": 60,
         "special": 35,
         "speed": 63
-      }
+      },
+      "height": 0.6,
+      "weight": 15.0
     },
     {
       "id": 119,
@@ -1716,7 +1952,9 @@
         "defense": 65,
         "special": 65,
         "speed": 68
-      }
+      },
+      "height": 1.3,
+      "weight": 39.0
     },
     {
       "id": 120,
@@ -1730,7 +1968,9 @@
         "defense": 55,
         "special": 70,
         "speed": 85
-      }
+      },
+      "height": 0.8,
+      "weight": 34.5
     },
     {
       "id": 121,
@@ -1745,7 +1985,9 @@
         "defense": 85,
         "special": 100,
         "speed": 115
-      }
+      },
+      "height": 1.1,
+      "weight": 80.0
     },
     {
       "id": 122,
@@ -1760,7 +2002,9 @@
         "defense": 65,
         "special": 100,
         "speed": 90
-      }
+      },
+      "height": 1.3,
+      "weight": 54.5
     },
     {
       "id": 123,
@@ -1775,7 +2019,9 @@
         "defense": 80,
         "special": 55,
         "speed": 105
-      }
+      },
+      "height": 1.5,
+      "weight": 56.0
     },
     {
       "id": 124,
@@ -1790,7 +2036,9 @@
         "defense": 35,
         "special": 115,
         "speed": 95
-      }
+      },
+      "height": 1.4,
+      "weight": 40.6
     },
     {
       "id": 125,
@@ -1804,7 +2052,9 @@
         "defense": 57,
         "special": 95,
         "speed": 105
-      }
+      },
+      "height": 1.1,
+      "weight": 30.0
     },
     {
       "id": 126,
@@ -1818,7 +2068,9 @@
         "defense": 57,
         "special": 100,
         "speed": 93
-      }
+      },
+      "height": 1.3,
+      "weight": 44.5
     },
     {
       "id": 127,
@@ -1832,7 +2084,9 @@
         "defense": 100,
         "special": 55,
         "speed": 85
-      }
+      },
+      "height": 1.5,
+      "weight": 55.0
     },
     {
       "id": 128,
@@ -1846,7 +2100,9 @@
         "defense": 95,
         "special": 40,
         "speed": 110
-      }
+      },
+      "height": 1.4,
+      "weight": 88.4
     },
     {
       "id": 129,
@@ -1860,7 +2116,9 @@
         "defense": 55,
         "special": 15,
         "speed": 80
-      }
+      },
+      "height": 0.9,
+      "weight": 10.0
     },
     {
       "id": 130,
@@ -1875,7 +2133,9 @@
         "defense": 79,
         "special": 60,
         "speed": 81
-      }
+      },
+      "height": 6.5,
+      "weight": 235.0
     },
     {
       "id": 131,
@@ -1890,7 +2150,9 @@
         "defense": 80,
         "special": 85,
         "speed": 60
-      }
+      },
+      "height": 2.5,
+      "weight": 220.0
     },
     {
       "id": 132,
@@ -1904,7 +2166,9 @@
         "defense": 48,
         "special": 48,
         "speed": 48
-      }
+      },
+      "height": 0.3,
+      "weight": 4.0
     },
     {
       "id": 133,
@@ -1918,7 +2182,9 @@
         "defense": 50,
         "special": 45,
         "speed": 55
-      }
+      },
+      "height": 0.3,
+      "weight": 6.5
     },
     {
       "id": 134,
@@ -1932,7 +2198,9 @@
         "defense": 60,
         "special": 110,
         "speed": 65
-      }
+      },
+      "height": 1.0,
+      "weight": 29.0
     },
     {
       "id": 135,
@@ -1946,7 +2214,9 @@
         "defense": 60,
         "special": 110,
         "speed": 130
-      }
+      },
+      "height": 0.8,
+      "weight": 24.5
     },
     {
       "id": 136,
@@ -1960,7 +2230,9 @@
         "defense": 60,
         "special": 95,
         "speed": 65
-      }
+      },
+      "height": 0.9,
+      "weight": 25.0
     },
     {
       "id": 137,
@@ -1974,7 +2246,9 @@
         "defense": 70,
         "special": 85,
         "speed": 40
-      }
+      },
+      "height": 0.8,
+      "weight": 36.5
     },
     {
       "id": 138,
@@ -1989,7 +2263,9 @@
         "defense": 100,
         "special": 90,
         "speed": 35
-      }
+      },
+      "height": 0.4,
+      "weight": 7.5
     },
     {
       "id": 139,
@@ -2004,7 +2280,9 @@
         "defense": 125,
         "special": 115,
         "speed": 55
-      }
+      },
+      "height": 1.0,
+      "weight": 35.0
     },
     {
       "id": 140,
@@ -2019,7 +2297,9 @@
         "defense": 90,
         "special": 55,
         "speed": 55
-      }
+      },
+      "height": 0.5,
+      "weight": 11.5
     },
     {
       "id": 141,
@@ -2034,7 +2314,9 @@
         "defense": 105,
         "special": 65,
         "speed": 80
-      }
+      },
+      "height": 1.3,
+      "weight": 40.5
     },
     {
       "id": 142,
@@ -2049,7 +2331,9 @@
         "defense": 65,
         "special": 60,
         "speed": 130
-      }
+      },
+      "height": 1.8,
+      "weight": 59.0
     },
     {
       "id": 143,
@@ -2063,7 +2347,9 @@
         "defense": 65,
         "special": 65,
         "speed": 30
-      }
+      },
+      "height": 2.1,
+      "weight": 460.0
     },
     {
       "id": 144,
@@ -2078,7 +2364,9 @@
         "defense": 100,
         "special": 95,
         "speed": 85
-      }
+      },
+      "height": 1.7,
+      "weight": 55.4
     },
     {
       "id": 145,
@@ -2093,7 +2381,9 @@
         "defense": 85,
         "special": 125,
         "speed": 100
-      }
+      },
+      "height": 1.6,
+      "weight": 52.6
     },
     {
       "id": 146,
@@ -2108,7 +2398,9 @@
         "defense": 90,
         "special": 125,
         "speed": 90
-      }
+      },
+      "height": 2.0,
+      "weight": 60.0
     },
     {
       "id": 147,
@@ -2122,7 +2414,9 @@
         "defense": 45,
         "special": 50,
         "speed": 50
-      }
+      },
+      "height": 1.8,
+      "weight": 3.3
     },
     {
       "id": 148,
@@ -2136,7 +2430,9 @@
         "defense": 65,
         "special": 70,
         "speed": 70
-      }
+      },
+      "height": 4.0,
+      "weight": 16.5
     },
     {
       "id": 149,
@@ -2151,7 +2447,9 @@
         "defense": 95,
         "special": 100,
         "speed": 80
-      }
+      },
+      "height": 2.2,
+      "weight": 210.0
     },
     {
       "id": 150,
@@ -2165,7 +2463,9 @@
         "defense": 90,
         "special": 154,
         "speed": 130
-      }
+      },
+      "height": 2.0,
+      "weight": 122.0
     },
     {
       "id": 151,
@@ -2179,7 +2479,9 @@
         "defense": 100,
         "special": 100,
         "speed": 100
-      }
+      },
+      "height": 0.4,
+      "weight": 4.0
     }
   ]
 }

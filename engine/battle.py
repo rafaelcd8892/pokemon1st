@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 from models.move import Move
 from models.enums import MoveCategory, StatType, Status, Type
 from engine.damage import calculate_damage, calculate_damage_with_breakdown
+from engine.gen_mechanics import is_physical as _is_physical_move
 from engine.status import apply_status_effects, apply_end_turn_status_damage
 from engine.stat_modifiers import get_stat_change_message, get_modified_speed, get_accuracy_multiplier
 from engine.display import format_pokemon_status, format_move_name
@@ -45,7 +46,8 @@ SELF_TARGET_LOG_MOVES = {
 # Turn Execution - Main Entry Point
 # =============================================================================
 
-def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list = None):
+def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list = None,
+                  clauses=None, defender_team: list = None):
     """
     Execute a complete battle turn.
 
@@ -54,8 +56,23 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
         defender: The Pokemon being targeted
         move: The move being used
         all_moves: List of all available moves (for Metronome/Mirror Move)
+        clauses: Optional BattleClauses for clause enforcement
+        defender_team: Optional list of defender's team Pokemon (for sleep/freeze clause)
     """
     logger.debug(f"Turn: {attacker.name} using {move.name} against {defender.name}")
+
+    # Check move-level clauses (OHKO/Evasion) before execution
+    if clauses is not None:
+        from engine.clauses import check_move_clauses
+        allowed, reason = check_move_clauses(move, clauses)
+        if not allowed:
+            print(f"\n{attacker.name} intenta usar {format_move_name(move)}!")
+            print(f"¡{reason}!")
+            blog = get_battle_logger()
+            if blog:
+                blog.log_move_prevented(attacker.name, move.name, "clause",
+                                        pokemon_side=_pokemon_side(attacker))
+            return
 
     # Handle recharge state (e.g., after Hyper Beam)
     if _handle_recharge_state(attacker):
@@ -122,7 +139,7 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
         return
 
     # Handle normal attack (includes charge move execution)
-    _execute_normal_attack(attacker, defender, move)
+    _execute_normal_attack(attacker, defender, move, clauses=clauses, defender_team=defender_team)
 
 
 # =============================================================================
@@ -402,7 +419,7 @@ def _handle_recharge_move(attacker: Pokemon, defender: Pokemon, move: Move,
         _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
         return
 
-    is_physical = move.category == MoveCategory.PHYSICAL
+    is_physical = _is_physical_move(move)
     actual_damage = apply_damage_to_target(defender, actual_damage, is_physical)
     _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
@@ -561,7 +578,7 @@ def _execute_multi_hit_attack(attacker: Pokemon, defender: Pokemon, move: Move,
         poison_chance: Chance to poison per hit (0-100), 0 means no poison
     """
     total_damage = 0
-    is_physical = move.category == MoveCategory.PHYSICAL
+    is_physical = _is_physical_move(move)
     hits = 0
     effectiveness = 1  # Track for message at end
 
@@ -613,7 +630,8 @@ def _print_damage_messages(is_crit: bool, effectiveness: float, defender_name: s
         print("No es muy efectivo...")
 
 
-def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
+def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move,
+                            clauses=None, defender_team: list = None):
     """Execute a standard attack with damage calculation and effects."""
     from engine.type_chart import get_effectiveness
 
@@ -633,7 +651,7 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
         return
 
     # Apply screens (Reflect/Light Screen reduce damage by half)
-    is_physical = move.category == MoveCategory.PHYSICAL
+    is_physical = _is_physical_move(move)
     damage = _apply_screen_reduction(defender, damage, is_physical, is_critical)
 
     if damage > 0:
@@ -678,7 +696,7 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move):
                         breakdown=bd)
 
     # Apply status effect
-    _apply_move_status_effect(defender, move)
+    _apply_move_status_effect(defender, move, clauses=clauses, defender_team=defender_team)
 
     # Apply stat changes
     _apply_move_stat_changes(attacker, defender, move)
@@ -703,11 +721,29 @@ def _apply_screen_reduction(defender: Pokemon, damage: int, is_physical: bool, i
     return damage
 
 
-def _apply_move_status_effect(defender: Pokemon, move: Move):
+def _apply_move_status_effect(defender: Pokemon, move: Move,
+                               clauses=None, defender_team: list = None):
     """Apply the move's status effect if applicable."""
     # Status moves don't work through Substitute, and don't apply to fainted Pokemon
     if defender.substitute_hp == 0 and defender.is_alive():
         if move.status_effect and random.randint(1, 100) <= move.status_chance:
+            # Check sleep/freeze clauses before applying status
+            if clauses is not None and defender_team is not None:
+                from engine.clauses import check_status_clause
+                allowed, reason = check_status_clause(
+                    move.status_effect, defender_team, clauses
+                )
+                if not allowed:
+                    print(f"¡{reason}!")
+                    blog = get_battle_logger()
+                    if blog:
+                        blog.log_status(
+                            defender.name, move.status_effect.value,
+                            applied=False, source=move.name,
+                            pokemon_side=_pokemon_side(defender)
+                        )
+                    return
+
             if defender.apply_status(move.status_effect):
                 print(f"¡{defender.name} está {move.status_effect.value}!")
                 print(f"  {format_pokemon_status(defender)}")

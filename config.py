@@ -1,5 +1,8 @@
 """Constantes del sistema de batalla"""
 
+# Generation setting — controls mechanics resolution (P/S split, type chart, etc.)
+GENERATION = 1
+
 # Damage calculation
 CRIT_MULTIPLIER = 2
 STAB_MULTIPLIER = 1.5

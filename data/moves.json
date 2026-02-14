@@ -130,7 +130,7 @@
     },
     {
       "name": "Bite",
-      "type": "DARK",
+      "type": "NORMAL",
       "category": "PHYSICAL",
       "power": 60,
       "accuracy": 100,

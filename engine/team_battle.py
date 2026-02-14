@@ -70,7 +70,8 @@ class TeamBattle:
                  max_turns: int = 100,
                  action_delay: float = DEFAULT_ACTION_DELAY,
                  enable_battle_log: bool = True,
-                 log_dir=None):
+                 log_dir=None,
+                 clauses=None):
         """
         Initialize a team battle.
 
@@ -82,6 +83,7 @@ class TeamBattle:
             action_delay: Seconds to wait between actions (default 3.0)
             enable_battle_log: If True, creates a detailed log file for this battle
             log_dir: Optional custom directory for log files
+            clauses: Optional BattleClauses for clause enforcement
         """
         self.team1 = team1
         self.team2 = team2
@@ -90,6 +92,7 @@ class TeamBattle:
         self.turn_count = 0
         self.battle_log: list[str] = []
         self.action_delay = action_delay
+        self.clauses = clauses
 
         # Initialize and register global battle logger so engine/battle.py
         # and TeamBattle write to the same log instance.
@@ -241,7 +244,16 @@ class TeamBattle:
             if not attacker.is_alive():
                 return False
 
-            execute_turn(attacker, defender, action.move, self._get_all_moves_pool())
+            # Determine defender team for clause checking
+            defender_team_pokemon = None
+            if self.clauses is not None:
+                if opponent_team == self.team1:
+                    defender_team_pokemon = self.team1.pokemon
+                else:
+                    defender_team_pokemon = self.team2.pokemon
+
+            execute_turn(attacker, defender, action.move, self._get_all_moves_pool(),
+                         clauses=self.clauses, defender_team=defender_team_pokemon)
 
             # Log HP snapshots for auditability (both actor and target).
             self.battle_logger.log_hp(
@@ -497,13 +509,14 @@ def create_random_team(size: int, trainer_name: str = "Trainer") -> Team:
     return Team(pokemon_list, trainer_name)
 
 
-def get_random_ai_action(team: Team, opponent_team: Team) -> BattleAction:
+def get_random_ai_action(team: Team, opponent_team: Team, clauses=None) -> BattleAction:
     """
     Simple AI that picks a random move or occasionally switches.
 
     Args:
         team: The AI's team
         opponent_team: The opponent's team
+        clauses: Optional BattleClauses for filtering banned moves
 
     Returns:
         A BattleAction
@@ -518,8 +531,14 @@ def get_random_ai_action(team: Team, opponent_team: Team) -> BattleAction:
             logger.debug(f"AI switching to index {switch_idx}")
             return BattleAction.switch(switch_idx)
 
-    # Pick a random move with PP
+    # Pick a random move with PP, filtering out clause-banned moves
     available_moves = [m for m in active.moves if m.has_pp()]
+    if clauses is not None:
+        from engine.clauses import is_move_banned_by_clauses
+        legal_moves = [m for m in available_moves if not is_move_banned_by_clauses(m, clauses)]
+        if legal_moves:
+            available_moves = legal_moves
+
     if available_moves:
         move = random.choice(available_moves)
         return BattleAction.attack(move)

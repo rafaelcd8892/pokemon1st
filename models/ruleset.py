@@ -24,6 +24,41 @@ class CupType(Enum):
     CUSTOM = "custom"           # User-defined rules
 
 
+@dataclass
+class BattleClauses:
+    """
+    Battle clauses that restrict certain moves or effects during battle.
+
+    Based on Pokemon Stadium tournament rules:
+    - Sleep Clause: Only one opponent Pokemon may be put to sleep at a time
+    - Freeze Clause: Only one opponent Pokemon may be frozen at a time
+    - OHKO Clause: One-hit KO moves (Fissure, Guillotine, Horn Drill) are banned
+    - Evasion Clause: Evasion-raising moves (Double Team, Minimize) are banned
+    """
+    sleep_clause: bool = False
+    freeze_clause: bool = False
+    ohko_clause: bool = False
+    evasion_clause: bool = False
+
+    def any_active(self) -> bool:
+        """Return True if any clause is enabled."""
+        return any([self.sleep_clause, self.freeze_clause,
+                    self.ohko_clause, self.evasion_clause])
+
+    def get_active_list(self) -> list[str]:
+        """Return list of active clause names."""
+        active = []
+        if self.sleep_clause:
+            active.append("Sleep Clause")
+        if self.freeze_clause:
+            active.append("Freeze Clause")
+        if self.ohko_clause:
+            active.append("OHKO Clause")
+        if self.evasion_clause:
+            active.append("Evasion Clause")
+        return active
+
+
 # Pokemon that can evolve (basic/first stage Pokemon)
 # Used for cups that restrict to "basic Pokemon only"
 BASIC_POKEMON = {
@@ -93,6 +128,13 @@ class Ruleset:
     max_evs: bool = True
     use_calculated_stats: bool = True
 
+    # Battle clauses
+    clauses: BattleClauses = field(default_factory=BattleClauses)
+
+    # Physical restrictions (Petit Cup)
+    max_height_m: Optional[float] = None
+    max_weight_kg: Optional[float] = None
+
     def validate_pokemon(self, pokemon: 'Pokemon') -> tuple[bool, str]:
         """
         Validate a single Pokemon against this ruleset.
@@ -130,6 +172,26 @@ class Ruleset:
 
         if pokemon.level > self.max_level:
             return False, f"{pokemon.name} (Lv.{pokemon.level}) exceeds maximum level {self.max_level}"
+
+        return True, ""
+
+    def validate_pokemon_physical(self, name: str, height: float, weight: float) -> tuple[bool, str]:
+        """
+        Validate a Pokemon's physical attributes against this ruleset.
+
+        Args:
+            name: Pokemon name (for error messages)
+            height: Pokemon height in meters
+            weight: Pokemon weight in kilograms
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        if self.max_height_m is not None and height > self.max_height_m:
+            return False, f"{name} (height {height}m) exceeds max height {self.max_height_m}m for {self.name}"
+
+        if self.max_weight_kg is not None and weight > self.max_weight_kg:
+            return False, f"{name} (weight {weight}kg) exceeds max weight {self.max_weight_kg}kg for {self.name}"
 
         return True, ""
 
@@ -190,6 +252,15 @@ class Ruleset:
         if not self.allow_legendaries:
             parts.append("No legendaries")
 
+        if self.max_height_m is not None:
+            parts.append(f"Height \u2264 {self.max_height_m}m")
+
+        if self.max_weight_kg is not None:
+            parts.append(f"Weight \u2264 {self.max_weight_kg}kg")
+
+        if self.clauses.any_active():
+            parts.append(", ".join(self.clauses.get_active_list()))
+
         return " | ".join(parts)
 
 
@@ -214,6 +285,7 @@ POKE_CUP_RULES = Ruleset(
     max_team_size=3,
     banned_pokemon={"mew", "mewtwo"},
     allow_legendaries=False,
+    clauses=BattleClauses(sleep_clause=True, freeze_clause=True),
 )
 
 PRIME_CUP_RULES = Ruleset(
@@ -234,6 +306,7 @@ LITTLE_CUP_RULES = Ruleset(
     max_team_size=3,
     basic_pokemon_only=True,
     allow_legendaries=False,
+    clauses=BattleClauses(sleep_clause=True, freeze_clause=True),
 )
 
 PIKA_CUP_RULES = Ruleset(
@@ -246,6 +319,7 @@ PIKA_CUP_RULES = Ruleset(
     max_team_size=3,
     basic_pokemon_only=True,
     allow_legendaries=False,
+    clauses=BattleClauses(sleep_clause=True, freeze_clause=True),
 )
 
 PETIT_CUP_RULES = Ruleset(
@@ -257,6 +331,9 @@ PETIT_CUP_RULES = Ruleset(
     level_sum_limit=80,
     max_team_size=3,
     allow_legendaries=False,
+    clauses=BattleClauses(sleep_clause=True, freeze_clause=True),
+    max_height_m=2.0,
+    max_weight_kg=20.0,
 )
 
 # Full team variants (6v6)

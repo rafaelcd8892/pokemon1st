@@ -80,7 +80,7 @@ def get_pokemon_data(name_or_id) -> dict:
 
     for pokemon in data['pokemon']:
         if str(pokemon['id']) == search or pokemon['name'].lower() == search:
-            return {
+            result = {
                 'name': pokemon['name'],
                 'types': [t.capitalize() for t in pokemon['types']],
                 'stats': {
@@ -90,6 +90,34 @@ def get_pokemon_data(name_or_id) -> dict:
                     'special-attack': pokemon['base_stats']['special'],
                     'speed': pokemon['base_stats']['speed']
                 }
+            }
+            # Include physical data if available
+            if 'height' in pokemon:
+                result['height'] = pokemon['height']
+            if 'weight' in pokemon:
+                result['weight'] = pokemon['weight']
+            return result
+    raise ValueError(f"Pokemon not found: {name_or_id}")
+
+
+def get_pokemon_physical_data(name_or_id) -> dict:
+    """
+    Get a Pokemon's physical attributes (height and weight).
+
+    Args:
+        name_or_id: Pokemon name or Pokedex ID
+
+    Returns:
+        Dict with 'height' (meters) and 'weight' (kilograms)
+    """
+    data = _get_pokemon_data()
+    search = str(name_or_id).lower()
+
+    for pokemon in data['pokemon']:
+        if str(pokemon['id']) == search or pokemon['name'].lower() == search:
+            return {
+                'height': pokemon.get('height', 0.0),
+                'weight': pokemon.get('weight', 0.0)
             }
     raise ValueError(f"Pokemon not found: {name_or_id}")
 

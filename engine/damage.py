@@ -6,6 +6,7 @@ from models.move import Move
 from models.enums import MoveCategory, StatType, Status, Type
 from engine.type_chart import get_effectiveness
 from engine.stat_modifiers import get_modified_attack, get_modified_defense
+from engine.gen_mechanics import is_physical as _is_physical_move
 import config
 
 
@@ -83,7 +84,7 @@ def calculate_critical_hit(attacker: Pokemon) -> bool:
 
 def get_attack_defense_stats(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[int, int]:
     """Selects appropriate attack/defense stats based on move category with stat stages applied"""
-    is_physical = (move.category == MoveCategory.PHYSICAL)
+    is_physical = _is_physical_move(move)
 
     # Get stats with stat stage modifiers applied
     attack = get_modified_attack(attacker, is_physical)
@@ -111,7 +112,7 @@ def get_random_factor_with_roll() -> tuple[float, int]:
 
 def apply_burn_modifier(damage: int, attacker: Pokemon, move: Move) -> int:
     """Halves physical damage if attacker is burned (Gen1 mechanic)"""
-    if attacker.status == Status.BURN and move.category == MoveCategory.PHYSICAL:
+    if attacker.status == Status.BURN and _is_physical_move(move):
         return int(damage * config.BURN_ATTACK_MULTIPLIER)
     return damage
 
@@ -147,7 +148,7 @@ def calculate_damage_with_breakdown(
     breakdown = DamageBreakdown(
         move_name=move.name,
         move_power=move.power,
-        move_category="physical" if move.category == MoveCategory.PHYSICAL else "special",
+        move_category="physical" if _is_physical_move(move) else "special",
         move_type=move.type.value if hasattr(move.type, 'value') else str(move.type),
         attacker_name=attacker.name,
         defender_name=defender.name,
@@ -159,8 +160,8 @@ def calculate_damage_with_breakdown(
     is_critical = calculate_critical_hit(attacker)
     breakdown.is_critical = is_critical
 
-    # Capture stat stages
-    is_physical = (move.category == MoveCategory.PHYSICAL)
+    # Capture stat stages — resolved via gen_mechanics (Gen 1: type-based)
+    is_physical = _is_physical_move(move)
     if is_physical:
         breakdown.attack_stage = attacker.stat_stages.get(StatType.ATTACK, 0)
         breakdown.defense_stage = defender.stat_stages.get(StatType.DEFENSE, 0)
@@ -215,7 +216,7 @@ def calculate_damage_with_breakdown(
 
     # Apply burn modifier
     burn_mod = 1.0
-    if attacker.status == Status.BURN and move.category == MoveCategory.PHYSICAL:
+    if attacker.status == Status.BURN and _is_physical_move(move):
         burn_mod = config.BURN_ATTACK_MULTIPLIER
     breakdown.burn_modifier = burn_mod
     damage = apply_burn_modifier(damage, attacker, move)

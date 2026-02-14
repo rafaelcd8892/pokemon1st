@@ -2,7 +2,7 @@
 
 import pytest
 from models.ruleset import (
-    Ruleset, CupType,
+    Ruleset, CupType, BattleClauses,
     STANDARD_RULES, POKE_CUP_RULES, PRIME_CUP_RULES,
     LITTLE_CUP_RULES, PIKA_CUP_RULES, PETIT_CUP_RULES,
     BASIC_POKEMON, LEGENDARY_POKEMON,
@@ -267,3 +267,87 @@ class TestLegendaryPokemonList:
         """Test regular Pokemon are not legendary."""
         assert "pikachu" not in LEGENDARY_POKEMON
         assert "charizard" not in LEGENDARY_POKEMON
+
+
+class TestBattleClausesOnRulesets:
+    """Test battle clauses on predefined rulesets."""
+
+    def test_standard_has_no_clauses(self):
+        """Standard rules should have no clauses active."""
+        assert not STANDARD_RULES.clauses.any_active()
+
+    def test_prime_cup_has_no_clauses(self):
+        """Prime Cup should have no clauses active."""
+        assert not PRIME_CUP_RULES.clauses.any_active()
+
+    def test_poke_cup_has_sleep_freeze_clauses(self):
+        """Poke Cup should have sleep and freeze clauses."""
+        assert POKE_CUP_RULES.clauses.sleep_clause
+        assert POKE_CUP_RULES.clauses.freeze_clause
+        assert not POKE_CUP_RULES.clauses.ohko_clause
+        assert not POKE_CUP_RULES.clauses.evasion_clause
+
+    def test_little_cup_has_sleep_freeze_clauses(self):
+        """Little Cup should have sleep and freeze clauses."""
+        assert LITTLE_CUP_RULES.clauses.sleep_clause
+        assert LITTLE_CUP_RULES.clauses.freeze_clause
+
+    def test_pika_cup_has_sleep_freeze_clauses(self):
+        """Pika Cup should have sleep and freeze clauses."""
+        assert PIKA_CUP_RULES.clauses.sleep_clause
+        assert PIKA_CUP_RULES.clauses.freeze_clause
+
+    def test_petit_cup_has_sleep_freeze_clauses(self):
+        """Petit Cup should have sleep and freeze clauses."""
+        assert PETIT_CUP_RULES.clauses.sleep_clause
+        assert PETIT_CUP_RULES.clauses.freeze_clause
+
+
+class TestPetitCupPhysicalRestrictions:
+    """Test Petit Cup height/weight restrictions."""
+
+    def test_petit_cup_has_height_limit(self):
+        """Petit Cup should have a max height."""
+        assert PETIT_CUP_RULES.max_height_m == 2.0
+
+    def test_petit_cup_has_weight_limit(self):
+        """Petit Cup should have a max weight."""
+        assert PETIT_CUP_RULES.max_weight_kg == 20.0
+
+    def test_validate_pokemon_physical_accepts_small(self):
+        """Small Pokemon should pass physical validation."""
+        valid, _ = PETIT_CUP_RULES.validate_pokemon_physical("Pikachu", 0.4, 6.0)
+        assert valid
+
+    def test_validate_pokemon_physical_rejects_tall(self):
+        """Pokemon exceeding height limit should be rejected."""
+        valid, msg = PETIT_CUP_RULES.validate_pokemon_physical("Onix", 8.8, 210.0)
+        assert not valid
+        assert "height" in msg
+
+    def test_validate_pokemon_physical_rejects_heavy(self):
+        """Pokemon exceeding weight limit should be rejected."""
+        valid, msg = PETIT_CUP_RULES.validate_pokemon_physical("Snorlax", 2.1, 460.0)
+        assert not valid
+        # Could fail on either height or weight — Snorlax exceeds both
+        assert "height" in msg or "weight" in msg
+
+    def test_no_physical_limits_on_standard(self):
+        """Standard rules should have no physical restrictions."""
+        assert STANDARD_RULES.max_height_m is None
+        assert STANDARD_RULES.max_weight_kg is None
+        # Should always pass
+        valid, _ = STANDARD_RULES.validate_pokemon_physical("Onix", 8.8, 210.0)
+        assert valid
+
+    def test_petit_cup_description_includes_limits(self):
+        """Petit Cup description should mention height/weight limits."""
+        desc = PETIT_CUP_RULES.get_description()
+        assert "Height" in desc or "height" in desc
+        assert "Weight" in desc or "weight" in desc
+
+    def test_poke_cup_description_includes_clauses(self):
+        """Poke Cup description should mention active clauses."""
+        desc = POKE_CUP_RULES.get_description()
+        assert "Sleep Clause" in desc
+        assert "Freeze Clause" in desc

@@ -18,7 +18,7 @@
     "summary": {
       "per_pokemon": {
         "Venusaur": {
-          "damage_dealt": 155,
+          "damage_dealt": 154,
           "damage_taken": 282,
           "residual_damage": 0,
           "moves_used": 4,
@@ -36,7 +36,7 @@
           "turns_active": 11
         },
         "Blastoise": {
-          "damage_dealt": 454,
+          "damage_dealt": 455,
           "damage_taken": 493,
           "residual_damage": 33,
           "moves_used": 15,
@@ -384,19 +384,19 @@
       "target_side": "P2",
       "details": {
         "move": "Razor Leaf",
-        "damage": 18,
+        "damage": 17,
         "critical": true,
         "effectiveness": 0.25,
         "result": "resolved",
         "damage_breakdown": {
           "move_power": 55,
-          "move_category": "physical",
+          "move_category": "special",
           "move_type": "Grass",
           "attacker_level": 50,
-          "attack_stat": 266,
-          "defense_stat": 129,
-          "attack_base": 133,
-          "defense_base": 129,
+          "attack_stat": 302,
+          "defense_stat": 160,
+          "attack_base": 151,
+          "defense_base": 160,
           "attack_stage": 0,
           "defense_stage": 0,
           "is_critical": true,
@@ -405,8 +405,8 @@
           "random_roll": 244,
           "burn_modifier": 1.0,
           "defense_modifier": 1.0,
-          "base_damage": 51.9,
-          "final_damage": 18
+          "base_damage": 47.68,
+          "final_damage": 17
         }
       },
       "message": ""
@@ -432,7 +432,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 155,
+        "current_hp": 156,
         "max_hp": 184
       },
       "message": ""
@@ -499,7 +499,7 @@
         },
         "p2": {
           "name": "Charizard",
-          "hp": 144,
+          "hp": 145,
           "max_hp": 184,
           "status": "none",
           "is_seeded": true
@@ -565,7 +565,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 144,
+        "current_hp": 145,
         "max_hp": 184
       },
       "message": ""
@@ -665,7 +665,7 @@
         },
         "p2": {
           "name": "Charizard",
-          "hp": 133,
+          "hp": 134,
           "max_hp": 184,
           "status": "none",
           "is_seeded": true
@@ -744,7 +744,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 107,
+        "current_hp": 108,
         "max_hp": 184
       },
       "message": ""
@@ -793,7 +793,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 107,
+        "current_hp": 108,
         "max_hp": 184
       },
       "message": ""
@@ -873,7 +873,7 @@
         },
         "p2": {
           "name": "Charizard",
-          "hp": 96,
+          "hp": 97,
           "max_hp": 184,
           "status": "none",
           "is_seeded": true
@@ -952,7 +952,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 28,
+        "current_hp": 29,
         "max_hp": 184
       },
       "message": ""
@@ -981,7 +981,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 28,
+        "current_hp": 29,
         "max_hp": 184
       },
       "message": ""
@@ -1061,7 +1061,7 @@
         },
         "p2": {
           "name": "Charizard",
-          "hp": 17,
+          "hp": 18,
           "max_hp": 184,
           "status": "none",
           "is_seeded": true
@@ -3156,7 +3156,7 @@
         },
         "p2": {
           "name": "Charizard",
-          "hp": 17,
+          "hp": 18,
           "max_hp": 184,
           "status": "none"
         }
@@ -3221,7 +3221,7 @@
       "target": null,
       "target_side": null,
       "details": {
-        "current_hp": 17,
+        "current_hp": 18,
         "max_hp": 184
       },
       "message": ""
@@ -3248,7 +3248,7 @@
       "target_side": "P2",
       "details": {
         "move": "Surf",
-        "damage": 17,
+        "damage": 18,
         "critical": false,
         "effectiveness": 2.0,
         "result": "resolved",

@@ -1,5 +1,91 @@
 # Changelog
 
+## [Unreleased] - 2026-02-14
+
+### Fixed
+
+#### Gen 1 Physical/Special Split (`engine/gen_mechanics.py`)
+In Gen 1, the physical/special split is determined by the move's **type**, not per-move.
+The data in `moves.json` uses the modern Gen 4+ per-move categories (e.g., Hyper Beam = Special),
+which caused 18 damaging moves to use incorrect stats for damage calculation. For example,
+Hyper Beam hit against Alakazam's Special (186) instead of Defense (96), dealing ~41 damage
+instead of the correct ~122.
+
+New module `engine/gen_mechanics.py` resolves the effective category based on `config.GENERATION`:
+- **Gen 1-3**: Physical/Special derived from the move's type (Physical types: Normal, Fighting, Poison, Ground, Flying, Bug, Rock, Ghost)
+- **Gen 4+**: Per-move category from `moves.json` is used directly
+
+This is a **scalable** design — when adding future generation support, the data doesn't need to change, only `config.GENERATION`. Golden test baselines regenerated to reflect corrected damage values.
+
+**Affected moves (18)**: Hyper Beam, Razor Wind, Sonic Boom, Swift, Tri-Attack, Gust, Acid, Sludge, Smog, Night Shade (were Special, now correctly Physical), Clamp, Crabhammer, Waterfall, Razor Leaf, Vine Whip, Fire Punch, Ice Punch, Thunder Punch (were Physical, now correctly Special).
+
+#### Bite Type (`data/moves.json`)
+Changed Bite's type from DARK to NORMAL. Dark type did not exist in Gen 1.
+
+#### Team Selection Scroll Bug (`ui/selection.py`)
+The `select_team_curses` function was missing scroll_offset management in its UP/DOWN key handlers. When scrolling past the visible area, the list no longer scrolled with the selection, making items invisible. Added scroll tracking matching the working `select_pokemon_curses` implementation.
+
+### Added
+
+#### Battle Clause Enforcement (`engine/clauses.py`)
+New module with pure functions for enforcing Pokemon Stadium battle clauses:
+- **Sleep Clause**: Blocks putting a second opponent Pokemon to sleep (fainted Pokemon don't count)
+- **Freeze Clause**: Blocks freezing a second opponent Pokemon (fainted Pokemon don't count)
+- **OHKO Clause**: Bans Fissure, Guillotine, and Horn Drill
+- **Evasion Clause**: Bans Double Team and Minimize
+
+Clauses are enforced at correct points matching the original games: OHKO/Evasion block before move execution, Sleep/Freeze block at status application time (move still deals damage). AI automatically filters banned moves from its selection.
+
+#### Ruleset Integration into Battle Flow (`main.py`)
+Replaced the battle format selection with a ruleset selection menu. The game flow is now:
+1. Select ruleset (predefined cup or custom)
+2. Select battle mode (Player vs AI, Autobattle, Watch)
+3. Select moveset mode
+4. Team selection (filtered by ruleset restrictions)
+5. Battle with clause enforcement
+
+Battle format is derived from the ruleset's `max_team_size` (1→1v1, 2-3→3v3, 4-6→6v6).
+
+#### Ruleset Selection Menu (`ui/selection.py`)
+Curses-based menu showing all predefined Pokemon Stadium cups with descriptions:
+- Standard, Poke Cup, Prime Cup, Little Cup, Pika Cup, Petit Cup
+- "Custom..." option opens a full ruleset editor
+
+#### Custom Ruleset Editor (`ui/selection.py`)
+Form-based editor for creating custom rulesets with configurable:
+- Level range (min/max/default), team size, level sum limit
+- Legendary and basic-only restrictions
+- Individual clause toggles (Sleep, Freeze, OHKO, Evasion)
+
+#### Pokemon Height & Weight Data (`data/pokemon.json`)
+Added official Pokedex height (meters) and weight (kilograms) for all 151 Kanto Pokemon. Used by Petit Cup for physical restriction filtering.
+
+#### BattleClauses Dataclass (`models/ruleset.py`)
+New dataclass grouping clause toggles with `any_active()` and `get_active_list()` helpers. Added to `Ruleset` along with `max_height_m` and `max_weight_kg` fields. All predefined cups updated with accurate Pokemon Stadium clauses.
+
+#### Physical Validation (`models/ruleset.py`)
+`validate_pokemon_physical(name, height, weight)` method on `Ruleset` for height/weight enforcement (Petit Cup).
+
+#### Pokemon Filtering by Ruleset (`ui/selection.py`)
+`filter_pokemon_by_ruleset()` filters the Pokemon pool by banned list, legendary restrictions, basic-only rules, and height/weight limits.
+
+#### Clause and Ruleset Tests (`tests/test_clauses.py`, `tests/test_ruleset.py`)
+43 new tests covering all clause enforcement functions, BattleClauses dataclass, predefined ruleset clause configuration, and Petit Cup physical restrictions. Total test count: 277.
+
+### Changed
+
+#### Battle Engine Clause Threading (`engine/battle.py`, `engine/team_battle.py`)
+- `execute_turn()` accepts optional `clauses` and `defender_team` parameters
+- `TeamBattle` accepts optional `clauses` in constructor, threads to turn execution
+- `get_random_ai_action()` accepts optional `clauses` to filter banned moves
+- `_apply_move_status_effect()` checks sleep/freeze clauses before applying status
+
+#### Data Loader Physical Data (`data/data_loader.py`)
+- `get_pokemon_data()` now includes `height` and `weight` in returned dict
+- New `get_pokemon_physical_data()` helper for direct height/weight lookup
+
+---
+
 ## [Unreleased] - 2026-02-11
 
 ### Fixed

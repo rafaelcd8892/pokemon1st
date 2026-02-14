@@ -53,14 +53,35 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 
 ### Pokemon Stadium Rulesets
 
-| Cup | Level | Team Size | Restrictions |
-|-----|-------|-----------|--------------|
-| Standard | 50 | 6 | None |
-| Poke Cup | 50-55 | 3 | Level sum <= 155, no legendaries |
-| Prime Cup | 100 | 6 | None |
-| Little Cup | 5 | 3 | Basic Pokemon only |
-| Pika Cup | 15-20 | 3 | Basic only, level sum <= 50 |
-| Petit Cup | 25-30 | 3 | No legendaries |
+| Cup | Level | Team Size | Restrictions | Clauses |
+|-----|-------|-----------|--------------|---------|
+| Standard | 50 | 6 | None | None |
+| Poke Cup | 50-55 | 3 | Level sum <= 155, no legendaries | Sleep, Freeze |
+| Prime Cup | 100 | 3 | None | None |
+| Little Cup | 5 | 3 | Basic Pokemon only | Sleep, Freeze |
+| Pika Cup | 15-20 | 3 | Basic only, level sum <= 50 | Sleep, Freeze |
+| Petit Cup | 25-30 | 3 | Height <= 2.0m, Weight <= 20.0kg | Sleep, Freeze |
+
+### Battle Clauses
+
+The simulator enforces Pokemon Stadium clauses during battle:
+
+| Clause | Effect |
+|--------|--------|
+| Sleep Clause | Only one opponent Pokemon may be put to sleep at a time |
+| Freeze Clause | Only one opponent Pokemon may be frozen at a time |
+| OHKO Clause | Fissure, Guillotine, and Horn Drill are banned |
+| Evasion Clause | Double Team and Minimize are banned |
+
+Clauses are enforced at the correct point: OHKO/Evasion moves are blocked before execution (AI filters them out automatically), while Sleep/Freeze clauses block status application but still allow the move to deal damage.
+
+### Custom Rulesets
+
+The interactive menu includes a "Custom..." option that lets you configure:
+- Level range (min/max/default) and team size
+- Level sum limit
+- Legendary and basic-only restrictions
+- Individual clause toggles (Sleep, Freeze, OHKO, Evasion)
 
 ### Move Mechanics
 
@@ -183,7 +204,7 @@ Exits with code 1 if any ERROR-level anomalies are found. Logs go to `logs/batch
 ```
 PokemonGen1/
 ├── main.py                          # Interactive battle entry point
-├── config.py                        # Battle system constants
+├── config.py                        # Battle system constants (GENERATION setting)
 ├── logging_config.py                # Logging setup
 │
 ├── data/
@@ -204,12 +225,14 @@ PokemonGen1/
 │
 ├── engine/
 │   ├── battle.py                    # Turn execution and combat mechanics
+│   ├── gen_mechanics.py              # Generation-specific mechanics (P/S split)
 │   ├── damage.py                    # Damage formula + DamageBreakdown audit
 │   ├── status.py                    # Status effect processing
 │   ├── move_effects.py              # Special move mechanics
 │   ├── stat_modifiers.py            # Stat stage system
 │   ├── stat_calculator.py           # Gen 1 stat formulas (IVs/EVs/level)
 │   ├── type_chart.py                # 15-type effectiveness matrix
+│   ├── clauses.py                   # Battle clause enforcement (Sleep/Freeze/OHKO/Evasion)
 │   ├── team_battle.py               # Multi-Pokemon battle engine + AI
 │   ├── battle_logger.py             # Dual-format battle logging
 │   ├── display.py                   # ANSI color console output
@@ -243,6 +266,8 @@ PokemonGen1/
 │   ├── test_type_chart.py
 │   ├── test_stat_calculator.py
 │   ├── test_ruleset.py
+│   ├── test_clauses.py
+│   ├── test_gen_mechanics.py
 │   ├── test_events.py
 │   ├── test_battle_config.py
 │   ├── test_moveset_selection.py
@@ -316,14 +341,14 @@ print(f"Winner: {winner.name if winner else 'Draw'}")
 python -m pytest tests/ -v
 ```
 
-229 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, battle audit invariants, rulesets, moveset selection, and event bus.
+300 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, generation-specific P/S split, battle audit invariants, rulesets, battle clause enforcement, moveset selection, and event bus.
 
 ## Roadmap
 
 ### Next Up
 - Type-aware AI (picks moves by effectiveness, switches on disadvantage)
 - Deterministic replay (seeded RNG per battle, replay from JSON logs)
-- Mechanics profile system (toggle Gen 1 quirks: Toxic counter reset, 1/256 miss, sleep clause)
+- Mechanics profile system (toggle Gen 1 quirks: Toxic counter reset, 1/256 miss)
 
 ### Future
 - Gen 2 support (Dark/Steel types, Special split, weather, held items)
