@@ -5,12 +5,17 @@ A faithful Python recreation of the Pokemon Generation 1 battle system. Every me
 ## Quick Start
 
 ```bash
-# Interactive battle
+# Interactive battle with main menu
 python3 main.py
 
 # Run 100 automated battles and validate every log
 python scripts/batch_battle.py --battles 100 --format 3v3
 ```
+
+**In the interactive menu:**
+- Select **"START NOW!"** for instant Poke Cup 3v3 battles (AI vs AI)
+- Select **"Start Battle"** to customize ruleset, format, battle mode, teams, and movesets
+- Navigate with arrow keys, cycle options with ◄/►, press Enter to confirm
 
 ## What's In the Box
 
@@ -242,13 +247,15 @@ PokemonGen1/
 │       ├── bus.py                   # Global event bus (pub/sub)
 │       └── handlers/
 │           ├── cli.py               # CLI event handler
-│           └── log_bridge.py        # Event bus -> battle logger bridge
+│           ├── log_bridge.py        # Event bus -> battle logger bridge
+│           └── buffer.py            # Buffered event storage for curses UI
 │
 ├── settings/
-│   └── battle_config.py             # BattleMode, MovesetMode, BattleSettings
+│   └── battle_config.py             # BattleMode, MovesetMode, BattleSettings, TeamSelectMode
 │
 ├── ui/
-│   └── selection.py                 # Curses-based Pokemon/move selection UI
+│   ├── menus.py                     # Main menu navigation, battle config form
+│   └── selection.py                 # Curses-based Pokemon/move/ruleset selection UI
 │
 ├── scripts/
 │   ├── batch_battle.py              # Batch battle runner + auto-validation

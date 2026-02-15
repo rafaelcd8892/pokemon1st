@@ -2,5 +2,6 @@
 
 from .cli import CLIHandler
 from .log_bridge import LogBridgeHandler
+from .buffer import BufferedEventHandler
 
-__all__ = ['CLIHandler', 'LogBridgeHandler']
+__all__ = ['CLIHandler', 'LogBridgeHandler', 'BufferedEventHandler']

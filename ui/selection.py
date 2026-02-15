@@ -55,6 +55,10 @@ def init_colors():
     curses.init_pair(5, curses.COLOR_YELLOW, -1)
     # Color pair 6: HP bar red
     curses.init_pair(6, curses.COLOR_RED, -1)
+    # Color pair 7: Magenta (status)
+    curses.init_pair(7, curses.COLOR_MAGENTA, -1)
+    # Color pair 8: Dim/gray text
+    curses.init_pair(8, curses.COLOR_WHITE, -1)
     # Type colors (pairs 10-25)
     type_list = ['normal', 'fire', 'water', 'electric', 'grass', 'ice',
                  'fighting', 'poison', 'ground', 'flying', 'psychic',
@@ -958,55 +962,210 @@ def select_switch(team: Team) -> Optional[int]:
     return curses.wrapper(lambda stdscr: select_switch_curses(stdscr, team))
 
 
-def draw_battle_action_menu(stdscr, team: Team, opponent_team: Team):
-    """Draw the battle action selection menu"""
+def _safe_addstr(stdscr, row, col, text, *args):
+    """Write text to screen with bounds checking."""
+    max_y, max_x = stdscr.getmaxyx()
+    if 0 <= row < max_y and 0 <= col < max_x:
+        try:
+            stdscr.addstr(row, col, text[:max_x - col - 1], *args)
+        except curses.error:
+            pass
+
+
+def _get_hp_color_pair(hp_pct: float) -> int:
+    """Return curses color pair index based on HP percentage."""
+    if hp_pct > 0.5:
+        return curses.color_pair(4)  # Green
+    elif hp_pct > 0.2:
+        return curses.color_pair(5)  # Yellow
+    else:
+        return curses.color_pair(6)  # Red
+
+
+STATUS_CURSES_COLORS = {
+    "Burn": 6,      # Red
+    "Freeze": 2,    # Cyan (via color_pair 2)
+    "Paralysis": 5, # Yellow
+    "Poison": 7,    # Magenta
+    "Sleep": 8,     # Dim
+    "Confusion": 7, # Magenta
+}
+
+STATUS_SHORT = {
+    "Burn": "BRN",
+    "Freeze": "FRZ",
+    "Paralysis": "PAR",
+    "Poison": "PSN",
+    "Sleep": "SLP",
+    "Confusion": "CNF",
+}
+
+
+def _draw_status_tag(stdscr, row, col, pokemon) -> int:
+    """Draw status ailment tag for a pokemon. Returns x offset after tag."""
+    status_val = pokemon.status.value
+    if status_val != "None":
+        short = STATUS_SHORT.get(status_val, status_val[:3].upper())
+        color_idx = STATUS_CURSES_COLORS.get(status_val, 0)
+        stdscr.attron(curses.color_pair(color_idx) | curses.A_BOLD)
+        _safe_addstr(stdscr, row, col, f"[{short}]")
+        stdscr.attroff(curses.color_pair(color_idx) | curses.A_BOLD)
+        col += len(short) + 3
+
+    # Also show confusion if present alongside another status
+    if hasattr(pokemon, 'confusion_turns') and pokemon.confusion_turns > 0 and status_val != "Confusion":
+        stdscr.attron(curses.color_pair(7) | curses.A_BOLD)
+        _safe_addstr(stdscr, row, col, "[CNF]")
+        stdscr.attroff(curses.color_pair(7) | curses.A_BOLD)
+        col += 6
+
+    return col
+
+
+def _draw_stat_stages(stdscr, row, col, pokemon) -> None:
+    """Draw non-zero stat stage indicators for a pokemon."""
+    from models.enums import StatType
+
+    stat_names = {
+        StatType.ATTACK: "ATK",
+        StatType.DEFENSE: "DEF",
+        StatType.SPECIAL: "SPC",
+        StatType.SPEED: "SPD",
+        StatType.ACCURACY: "ACC",
+        StatType.EVASION: "EVA",
+    }
+
+    x = col
+    for stat_type in [StatType.ATTACK, StatType.DEFENSE, StatType.SPECIAL,
+                      StatType.SPEED, StatType.ACCURACY, StatType.EVASION]:
+        stage = pokemon.stat_stages.get(stat_type, 0)
+        if stage == 0:
+            continue
+
+        name = stat_names[stat_type]
+        if stage >= 3:
+            arrow = "↑↑↑"
+        elif stage == 2:
+            arrow = "↑↑"
+        elif stage == 1:
+            arrow = "↑"
+        elif stage == -1:
+            arrow = "↓"
+        elif stage == -2:
+            arrow = "↓↓"
+        else:
+            arrow = "↓↓↓"
+
+        color = curses.color_pair(4) if stage > 0 else curses.color_pair(6)
+        stdscr.attron(color)
+        text = f"{name}{arrow}"
+        _safe_addstr(stdscr, row, x, text)
+        stdscr.attroff(color)
+        x += len(text) + 1
+
+
+def _draw_battle_log_panel(stdscr, start_row, start_col, width, height, battle_log):
+    """Draw the battle log panel on the left side."""
+    if not battle_log:
+        return
+
+    # Header
+    stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
+    _safe_addstr(stdscr, start_row, start_col, "Registro de batalla:")
+    stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
+
+    # Log lines
+    for i, line in enumerate(battle_log):
+        row = start_row + 1 + i
+        if row >= start_row + height:
+            break
+        # Truncate to fit panel width
+        display_line = line[:width - 1]
+        stdscr.attron(curses.A_DIM)
+        _safe_addstr(stdscr, row, start_col, display_line)
+        stdscr.attroff(curses.A_DIM)
+
+
+def draw_battle_action_menu(stdscr, team: Team, opponent_team: Team, battle_log=None):
+    """Draw the battle action selection menu with enhanced status display."""
     max_y, max_x = stdscr.getmaxyx()
     init_colors()
 
     active = team.active_pokemon
     opponent = opponent_team.active_pokemon
 
-    # Battle status
+    # --- Row 1: Pokemon names with type badges ---
     stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
-    stdscr.addstr(1, 2, f"Tu Pokémon: {active.name}")
+    _safe_addstr(stdscr, 1, 2, f"Tu Pokémon: {active.name}")
     stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
 
-    # HP bars
-    hp_pct = active.current_hp / active.max_hp
-    if hp_pct > 0.5:
-        color = curses.color_pair(4)
-    elif hp_pct > 0.2:
-        color = curses.color_pair(5)
-    else:
-        color = curses.color_pair(6)
+    # Type badges for player
+    x_off = 15 + len(active.name)
+    for t in active.types[:2]:
+        color = get_type_color_pair(t.value)
+        stdscr.attron(color | curses.A_BOLD)
+        _safe_addstr(stdscr, 1, x_off, f"[{t.value[:3].upper()}]")
+        stdscr.attroff(color | curses.A_BOLD)
+        x_off += 6
 
+    # Opponent name and types
+    opp_start = max(max_x - 35, max_x // 2 + 2)
+    stdscr.attron(curses.color_pair(6) | curses.A_BOLD)
+    _safe_addstr(stdscr, 1, opp_start, f"Oponente: {opponent.name}")
+    stdscr.attroff(curses.color_pair(6) | curses.A_BOLD)
+
+    x_off = opp_start + 12 + len(opponent.name)
+    for t in opponent.types[:2]:
+        color = get_type_color_pair(t.value)
+        stdscr.attron(color | curses.A_BOLD)
+        _safe_addstr(stdscr, 1, x_off, f"[{t.value[:3].upper()}]")
+        stdscr.attroff(color | curses.A_BOLD)
+        x_off += 6
+
+    # --- Row 2: HP bars ---
+    hp_pct = active.current_hp / active.max_hp if active.max_hp > 0 else 0
+    color = _get_hp_color_pair(hp_pct)
     stdscr.attron(color)
-    hp_bar = "█" * int(hp_pct * 20) + "░" * (20 - int(hp_pct * 20))
-    stdscr.addstr(2, 2, f"[{hp_bar}] {active.current_hp}/{active.max_hp}")
+    bar_len = 16
+    hp_bar = "█" * int(hp_pct * bar_len) + "░" * (bar_len - int(hp_pct * bar_len))
+    _safe_addstr(stdscr, 2, 2, f"[{hp_bar}] {active.current_hp}/{active.max_hp}")
     stdscr.attroff(color)
 
-    # Opponent
-    stdscr.attron(curses.color_pair(6))
-    stdscr.addstr(1, max_x - 30, f"Oponente: {opponent.name}")
-    stdscr.attroff(curses.color_pair(6))
-
-    opp_pct = opponent.current_hp / opponent.max_hp
-    if opp_pct > 0.5:
-        color = curses.color_pair(4)
-    elif opp_pct > 0.2:
-        color = curses.color_pair(5)
-    else:
-        color = curses.color_pair(6)
-
+    opp_pct = opponent.current_hp / opponent.max_hp if opponent.max_hp > 0 else 0
+    color = _get_hp_color_pair(opp_pct)
     stdscr.attron(color)
-    opp_bar = "█" * int(opp_pct * 20) + "░" * (20 - int(opp_pct * 20))
-    stdscr.addstr(2, max_x - 30, f"[{opp_bar}] {opponent.current_hp}/{opponent.max_hp}")
+    opp_bar = "█" * int(opp_pct * bar_len) + "░" * (bar_len - int(opp_pct * bar_len))
+    _safe_addstr(stdscr, 2, opp_start, f"[{opp_bar}] {opponent.current_hp}/{opponent.max_hp}")
     stdscr.attroff(color)
 
+    # --- Row 3: Status ailments + stat stages ---
+    player_x = _draw_status_tag(stdscr, 3, 2, active)
+    _draw_stat_stages(stdscr, 3, player_x + 1, active)
 
-def select_battle_action_curses(stdscr, team: Team, opponent_team: Team) -> Optional[tuple[str, any]]:
+    opp_x = _draw_status_tag(stdscr, 3, opp_start, opponent)
+    _draw_stat_stages(stdscr, 3, opp_x + 1, opponent)
+
+    # --- Row 4: Separator ---
+    separator = "─" * (max_x - 4)
+    _safe_addstr(stdscr, 4, 2, separator)
+
+    # --- Battle log panel (left side, rows 5+) ---
+    if battle_log:
+        log_width = max_x // 2 - 2
+        log_height = max_y - 8  # Leave room for instructions
+        _draw_battle_log_panel(stdscr, 5, 2, log_width, log_height, battle_log)
+
+
+def select_battle_action_curses(stdscr, team: Team, opponent_team: Team,
+                                battle_log=None) -> Optional[tuple[str, any]]:
     """
     Interactive battle action selection.
+
+    Args:
+        stdscr: curses screen
+        team: Player's team
+        opponent_team: Opponent's team
+        battle_log: Optional list of recent battle log strings
 
     Returns:
         ("attack", move_index) or ("switch", pokemon_index) or None
@@ -1022,12 +1181,18 @@ def select_battle_action_curses(stdscr, team: Team, opponent_team: Team) -> Opti
         stdscr.clear()
         max_y, max_x = stdscr.getmaxyx()
 
-        draw_battle_action_menu(stdscr, team, opponent_team)
+        draw_battle_action_menu(stdscr, team, opponent_team, battle_log=battle_log)
+
+        # Action menu position — right side if we have battle log, center otherwise
+        if battle_log:
+            menu_x = max_x // 2 + 2
+        else:
+            menu_x = max_x // 2 - 10
 
         if mode == "main":
             # Main menu
             stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-            stdscr.addstr(5, max_x // 2 - 10, "¿Qué quieres hacer?")
+            _safe_addstr(stdscr, 5, menu_x, "¿Qué quieres hacer?")
             stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
 
             options = ["Atacar", "Cambiar Pokémon"]
@@ -1035,17 +1200,17 @@ def select_battle_action_curses(stdscr, team: Team, opponent_team: Team) -> Opti
                 y = 8 + i * 2
                 if i == selected_idx:
                     stdscr.attron(curses.color_pair(1))
-                    stdscr.addstr(y, max_x // 2 - 10, f" ► {opt} ")
+                    _safe_addstr(stdscr, y, menu_x, f" ► {opt} ")
                     stdscr.attroff(curses.color_pair(1))
                 else:
-                    stdscr.addstr(y, max_x // 2 - 10, f"   {opt} ")
+                    _safe_addstr(stdscr, y, menu_x, f"   {opt} ")
 
-            stdscr.addstr(max_y - 2, 2, "↑/↓: Navegar | ENTER: Seleccionar")
+            _safe_addstr(stdscr, max_y - 2, 2, "↑/↓: Navegar | ENTER: Seleccionar")
 
         elif mode == "moves":
             # Move selection
             stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-            stdscr.addstr(5, 2, "Selecciona un movimiento:")
+            _safe_addstr(stdscr, 5, menu_x, "Selecciona un movimiento:")
             stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
 
             for i, move in enumerate(active.moves):
@@ -1058,26 +1223,26 @@ def select_battle_action_curses(stdscr, team: Team, opponent_team: Team) -> Opti
 
                 if i == selected_idx:
                     stdscr.attron(curses.color_pair(1))
-                    stdscr.addstr(y, 2, f" ► {move.name.ljust(15)} ")
+                    _safe_addstr(stdscr, y, menu_x, f" ► {move.name.ljust(15)} ")
                     stdscr.attroff(curses.color_pair(1))
                 else:
-                    stdscr.addstr(y, 2, f"   {move.name.ljust(15)} ")
+                    _safe_addstr(stdscr, y, menu_x, f"   {move.name.ljust(15)} ")
 
                 # Type badge
                 stdscr.attron(type_color | curses.A_BOLD)
-                stdscr.addstr(y, 22, f"[{move.type.value[:3].upper()}]")
+                _safe_addstr(stdscr, y, menu_x + 20, f"[{move.type.value[:3].upper()}]")
                 stdscr.attroff(type_color | curses.A_BOLD)
 
                 # PP and power
                 if move.pp == 0:
                     stdscr.attron(curses.color_pair(6))  # Red for no PP
-                stdscr.addstr(y, 30, pp_text)
+                _safe_addstr(stdscr, y, menu_x + 28, pp_text)
                 if move.pp == 0:
                     stdscr.attroff(curses.color_pair(6))
 
-                stdscr.addstr(y, 45, power_text)
+                _safe_addstr(stdscr, y, menu_x + 42, power_text)
 
-            stdscr.addstr(max_y - 2, 2, "↑/↓: Navegar | ENTER: Seleccionar | ESC: Volver")
+            _safe_addstr(stdscr, max_y - 2, 2, "↑/↓: Navegar | ENTER: Seleccionar | ESC: Volver")
 
         stdscr.refresh()
         key = stdscr.getch()
@@ -1115,14 +1280,21 @@ def select_battle_action_curses(stdscr, team: Team, opponent_team: Team) -> Opti
                     return ("attack", selected_idx)
 
 
-def select_battle_action(team: Team, opponent_team: Team) -> Optional[tuple[str, any]]:
+def select_battle_action(team: Team, opponent_team: Team,
+                         battle_log=None) -> Optional[tuple[str, any]]:
     """
     Select a battle action (attack or switch).
+
+    Args:
+        team: Player's team
+        opponent_team: Opponent's team
+        battle_log: Optional list of recent battle log strings
 
     Returns:
         ("attack", move_index) or ("switch", None)
     """
-    return curses.wrapper(lambda stdscr: select_battle_action_curses(stdscr, team, opponent_team))
+    return curses.wrapper(lambda stdscr: select_battle_action_curses(
+        stdscr, team, opponent_team, battle_log=battle_log))
 
 
 # =============================================================================

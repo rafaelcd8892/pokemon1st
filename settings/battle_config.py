@@ -6,6 +6,7 @@ from typing import Optional, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.ruleset import Ruleset
+    from models.enums import BattleFormat
 
 
 class AIType(Enum):
@@ -39,10 +40,34 @@ class BattleMode(Enum):
         self.description = description
 
 
+class TeamSelectMode(Enum):
+    """How to select teams"""
+    MANUAL = ("manual", "Elige tu equipo manualmente")
+    RANDOM = ("random", "Equipo aleatorio")
+
+    def __init__(self, value: str, description: str):
+        self._value_ = value
+        self.description = description
+
+
+# Waiting time options for the config form
+WAITING_TIME_OPTIONS = [
+    (0.0, "Inmediato"),
+    (3.0, "3 segundos"),
+    (4.0, "4 segundos"),
+]
+
+
 def _get_default_ruleset():
     """Get default ruleset (lazy import to avoid circular imports)."""
     from models.ruleset import STANDARD_RULES
     return STANDARD_RULES
+
+
+def _get_default_format():
+    """Get default battle format (lazy import to avoid circular imports)."""
+    from models.enums import BattleFormat
+    return BattleFormat.TRIPLE
 
 
 @dataclass
@@ -54,11 +79,29 @@ class BattleSettings:
     moveset_mode: MovesetMode = MovesetMode.MANUAL
     action_delay: float = 3.0  # Seconds between actions
     ruleset: Optional['Ruleset'] = field(default=None)
+    battle_format: Optional['BattleFormat'] = field(default=None)
+    team_select_mode: TeamSelectMode = TeamSelectMode.RANDOM
 
     def __post_init__(self):
         """Set default ruleset if not provided."""
         if self.ruleset is None:
             self.ruleset = _get_default_ruleset()
+        if self.battle_format is None:
+            self.battle_format = _get_default_format()
+
+    @classmethod
+    def quick_start(cls) -> 'BattleSettings':
+        """Create settings for instant AI vs AI battle (Poke Cup 3v3)"""
+        from models.ruleset import POKE_CUP_RULES
+        from models.enums import BattleFormat
+        return cls(
+            battle_mode=BattleMode.AUTOBATTLE,
+            moveset_mode=MovesetMode.SMART_RANDOM,
+            action_delay=0.0,
+            ruleset=POKE_CUP_RULES,
+            battle_format=BattleFormat.TRIPLE,
+            team_select_mode=TeamSelectMode.RANDOM,
+        )
 
     @classmethod
     def for_cup(cls, ruleset: 'Ruleset') -> 'BattleSettings':

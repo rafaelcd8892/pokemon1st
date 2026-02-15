@@ -1,5 +1,49 @@
 # Changelog
 
+## [Unreleased] - 2026-02-15
+
+### Added
+
+#### UI Revamp: Main Menu, Quick-Start, Custom Battle Config Form - 2026-02-15
+
+Restructured interactive flow from flat sequential menus into a proper main menu hub with organized sub-menus.
+
+**Main Menu:**
+- "START NOW!" quick-start option (Poke Cup 3v3, AI vs AI, random teams, immediate)
+- "Start Battle" standard battle configuration
+- Placeholder items for future features (Story Mode, AI Level, Customize Mechanics)
+
+**Custom Battle Configuration Form:**
+- ◄/► cycling for all settings: ruleset, format, mode, delay, team selection, moveset strategy
+- Real-time form state with field navigation and validation
+
+**Enhanced Move Selection UI:**
+- Type badges for visual move categorization
+- Status ailment tags for status-affecting moves
+- Stat stage indicators for moves that modify stats
+- Integrated battle log panel showing recent turn events
+- Threading of `battle_log` through selection flow for real-time display
+
+**New Classes/Functions:**
+- `ui/menus.py` — `main_menu()`, `start_battle_menu()`, `custom_battle_config_form()`
+- `TeamSelectMode` enum (RANDOM, SELECT_BOTH, SELECT_PLAYER)
+- `BattleSettings.battle_format` field (derived from ruleset max_team_size)
+- `BattleSettings.quick_start()` factory for instant Poke Cup battles
+- `WAITING_TIME_OPTIONS` presets for action delay
+- `engine/events/handlers/buffer.py` — `BufferedEventHandler` (ring-buffer event storage for curses compatibility)
+- `format_event_plain_text()` helper for event-to-string conversion
+
+**Modified Files:**
+- `settings/battle_config.py` — added battle_format, TeamSelectMode, quick_start(), WAITING_TIME_OPTIONS
+- `ui/selection.py` — enhanced draw_battle_action_menu with type badges, status tags, stat indicators, battle_log panel
+- `engine/events/handlers/buffer.py` — BufferedEventHandler + format_event_plain_text (NEW)
+- `engine/events/handlers/__init__.py` — export BufferedEventHandler
+- `main.py` — replaced sequential flow with main_menu(), integrated BufferedEventHandler
+
+**Design Notes:**
+- No engine changes — all modifications are UI/settings layer only
+- 329 tests passed, 5 golden scenarios unchanged
+
 ## [Unreleased] - 2026-02-14
 
 ### Added

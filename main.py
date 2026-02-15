@@ -4,7 +4,7 @@ from engine.team_battle import (
     TeamBattle, BattleAction, Team,
     get_random_ai_action, get_random_forced_switch
 )
-from settings.battle_config import BattleMode, MovesetMode, BattleSettings
+from settings.battle_config import BattleMode, MovesetMode, BattleSettings, TeamSelectMode
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +22,15 @@ from ui.selection import (
     interactive_team_selection_with_settings,
     select_battle_action,
     select_switch,
-    select_battle_mode,
-    select_moveset_mode,
-    select_ruleset,
     filter_pokemon_by_ruleset
 )
 
+from ui.menus import main_menu
 
-def get_player_action(team: Team, opponent_team: Team) -> BattleAction:
+
+def get_player_action(team: Team, opponent_team: Team, battle_log=None) -> BattleAction:
     """Get the player's action through the UI"""
-    result = select_battle_action(team, opponent_team)
+    result = select_battle_action(team, opponent_team, battle_log=battle_log)
 
     if result is None:
         # Default to first available move
@@ -81,6 +80,9 @@ def derive_battle_format(ruleset) -> BattleFormat:
 def run_team_battle(player_team: Team, opponent_team: Team, battle_format: BattleFormat,
                     settings: BattleSettings):
     """Run a team battle with the new engine"""
+    from engine.events.handlers.buffer import BufferedEventHandler
+    from engine.events.bus import get_event_bus
+
     # Extract clauses from ruleset if available
     clauses = None
     if settings.ruleset and settings.ruleset.clauses.any_active():
@@ -92,6 +94,9 @@ def run_team_battle(player_team: Team, opponent_team: Team, battle_format: Battl
         clauses=clauses
     )
 
+    # Create a buffered handler for the battle log panel
+    buffer = BufferedEventHandler(get_event_bus())
+
     # Determine action handlers based on battle mode
     if settings.is_autobattle():
         # Both teams controlled by AI — pass clauses for move filtering
@@ -100,8 +105,8 @@ def run_team_battle(player_team: Team, opponent_team: Team, battle_format: Battl
         get_switch = get_random_forced_switch
         logger.info(f"Starting autobattle ({settings.battle_mode.description})")
     else:
-        # Player controls their team
-        get_player = get_player_action
+        # Player controls their team — pass battle log for enhanced UI
+        get_player = lambda t, o: get_player_action(t, o, battle_log=buffer.get_recent(8))
         get_opponent = lambda t, o: get_random_ai_action(t, o, clauses=clauses)
         get_switch = lambda team: (
             get_player_forced_switch(team) if team == player_team
@@ -153,69 +158,28 @@ def create_team_with_moveset(size: int, trainer_name: str, moveset_mode: Moveset
 def main():
     """Main entry point"""
     logger.info("Starting Pokemon Gen 1 Battle Simulator")
-    print("═" * 50)
-    print("       POKÉMON GEN 1 BATTLE SIMULATOR")
-    print("═" * 50)
 
-    # Step 1: Select ruleset (replaces format selection)
-    print("\nSelecciona las reglas de batalla...")
-    ruleset = select_ruleset()
-
-    if ruleset is None:
-        logger.info("Selection cancelled by user")
-        print("\nSelección cancelada. ¡Hasta luego!")
+    settings = main_menu()
+    if settings is None:
+        print("\n¡Hasta luego!")
         return
 
-    # Derive battle format from ruleset
-    battle_format = derive_battle_format(ruleset)
+    ruleset = settings.ruleset
+    battle_format = settings.battle_format
+    moveset_mode = settings.moveset_mode
 
-    logger.info(f"Ruleset selected: {ruleset.name} ({ruleset.get_description()})")
-    print(f"\nReglas: {ruleset.get_description()}")
-    print(f"Formato: {battle_format.description}")
+    # Team generation based on settings
+    if settings.is_autobattle() or settings.team_select_mode == TeamSelectMode.RANDOM:
+        # Auto-generate both teams
+        team1_name = "Equipo 1" if settings.is_autobattle() else "Jugador"
+        team2_name = "Equipo 2" if settings.is_autobattle() else "Oponente"
 
-    # Step 2: Select battle mode (Player vs AI, Autobattle, Watch)
-    print("\nSelecciona el modo de batalla...")
-    battle_mode = select_battle_mode()
-
-    if battle_mode is None:
-        logger.info("Selection cancelled by user")
-        print("\nSelección cancelada. ¡Hasta luego!")
-        return
-
-    logger.info(f"Battle mode selected: {battle_mode.description}")
-    print(f"\nModo seleccionado: {battle_mode.description}")
-
-    # Step 3: Select moveset mode
-    print("\nSelecciona cómo quieres elegir los movimientos...")
-    moveset_mode = select_moveset_mode()
-
-    if moveset_mode is None:
-        logger.info("Selection cancelled by user")
-        print("\nSelección cancelada. ¡Hasta luego!")
-        return
-
-    logger.info(f"Moveset mode selected: {moveset_mode.description}")
-    print(f"\nModo de movimientos: {moveset_mode.description}")
-
-    # Create battle settings
-    if battle_mode == BattleMode.WATCH:
-        settings = BattleSettings.for_watch_mode()
-    elif battle_mode == BattleMode.AUTOBATTLE:
-        settings = BattleSettings.for_autobattle()
-    else:
-        settings = BattleSettings.default()
-    settings.moveset_mode = moveset_mode
-    settings.ruleset = ruleset
-
-    # Step 4: Team selection based on mode
-    if settings.is_autobattle():
-        # Auto-generate both teams for autobattle/watch mode
         print(f"\nGenerando equipos aleatorios...")
 
         player_team = create_team_with_moveset(
-            battle_format.team_size, "Equipo 1", moveset_mode, ruleset=ruleset)
+            battle_format.team_size, team1_name, moveset_mode, ruleset=ruleset)
         opponent_team = create_team_with_moveset(
-            battle_format.team_size, "Equipo 2", moveset_mode, ruleset=ruleset)
+            battle_format.team_size, team2_name, moveset_mode, ruleset=ruleset)
 
         print(f"\n{player_team.name}:")
         for i, poke in enumerate(player_team.pokemon):
@@ -224,17 +188,14 @@ def main():
         print(f"\n{opponent_team.name}:")
         for i, poke in enumerate(opponent_team.pokemon):
             print(f"  {i+1}. {poke.name} (Lv.{poke.level}) - {', '.join([m.name for m in poke.moves])}")
-
     else:
         # Player selects their team
         if battle_format == BattleFormat.SINGLE:
-            # Single Pokemon selection
             print("\nSelecciona tu Pokémon...")
 
             if moveset_mode == MovesetMode.MANUAL:
                 pokemon = interactive_pokemon_selection()
             else:
-                # Use curses to select Pokemon, then auto-assign moves
                 import curses
                 from ui.selection import select_pokemon_curses
                 pokemon_name = curses.wrapper(select_pokemon_curses)
@@ -257,9 +218,7 @@ def main():
             print(f"Movimientos: {', '.join([m.name for m in pokemon.moves])}")
 
             player_team = Team([pokemon], "Jugador")
-
         else:
-            # Multi-Pokemon team selection
             print(f"\nSelecciona {battle_format.team_size} Pokémon para tu equipo...")
 
             if moveset_mode == MovesetMode.MANUAL:
@@ -279,7 +238,7 @@ def main():
             for i, poke in enumerate(player_team.pokemon):
                 print(f"  {i+1}. {poke.name} (Lv.{poke.level}) - {', '.join([m.name for m in poke.moves])}")
 
-        # Generate opponent team with same moveset mode and ruleset
+        # Generate opponent team
         print(f"\nGenerando equipo rival...")
         opponent_team = create_team_with_moveset(
             battle_format.team_size, "Oponente", moveset_mode, ruleset=ruleset)
@@ -288,20 +247,15 @@ def main():
         for i, poke in enumerate(opponent_team.pokemon):
             print(f"  {i+1}. {poke.name} (Lv.{poke.level}) - {', '.join([m.name for m in poke.moves])}")
 
-    # Step 5: Start the battle
-    if settings.is_autobattle():
-        print(f"\n{'═' * 50}")
-        print(f"  Reglas: {ruleset.name}")
-        print(f"  Modo: {battle_mode.description}")
-        if ruleset.clauses.any_active():
-            print(f"  Cláusulas: {', '.join(ruleset.clauses.get_active_list())}")
-        print(f"  Delay entre acciones: {settings.action_delay}s")
-        print(f"{'═' * 50}")
-        input("\nPresiona ENTER para comenzar la batalla...")
-    else:
-        if ruleset.clauses.any_active():
-            print(f"\nCláusulas activas: {', '.join(ruleset.clauses.get_active_list())}")
-        input("\nPresiona ENTER para comenzar la batalla...")
+    # Pre-battle summary
+    print(f"\n{'═' * 50}")
+    print(f"  Reglas: {ruleset.name}")
+    print(f"  Modo: {settings.battle_mode.description}")
+    if ruleset.clauses.any_active():
+        print(f"  Cláusulas: {', '.join(ruleset.clauses.get_active_list())}")
+    print(f"  Delay entre acciones: {settings.action_delay}s")
+    print(f"{'═' * 50}")
+    input("\nPresiona ENTER para comenzar la batalla...")
 
     logger.info("Battle starting")
     run_team_battle(player_team, opponent_team, battle_format, settings)

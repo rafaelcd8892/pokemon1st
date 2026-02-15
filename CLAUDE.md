@@ -23,9 +23,11 @@ Pokemon Gen 1 Battle engine. Modular. Looking to step by step increase.
 - RNG / seeding: `engine/rng.py` (modular BattleRNG system with global accessors)
 - Log formatting: `engine/battle_logger.py` (dual-format .log + .json)
 - Event bus: `engine/events/bus.py` (pub/sub), `engine/events/types.py` (56 event dataclasses)
-- Event handlers: `engine/events/handlers/cli.py`, `engine/events/handlers/log_bridge.py`
+- Event handlers: `engine/events/handlers/cli.py`, `engine/events/handlers/log_bridge.py`, `engine/events/handlers/buffer.py` (buffered event storage for curses UI)
 - Display: `engine/display.py` (ANSI color console output)
 - Models: `models/` (pokemon, move, stats, enums, ivs, team, ruleset)
+- Settings: `settings/battle_config.py` (BattleMode, MovesetMode, BattleSettings, TeamSelectMode)
+- UI: `ui/selection.py` (curses Pokemon/move/ruleset selection), `ui/menus.py` (main menu navigation, custom battle config form)
 - Data: `data/` (pokemon.json, moves.json, learnsets.json, preset_movesets.json, data_loader.py)
 - Tests: `tests/` (unit, integration, golden, audit)
 
@@ -88,3 +90,35 @@ Areas that frequently cause subtle bugs:
 - Prefer pure functions
 - Readability > cleverness
 - Isolate mechanics from I/O
+
+## Documentation Protocol
+
+The file docs/scribe_inbox.md is the canonical staging area for documentation updates.
+
+Operational Rules:
+
+1. Agents and coordinator MUST append durable notes to docs/scribe_inbox.md
+2. SCRIBE is the ONLY agent allowed to process and clear the inbox
+3. Notes must be concise and structured
+4. Do NOT directly modify README / CHANGELOG / PROJECT_MAP / DECISIONS
+   unless acting as SCRIBE
+
+When significant events occur, append an entry to docs/scribe_inbox.md.
+
+Significant events include:
+
+- Behavior changes
+- Structural changes
+- Durable decisions
+- Validation milestones
+- Newly discovered hot spots / quirks
+- Important constraints or invariants
+
+Inbox entries must follow this structure:
+
+- Date:
+- Type: decision | changelog | map | brief | readme | quirk | todo
+- Summary:
+- Details:
+- Files:
+- Tests:
