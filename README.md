@@ -14,7 +14,8 @@ python scripts/batch_battle.py --battles 100 --format 3v3
 
 **In the interactive menu:**
 - Select **"START NOW!"** for instant Poke Cup 3v3 battles (AI vs AI)
-- Select **"Start Battle"** to customize ruleset, format, battle mode, teams, and movesets
+- Select **"Batalla Personalizada"** to customize ruleset, format, battle mode, AI difficulty, trainer style, teams, and movesets
+- In autobattle (IA vs IA), configure each AI independently with difficulty + style
 - Navigate with arrow keys, cycle options with ◄/►, press Enter to confirm
 
 ## What's In the Box
@@ -40,13 +41,21 @@ damage = ((((2 * Level / 5 + 2) * Power * Attack / Defense) / 50) + 2)
 - **Freeze** does not thaw naturally (only Fire-type moves thaw)
 - **Type chart** has all 15 Gen 1 types with Ghost/Psychic immunity bug
 
-### Battle Modes
+### Battle Modes & AI Difficulty
 
 | Mode | Description |
 |------|-------------|
-| Player vs AI | You control your team against a random AI |
+| Player vs AI | You control your team against an AI opponent |
 | Autobattle | AI controls both sides |
 | Watch | Autobattle with longer delays for spectating |
+
+**AI Difficulty Levels:**
+- **Easy** — random moves and switches
+- **Medium** — random with slight preference for effective moves
+- **Default** — tactical AI that evaluates damage, type effectiveness, and switches
+- **Competitive** — threat-scoring AI that switches defensively on opponent threats
+- **Predictive** — look-ahead AI that evaluates switch targets based on likely opponent responses
+- **MillenniumEye** — future-sight AI with action revision: chooses action, then revises after opponent's action is revealed
 
 ### Battle Formats
 
@@ -157,6 +166,9 @@ Run hundreds of battles automatically, validate every log, and surface anomalies
 # Basic run
 python scripts/batch_battle.py --battles 100 --format 3v3
 
+# With specific AI difficulty and trainer style
+python scripts/batch_battle.py --battles 100 --ai competitive --style offensive
+
 # With reproducible seed
 python scripts/batch_battle.py --battles 100 --format 6v6 --seed 42
 
@@ -168,10 +180,15 @@ python scripts/batch_battle.py \
   --battles 100 \
   --format 3v3 \
   --moveset smart_random \
+  --ai competitive \
+  --style offensive \
   --seed 42 \
   --output-dir logs/batch/ \
   --verbose
 ```
+
+Available `--ai` values: `default`, `easy`, `medium`, `competitive`, `predictive`, `millennium_eye`
+Available `--style` values: `balanced`, `offensive`, `defensive`, `status`
 
 Output:
 ```
@@ -242,6 +259,18 @@ PokemonGen1/
 │   ├── team_battle.py               # Multi-Pokemon battle engine + AI
 │   ├── battle_logger.py             # Dual-format battle logging
 │   ├── display.py                   # ANSI color console output
+│   ├── ai/                          # Modular AI system with 6 difficulty levels
+│   │   ├── base.py                  # BaseAI abstract base class + revise_action() hook
+│   │   ├── difficulty.py            # AIDifficulty enum (Easy, Medium, Default, Competitive, Predictive, MillenniumEye)
+│   │   ├── evaluator.py             # Move evaluator + threat scoring, switch evaluation
+│   │   ├── easy_ai.py               # Random AI (difficulty=Easy)
+│   │   ├── medium_ai.py             # Semi-random AI (difficulty=Medium)
+│   │   ├── default_ai.py            # Tactical AI (difficulty=Default)
+│   │   ├── competitive_ai.py        # Threat-scoring AI (difficulty=Competitive)
+│   │   ├── predictive_ai.py         # Look-ahead AI (difficulty=Predictive)
+│   │   ├── millennium_eye_ai.py     # Future-sight AI (difficulty=MillenniumEye)
+│   │   ├── factory.py               # create_ai() factory function
+│   │   └── __init__.py              # Module exports
 │   └── events/
 │       ├── types.py                 # 56 typed battle event dataclasses
 │       ├── bus.py                   # Global event bus (pub/sub)
@@ -350,19 +379,18 @@ print(f"Winner: {winner.name if winner else 'Draw'}")
 python -m pytest tests/ -v
 ```
 
-329 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, generation-specific P/S split, battle audit invariants, rulesets, battle clause enforcement, moveset selection, event bus, and the modular RNG system.
+449 tests covering damage calculation, type effectiveness, stat calculation, Gen 1 mechanics, generation-specific P/S split, battle audit invariants, rulesets, battle clause enforcement, moveset selection, event bus, modular RNG system, AI difficulty levels (Phase 1-2), and trainer class system (Phase 3).
 
 ## Roadmap
 
 ### Next Up
-- Type-aware AI (picks moves by effectiveness, switches on disadvantage)
 - Battle replay from recorded RNG sequences (RecordingRNG + ReplayRNG)
 - Mechanics profile system (toggle Gen 1 quirks: Toxic counter reset, 1/256 miss)
+- AI Phase 3: Minimax search, experience-based learning
 
 ### Future
 - Gen 2 support (Dark/Steel types, Special split, weather, held items)
 - Web UI for battles
-- Smarter AI (damage estimation, minimax search)
 - Franchise re-skinning support (configurable data packs)
 
 ## License

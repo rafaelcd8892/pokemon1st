@@ -1,10 +1,8 @@
 import logging
 from models.enums import BattleFormat
-from engine.team_battle import (
-    TeamBattle, BattleAction, Team,
-    get_random_ai_action, get_random_forced_switch
-)
+from engine.team_battle import TeamBattle, BattleAction, Team
 from settings.battle_config import BattleMode, MovesetMode, BattleSettings, TeamSelectMode
+from engine.ai import create_ai, BattleAI, TrainerProfile, TrainerStyle
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +24,24 @@ from ui.selection import (
 )
 
 from ui.menus import main_menu
+
+
+# Map TrainerStyle enum to TrainerProfile factory methods
+_STYLE_TO_PROFILE = {
+    TrainerStyle.BALANCED: TrainerProfile.balanced,
+    TrainerStyle.OFFENSIVE: TrainerProfile.offensive,
+    TrainerStyle.DEFENSIVE: TrainerProfile.defensive,
+    TrainerStyle.STATUS_FOCUSED: TrainerProfile.status_focused,
+    # TYPE_SPECIALIST requires types — handled separately
+}
+
+
+def _make_profile(style: TrainerStyle) -> TrainerProfile:
+    """Create a TrainerProfile from a TrainerStyle enum value."""
+    factory = _STYLE_TO_PROFILE.get(style)
+    if factory:
+        return factory()
+    return TrainerProfile.balanced()
 
 
 def get_player_action(team: Team, opponent_team: Team, battle_log=None) -> BattleAction:
@@ -97,35 +113,92 @@ def run_team_battle(player_team: Team, opponent_team: Team, battle_format: Battl
     # Create a buffered handler for the battle log panel
     buffer = BufferedEventHandler(get_event_bus())
 
+    # Create AI instances via the AI framework
+    opponent_profile = _make_profile(settings.opponent_trainer_style)
+    opponent_ai = create_ai(
+        settings.opponent_ai_difficulty, clauses=clauses, profile=opponent_profile
+    )
+
     # Determine action handlers based on battle mode
     if settings.is_autobattle():
-        # Both teams controlled by AI — pass clauses for move filtering
-        get_player = lambda t, o: get_random_ai_action(t, o, clauses=clauses)
-        get_opponent = lambda t, o: get_random_ai_action(t, o, clauses=clauses)
-        get_switch = get_random_forced_switch
+        # Both teams controlled by AI
+        player_profile = _make_profile(settings.player_trainer_style)
+        player_ai = create_ai(
+            settings.player_ai_difficulty, clauses=clauses, profile=player_profile
+        )
+        get_player = player_ai.choose_action
+        get_opponent = opponent_ai.choose_action
+        get_switch = lambda team: (
+            player_ai.choose_forced_switch(team) if team == player_team
+            else opponent_ai.choose_forced_switch(team)
+        )
         logger.info(f"Starting autobattle ({settings.battle_mode.description})")
     else:
         # Player controls their team — pass battle log for enhanced UI
         get_player = lambda t, o: get_player_action(t, o, battle_log=buffer.get_recent(8))
-        get_opponent = lambda t, o: get_random_ai_action(t, o, clauses=clauses)
+        get_opponent = opponent_ai.choose_action
         get_switch = lambda team: (
             get_player_forced_switch(team) if team == player_team
-            else get_random_forced_switch(team)
+            else opponent_ai.choose_forced_switch(team)
         )
         logger.info("Starting player vs AI battle")
+
+    # Build action revision hook for Millennium Eye AI
+    ai_instances = [opponent_ai]
+    if settings.is_autobattle():
+        ai_instances.append(player_ai)
+
+    def _on_actions_chosen(a1, a2):
+        """Notify AIs of opponent actions and allow revision."""
+        # Notify each AI what the opponent chose
+        if settings.is_autobattle():
+            player_ai.notify_opponent_action(a2)
+            opponent_ai.notify_opponent_action(a1)
+            revised1 = player_ai.revise_action()
+            revised2 = opponent_ai.revise_action()
+            return (revised1 or a1), (revised2 or a2)
+        else:
+            opponent_ai.notify_opponent_action(a1)
+            revised2 = opponent_ai.revise_action()
+            return a1, (revised2 or a2)
+
+    # Only pass the hook if any AI supports revision
+    needs_hook = any(
+        hasattr(ai, 'revise_action') and type(ai).revise_action is not BattleAI.revise_action
+        for ai in ai_instances
+    )
 
     winner = battle.run_battle(
         get_player_action=get_player,
         get_opponent_action=get_opponent,
-        get_forced_switch=get_switch
+        get_forced_switch=get_switch,
+        on_actions_chosen=_on_actions_chosen if needs_hook else None,
     )
 
     return winner
 
 
 def create_team_with_moveset(size: int, trainer_name: str, moveset_mode: MovesetMode,
-                              ruleset=None) -> Team:
-    """Create a random team with movesets based on the selected mode and ruleset"""
+                              ruleset=None, profile: TrainerProfile = None) -> Team:
+    """Create a team with movesets based on the selected mode, ruleset, and profile.
+
+    If a non-balanced TrainerProfile is provided, delegates to the
+    profile-aware team builder for biased Pokemon/moveset selection.
+    """
+    mode_map = {
+        MovesetMode.RANDOM: "random",
+        MovesetMode.PRESET: "preset",
+        MovesetMode.SMART_RANDOM: "smart_random",
+        MovesetMode.MANUAL: "random"  # Fallback for AI teams
+    }
+    mode_str = mode_map.get(moveset_mode, "random")
+
+    # Use profile-aware builder when a non-balanced profile is provided
+    if profile is not None and profile.style != TrainerStyle.BALANCED:
+        from engine.ai.team_builder import build_team_for_profile
+        return build_team_for_profile(size, trainer_name, mode_str, profile, ruleset)
+
+    # Standard unbiased path
     kanto_list = get_kanto_pokemon_list()
 
     # Filter Pokemon by ruleset restrictions
@@ -135,14 +208,6 @@ def create_team_with_moveset(size: int, trainer_name: str, moveset_mode: Moveset
     selected_names = get_rng().sample(kanto_list, min(size, len(kanto_list)), RNGContext.TEAM_GENERATION)
 
     pokemon_list = []
-    mode_map = {
-        MovesetMode.RANDOM: "random",
-        MovesetMode.PRESET: "preset",
-        MovesetMode.SMART_RANDOM: "smart_random",
-        MovesetMode.MANUAL: "random"  # Fallback for AI teams
-    }
-    mode_str = mode_map.get(moveset_mode, "random")
-
     for name in selected_names:
         moves_selected = get_moveset_for_pokemon(name, mode_str)
         moves = [create_move(m) for m in moves_selected]
@@ -168,6 +233,10 @@ def main():
     battle_format = settings.battle_format
     moveset_mode = settings.moveset_mode
 
+    # Build profiles for team generation
+    player_profile = _make_profile(settings.player_trainer_style)
+    opponent_profile = _make_profile(settings.opponent_trainer_style)
+
     # Team generation based on settings
     if settings.is_autobattle() or settings.team_select_mode == TeamSelectMode.RANDOM:
         # Auto-generate both teams
@@ -177,9 +246,11 @@ def main():
         print(f"\nGenerando equipos aleatorios...")
 
         player_team = create_team_with_moveset(
-            battle_format.team_size, team1_name, moveset_mode, ruleset=ruleset)
+            battle_format.team_size, team1_name, moveset_mode,
+            ruleset=ruleset, profile=player_profile)
         opponent_team = create_team_with_moveset(
-            battle_format.team_size, team2_name, moveset_mode, ruleset=ruleset)
+            battle_format.team_size, team2_name, moveset_mode,
+            ruleset=ruleset, profile=opponent_profile)
 
         print(f"\n{player_team.name}:")
         for i, poke in enumerate(player_team.pokemon):
@@ -198,7 +269,8 @@ def main():
             else:
                 import curses
                 from ui.selection import select_pokemon_curses
-                pokemon_name = curses.wrapper(select_pokemon_curses)
+                eligible = filter_pokemon_by_ruleset(get_kanto_pokemon_list(), ruleset) if ruleset else None
+                pokemon_name = curses.wrapper(lambda stdscr: select_pokemon_curses(stdscr, eligible))
                 if pokemon_name:
                     moves_selected = get_moveset_for_pokemon(pokemon_name,
                         {"random": "random", "preset": "preset",
@@ -225,7 +297,7 @@ def main():
                 player_team = interactive_team_selection(battle_format, "Jugador")
             else:
                 player_team = interactive_team_selection_with_settings(
-                    battle_format, moveset_mode, "Jugador"
+                    battle_format, moveset_mode, "Jugador", ruleset=ruleset
                 )
 
             if player_team is None:
@@ -241,7 +313,8 @@ def main():
         # Generate opponent team
         print(f"\nGenerando equipo rival...")
         opponent_team = create_team_with_moveset(
-            battle_format.team_size, "Oponente", moveset_mode, ruleset=ruleset)
+            battle_format.team_size, "Oponente", moveset_mode,
+            ruleset=ruleset, profile=opponent_profile)
 
         print(f"\nEquipo rival:")
         for i, poke in enumerate(opponent_team.pokemon):

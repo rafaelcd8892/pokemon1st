@@ -7,9 +7,41 @@ from settings.battle_config import (
     BattleSettings, BattleMode, MovesetMode, TeamSelectMode,
     WAITING_TIME_OPTIONS,
 )
+from engine.ai.difficulty import AIDifficulty
+from engine.ai.trainer_class import TrainerStyle
 from models.enums import BattleFormat
 from models.ruleset import ALL_RULESETS
 from ui.selection import init_colors, select_custom_ruleset_curses
+
+
+# Display names for AI difficulty levels (Spanish UI)
+AI_DIFFICULTY_NAMES = [
+    "Default",         # DEFAULT — random moves
+    "Fácil",           # EASY
+    "Medio",           # MEDIUM
+    "Competitivo",     # COMPETITIVE
+    "Predictivo",      # PREDICTIVE
+    "Millennium Eye",  # MILLENNIUM_EYE
+]
+
+# AIDifficulty members in UI order (must match AI_DIFFICULTY_NAMES)
+_AI_DIFFICULTY_VALUES = list(AIDifficulty)
+
+# Display names for trainer styles (Spanish UI) — TYPE_SPECIALIST excluded
+TRAINER_STYLE_NAMES = [
+    "Equilibrado",  # BALANCED
+    "Ofensivo",     # OFFENSIVE
+    "Defensivo",    # DEFENSIVE
+    "Status",       # STATUS_FOCUSED
+]
+
+# TrainerStyle members in UI order (excluding TYPE_SPECIALIST)
+_TRAINER_STYLE_VALUES = [
+    TrainerStyle.BALANCED,
+    TrainerStyle.OFFENSIVE,
+    TrainerStyle.DEFENSIVE,
+    TrainerStyle.STATUS_FOCUSED,
+]
 
 
 # =============================================================================
@@ -200,8 +232,13 @@ def select_start_battle_curses(stdscr) -> Optional[int]:
 # Custom Battle Configuration Form
 # =============================================================================
 
-def _build_config_fields():
-    """Build the field definitions for the custom battle config form."""
+def _build_config_fields(mode_idx: int = 0):
+    """Build the field definitions for the custom battle config form.
+
+    Args:
+        mode_idx: Current mode index. 0 = IA vs IA, 1 = Jugador vs IA.
+                  Controls visibility of player AI fields.
+    """
     ruleset_names = [r.name for r in ALL_RULESETS] + ["Personalizado"]
     format_names = ["1v1", "3v3", "6v6"]
     mode_names = ["IA vs IA", "Jugador vs IA"]
@@ -209,15 +246,23 @@ def _build_config_fields():
     team_select_names = ["Aleatorio", "Elegir"]
     moveset_names = [m.description for m in MovesetMode]
 
+    # Player AI fields are only active in autobattle mode (mode_idx == 0)
+    is_autobattle = (mode_idx == 0)
+    player_field_type = "cycle" if is_autobattle else "placeholder"
+    player_ai_options = AI_DIFFICULTY_NAMES if is_autobattle else ["N/A (Jugador)"]
+    player_style_options = TRAINER_STYLE_NAMES if is_autobattle else ["N/A (Jugador)"]
+
     fields = [
-        ("Reglas",           "ruleset_idx",       "cycle",       ruleset_names),
-        ("Formato",          "format_idx",        "cycle",       format_names),
-        ("Modo",             "mode_idx",          "cycle",       mode_names),
-        ("Nivel de IA",      "ai_level",          "placeholder", ["Próximamente..."]),
-        ("Tiempo de Espera", "waiting_time_idx",  "cycle",       waiting_names),
-        ("Mecánicas",        "mechanics",         "placeholder", ["Próximamente..."]),
-        ("Equipo",           "team_select_idx",   "cycle",       team_select_names),
-        ("Movimientos",      "moveset_idx",       "cycle",       moveset_names),
+        ("Reglas",           "ruleset_idx",       "cycle",             ruleset_names),
+        ("Formato",          "format_idx",        "cycle",             format_names),
+        ("Modo",             "mode_idx",          "cycle",             mode_names),
+        ("IA Oponente",      "opp_ai_idx",        "cycle",             AI_DIFFICULTY_NAMES),
+        ("Estilo Oponente",  "opp_style_idx",     "cycle",             TRAINER_STYLE_NAMES),
+        ("IA Jugador",       "player_ai_idx",     player_field_type,   player_ai_options),
+        ("Estilo Jugador",   "player_style_idx",  player_field_type,   player_style_options),
+        ("Tiempo de Espera", "waiting_time_idx",  "cycle",             waiting_names),
+        ("Equipo",           "team_select_idx",   "cycle",             team_select_names),
+        ("Movimientos",      "moveset_idx",       "cycle",             moveset_names),
     ]
     return fields
 
@@ -225,14 +270,16 @@ def _build_config_fields():
 def _default_config() -> dict:
     """Default config values for the custom battle form."""
     return {
-        "ruleset_idx": 1,         # Poke Cup
-        "format_idx": 1,          # 3v3
-        "mode_idx": 0,            # IA vs IA
-        "ai_level": 0,
-        "waiting_time_idx": 1,    # 3 seconds
-        "mechanics": 0,
-        "team_select_idx": 0,     # Aleatorio
-        "moveset_idx": 3,         # Smart Random
+        "ruleset_idx": 1,          # Poke Cup
+        "format_idx": 1,           # 3v3
+        "mode_idx": 0,             # IA vs IA
+        "opp_ai_idx": 0,           # Default AI
+        "opp_style_idx": 0,        # Equilibrado
+        "player_ai_idx": 0,        # Default AI
+        "player_style_idx": 0,     # Equilibrado
+        "waiting_time_idx": 1,     # 3 seconds
+        "team_select_idx": 0,      # Aleatorio
+        "moveset_idx": 3,          # Smart Random
     }
 
 
@@ -334,6 +381,19 @@ def _config_to_settings(config: dict, fields: list) -> Optional[BattleSettings]:
     moveset_idx = config["moveset_idx"]
     moveset_mode = moveset_modes[moveset_idx] if moveset_idx < len(moveset_modes) else MovesetMode.SMART_RANDOM
 
+    # Resolve AI difficulty and trainer style
+    opp_ai_idx = config.get("opp_ai_idx", 0)
+    opp_ai = _AI_DIFFICULTY_VALUES[opp_ai_idx] if opp_ai_idx < len(_AI_DIFFICULTY_VALUES) else AIDifficulty.DEFAULT
+
+    opp_style_idx = config.get("opp_style_idx", 0)
+    opp_style = _TRAINER_STYLE_VALUES[opp_style_idx] if opp_style_idx < len(_TRAINER_STYLE_VALUES) else TrainerStyle.BALANCED
+
+    player_ai_idx = config.get("player_ai_idx", 0)
+    player_ai = _AI_DIFFICULTY_VALUES[player_ai_idx] if player_ai_idx < len(_AI_DIFFICULTY_VALUES) else AIDifficulty.DEFAULT
+
+    player_style_idx = config.get("player_style_idx", 0)
+    player_style = _TRAINER_STYLE_VALUES[player_style_idx] if player_style_idx < len(_TRAINER_STYLE_VALUES) else TrainerStyle.BALANCED
+
     return BattleSettings(
         battle_mode=battle_mode,
         moveset_mode=moveset_mode,
@@ -341,6 +401,10 @@ def _config_to_settings(config: dict, fields: list) -> Optional[BattleSettings]:
         ruleset=ruleset,
         battle_format=battle_format,
         team_select_mode=team_select,
+        opponent_ai_difficulty=opp_ai,
+        opponent_trainer_style=opp_style,
+        player_ai_difficulty=player_ai,
+        player_trainer_style=player_style,
     )
 
 
@@ -349,8 +413,8 @@ def select_custom_battle_curses(stdscr) -> Optional[BattleSettings]:
     curses.curs_set(0)
     init_colors()
 
-    fields = _build_config_fields()
     config = _default_config()
+    fields = _build_config_fields(config["mode_idx"])
     total_options = len(fields) + 1  # +1 for confirm button
     cursor_idx = 0
 
@@ -372,6 +436,16 @@ def select_custom_battle_curses(stdscr) -> Optional[BattleSettings]:
                 delta = 1 if key == curses.KEY_RIGHT else -1
                 config[field_key] = (config[field_key] + delta) % len(options)
 
+                # When mode changes, rebuild fields (player AI visibility toggles)
+                if field_key == "mode_idx":
+                    # Reset player AI indices when switching to Jugador vs IA
+                    if config["mode_idx"] == 1:  # Jugador vs IA
+                        config["player_ai_idx"] = 0
+                        config["player_style_idx"] = 0
+                    fields = _build_config_fields(config["mode_idx"])
+                    total_options = len(fields) + 1
+                    cursor_idx = min(cursor_idx, total_options - 1)
+
                 # If ruleset is "Personalizado", open custom ruleset editor
                 if field_key == "ruleset_idx" and config[field_key] == len(ALL_RULESETS):
                     custom = select_custom_ruleset_curses(stdscr)
@@ -380,7 +454,7 @@ def select_custom_battle_curses(stdscr) -> Optional[BattleSettings]:
                         ALL_RULESETS.append(custom)
                         config["ruleset_idx"] = len(ALL_RULESETS) - 1
                         # Rebuild fields to pick up new name
-                        fields = _build_config_fields()
+                        fields = _build_config_fields(config["mode_idx"])
                     else:
                         # Cancelled — revert to previous
                         config["ruleset_idx"] = (config["ruleset_idx"] - delta) % len(

@@ -9,12 +9,12 @@ if TYPE_CHECKING:
     from models.enums import BattleFormat
 
 
-class AIType(Enum):
-    """Types of AI for battle"""
-    RANDOM = "random"           # Picks random moves
-    # Future AI types can be added here:
-    # SMART = "smart"           # Type-aware, power-aware
-    # COMPETITIVE = "competitive"  # Full strategy
+from engine.ai.difficulty import AIDifficulty
+from engine.ai.trainer_class import TrainerStyle
+
+
+# Backward-compat alias — old code that imported AIType still works.
+AIType = AIDifficulty
 
 
 class MovesetMode(Enum):
@@ -74,8 +74,10 @@ def _get_default_format():
 class BattleSettings:
     """Configuration for a battle session"""
     battle_mode: BattleMode = BattleMode.PLAYER_VS_AI
-    player_ai_type: AIType = AIType.RANDOM  # Used when autobattle
-    opponent_ai_type: AIType = AIType.RANDOM
+    player_ai_difficulty: AIDifficulty = AIDifficulty.DEFAULT  # Used when autobattle
+    opponent_ai_difficulty: AIDifficulty = AIDifficulty.DEFAULT
+    player_trainer_style: TrainerStyle = TrainerStyle.BALANCED
+    opponent_trainer_style: TrainerStyle = TrainerStyle.BALANCED
     moveset_mode: MovesetMode = MovesetMode.MANUAL
     action_delay: float = 3.0  # Seconds between actions
     ruleset: Optional['Ruleset'] = field(default=None)
@@ -116,8 +118,8 @@ class BattleSettings:
         """Create settings optimized for watch mode"""
         return cls(
             battle_mode=BattleMode.WATCH,
-            player_ai_type=AIType.RANDOM,
-            opponent_ai_type=AIType.RANDOM,
+            player_ai_difficulty=AIDifficulty.DEFAULT,
+            opponent_ai_difficulty=AIDifficulty.DEFAULT,
             moveset_mode=MovesetMode.SMART_RANDOM,
             action_delay=4.0  # Longer delay for watching
         )
@@ -127,8 +129,8 @@ class BattleSettings:
         """Create settings for autobattle"""
         return cls(
             battle_mode=BattleMode.AUTOBATTLE,
-            player_ai_type=AIType.RANDOM,
-            opponent_ai_type=AIType.RANDOM,
+            player_ai_difficulty=AIDifficulty.DEFAULT,
+            opponent_ai_difficulty=AIDifficulty.DEFAULT,
             moveset_mode=MovesetMode.RANDOM,
             action_delay=3.0
         )
@@ -138,7 +140,7 @@ class BattleSettings:
         """Create default player vs AI settings"""
         return cls(
             battle_mode=BattleMode.PLAYER_VS_AI,
-            opponent_ai_type=AIType.RANDOM,
+            opponent_ai_difficulty=AIDifficulty.DEFAULT,
             moveset_mode=MovesetMode.MANUAL,
             action_delay=3.0
         )

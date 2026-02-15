@@ -32,6 +32,8 @@ from models.pokemon import Pokemon
 from models.team import Team
 from engine.rng import get_rng, set_rng, StandardRNG, RNGContext
 from engine.team_battle import TeamBattle, get_random_ai_action, get_random_forced_switch
+from engine.ai import create_ai, TrainerProfile, TrainerStyle
+from engine.ai.difficulty import AIDifficulty
 from data.data_loader import (
     get_kanto_pokemon_list,
     get_pokemon_data,
@@ -39,6 +41,24 @@ from data.data_loader import (
     create_move,
 )
 from scripts.validate_battle_log import validate_log_data
+
+# Valid CLI choices for AI difficulty and trainer style
+_AI_CHOICES = [d.value for d in AIDifficulty]
+_STYLE_CHOICES = ["balanced", "offensive", "defensive", "status"]
+
+_STYLE_MAP = {
+    "balanced": TrainerStyle.BALANCED,
+    "offensive": TrainerStyle.OFFENSIVE,
+    "defensive": TrainerStyle.DEFENSIVE,
+    "status": TrainerStyle.STATUS_FOCUSED,
+}
+
+_STYLE_TO_PROFILE = {
+    TrainerStyle.BALANCED: TrainerProfile.balanced,
+    TrainerStyle.OFFENSIVE: TrainerProfile.offensive,
+    TrainerStyle.DEFENSIVE: TrainerProfile.defensive,
+    TrainerStyle.STATUS_FOCUSED: TrainerProfile.status_focused,
+}
 
 # Default output directory for batch logs
 BATCH_LOGS_DIR = PROJECT_ROOT / "logs" / "batch"
@@ -80,6 +100,8 @@ def run_single_battle(
     moveset_mode: str,
     log_dir: Path,
     verbose: bool = False,
+    ai_difficulty: AIDifficulty = AIDifficulty.DEFAULT,
+    trainer_style: TrainerStyle = TrainerStyle.BALANCED,
 ) -> dict:
     """Run one battle and return results.
 
@@ -90,6 +112,11 @@ def run_single_battle(
 
     team1_names = [p.name for p in team1.pokemon]
     team2_names = [p.name for p in team2.pokemon]
+
+    # Build AI instances
+    profile = _STYLE_TO_PROFILE.get(trainer_style, TrainerProfile.balanced)()
+    ai1 = create_ai(ai_difficulty, profile=profile)
+    ai2 = create_ai(ai_difficulty, profile=profile)
 
     # Run battle, suppressing stdout from the engine
     stdout_target = sys.stdout if verbose else io.StringIO()
@@ -102,9 +129,12 @@ def run_single_battle(
         )
         battle_id = battle.battle_logger.battle_id
         winner = battle.run_battle(
-            get_player_action=get_random_ai_action,
-            get_opponent_action=get_random_ai_action,
-            get_forced_switch=get_random_forced_switch,
+            get_player_action=ai1.choose_action,
+            get_opponent_action=ai2.choose_action,
+            get_forced_switch=lambda team: (
+                ai1.choose_forced_switch(team) if team == team1
+                else ai2.choose_forced_switch(team)
+            ),
         )
 
     # Load and validate the JSON log
@@ -216,6 +246,14 @@ def main() -> int:
         help="Base random seed for reproducibility",
     )
     parser.add_argument(
+        "--ai", choices=_AI_CHOICES, default="default",
+        help="AI difficulty for both teams (default: default)",
+    )
+    parser.add_argument(
+        "--style", choices=_STYLE_CHOICES, default="balanced",
+        help="Trainer style for both teams (default: balanced)",
+    )
+    parser.add_argument(
         "--stop-on-error", action="store_true",
         help="Stop on first ERROR-level anomaly",
     )
@@ -230,6 +268,8 @@ def main() -> int:
     args = parser.parse_args()
 
     battle_format = FORMAT_MAP[args.format]
+    ai_difficulty = AIDifficulty(args.ai)
+    trainer_style = _STYLE_MAP[args.style]
     log_dir = args.output_dir or BATCH_LOGS_DIR
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -238,6 +278,7 @@ def main() -> int:
     logging.getLogger().setLevel(logging.WARNING)
 
     print(f"Running {args.battles} battles ({args.format}, {args.moveset} movesets)")
+    print(f"AI: {args.ai} | Style: {args.style}")
     print(f"Logs: {log_dir}")
     if args.seed is not None:
         print(f"Base seed: {args.seed}")
@@ -252,7 +293,8 @@ def main() -> int:
             set_rng(StandardRNG(args.seed + i))
 
         result = run_single_battle(
-            battle_format, args.moveset, log_dir, verbose=args.verbose
+            battle_format, args.moveset, log_dir, verbose=args.verbose,
+            ai_difficulty=ai_difficulty, trainer_style=trainer_style,
         )
         results.append(result)
 

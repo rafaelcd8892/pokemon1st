@@ -255,12 +255,13 @@ def draw_pokemon_preview(stdscr, pokemon_name: str):
         safe_addstr(max_y - 2, start_x, "Escribe para buscar | ESC: Salir")
 
 
-def select_pokemon_curses(stdscr) -> Optional[str]:
+def select_pokemon_curses(stdscr, pokemon_list: Optional[list[str]] = None) -> Optional[str]:
     """Interactive Pokemon selection with curses"""
     curses.curs_set(0)  # Hide cursor
     init_colors()
 
-    pokemon_list = get_kanto_pokemon_list()
+    if pokemon_list is None:
+        pokemon_list = get_kanto_pokemon_list()
     selected_idx = 0
     scroll_offset = 0
     search_query = ""
@@ -718,12 +719,13 @@ def draw_team_selection(stdscr, team_pokemon: list, max_size: int,
     return filtered_list
 
 
-def select_team_curses(stdscr, team_size: int) -> Optional[list[str]]:
+def select_team_curses(stdscr, team_size: int, pokemon_list: Optional[list[str]] = None) -> Optional[list[str]]:
     """Interactive team selection"""
     curses.curs_set(0)
     init_colors()
 
-    pokemon_list = get_kanto_pokemon_list()
+    if pokemon_list is None:
+        pokemon_list = get_kanto_pokemon_list()
     team_pokemon: list[Pokemon] = []
     selected_idx = 0
     scroll_offset = 0
@@ -1522,7 +1524,8 @@ def create_pokemon_with_moveset(pokemon_name: str, moveset_mode: MovesetMode) ->
 def interactive_team_selection_with_settings(
     battle_format: BattleFormat,
     moveset_mode: MovesetMode,
-    trainer_name: str = "Jugador"
+    trainer_name: str = "Jugador",
+    ruleset=None
 ) -> Optional[Team]:
     """
     Full interactive team selection with configurable moveset mode.
@@ -1531,14 +1534,20 @@ def interactive_team_selection_with_settings(
         battle_format: The battle format (determines team size)
         moveset_mode: How to select movesets
         trainer_name: Name for the trainer
+        ruleset: Optional ruleset to filter eligible Pokemon
 
     Returns:
         A Team with selected Pokemon and moves, or None if cancelled
     """
     team_size = battle_format.team_size
 
+    # Filter Pokemon list by ruleset if provided
+    eligible_pokemon = None
+    if ruleset is not None:
+        eligible_pokemon = filter_pokemon_by_ruleset(get_kanto_pokemon_list(), ruleset)
+
     # Select Pokemon for the team
-    pokemon_names = curses.wrapper(lambda stdscr: select_team_curses(stdscr, team_size))
+    pokemon_names = curses.wrapper(lambda stdscr: select_team_curses(stdscr, team_size, eligible_pokemon))
     if not pokemon_names:
         return None
 

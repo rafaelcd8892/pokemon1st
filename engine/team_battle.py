@@ -386,7 +386,8 @@ class TeamBattle:
     def run_battle(self,
                    get_player_action: Callable[[Team, Team], BattleAction],
                    get_opponent_action: Callable[[Team, Team], BattleAction],
-                   get_forced_switch: Optional[Callable[[Team], int]] = None) -> Optional[Team]:
+                   get_forced_switch: Optional[Callable[[Team], int]] = None,
+                   on_actions_chosen: Optional[Callable[[BattleAction, BattleAction], tuple]] = None) -> Optional[Team]:
         """
         Run the full battle loop.
 
@@ -394,6 +395,9 @@ class TeamBattle:
             get_player_action: Function to get player's action (team, opponent) -> action
             get_opponent_action: Function to get opponent's action (team, opponent) -> action
             get_forced_switch: Optional function to handle forced switches (team) -> index
+            on_actions_chosen: Optional hook called after both actions are collected
+                but before execution.  Receives (action1, action2) and returns
+                (revised_action1, revised_action2).  Used by Millennium Eye AI.
 
         Returns:
             The winning team, or None for a draw
@@ -456,6 +460,10 @@ class TeamBattle:
             # Get actions from both players
             action1 = get_player_action(self.team1, self.team2)
             action2 = get_opponent_action(self.team2, self.team1)
+
+            # AI action revision hook (e.g., Millennium Eye)
+            if on_actions_chosen:
+                action1, action2 = on_actions_chosen(action1, action2)
 
             # Execute the turn
             winner = self.execute_turn_pair(action1, action2)

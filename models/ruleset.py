@@ -330,6 +330,7 @@ PETIT_CUP_RULES = Ruleset(
     default_level=25,
     level_sum_limit=80,
     max_team_size=3,
+    basic_pokemon_only=True,
     allow_legendaries=False,
     clauses=BattleClauses(sleep_clause=True, freeze_clause=True),
     max_height_m=2.0,

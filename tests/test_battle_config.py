@@ -4,6 +4,7 @@ import pytest
 from settings.battle_config import (
     AIType, MovesetMode, BattleMode, BattleSettings
 )
+from engine.ai.difficulty import AIDifficulty
 
 
 class TestBattleMode:
@@ -104,8 +105,20 @@ class TestBattleSettings:
 
 
 class TestAIType:
-    """Tests for AIType enum"""
+    """Tests for AIDifficulty enum (AIType is backward-compat alias)"""
 
-    def test_random_ai(self):
-        """Test Random AI type exists"""
-        assert AIType.RANDOM.value == "random"
+    def test_ai_type_is_alias(self):
+        """AIType is an alias for AIDifficulty"""
+        assert AIType is AIDifficulty
+
+    def test_default_ai(self):
+        """Test Default AI difficulty exists"""
+        assert AIDifficulty.DEFAULT.value == "default"
+
+    def test_easy_ai(self):
+        """Test Easy AI difficulty exists"""
+        assert AIDifficulty.EASY.value == "easy"
+
+    def test_medium_ai(self):
+        """Test Medium AI difficulty exists"""
+        assert AIDifficulty.MEDIUM.value == "medium"

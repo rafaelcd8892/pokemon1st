@@ -4,6 +4,105 @@
 
 ### Added
 
+#### AI & Trainer Style Selection in Custom Battle Config UI - 2026-02-15
+
+The custom battle configuration form now has working AI difficulty and trainer style selectors, replacing the previous placeholders.
+
+**Custom Battle Form (`ui/menus.py`):**
+- "IA Oponente" — cycle through all 6 AI difficulties (Default, Fácil, Medio, Competitivo, Predictivo, Millennium Eye)
+- "Estilo Oponente" — cycle through 4 trainer styles (Equilibrado, Ofensivo, Defensivo, Status)
+- "IA Jugador" + "Estilo Jugador" — active only in IA vs IA mode, disabled (N/A) in Jugador vs IA
+- Fields rebuild dynamically when switching battle mode for conditional visibility
+- TYPE_SPECIALIST excluded from UI (requires type sub-menu, available via code/API)
+
+**Batch Battle Runner (`scripts/batch_battle.py`):**
+- New `--ai` flag: choose AI difficulty for both teams (default, easy, medium, competitive, predictive, millennium_eye)
+- New `--style` flag: choose trainer style for both teams (balanced, offensive, defensive, status)
+- Replaced legacy `get_random_ai_action` with `create_ai()` instances
+- Backward compatible: default flags produce identical behavior to previous version
+
+**Examples:**
+```bash
+# Batch with competitive AI and offensive style
+python scripts/batch_battle.py --battles 100 --ai competitive --style offensive
+
+# Batch with default AI (same as before)
+python scripts/batch_battle.py --battles 100
+```
+
+**Tests:** 449 tests pass, 5 golden baselines unchanged
+
+#### Modular AI System (Phase 1) - 2026-02-15
+
+New `engine/ai/` module with configurable AI difficulty levels:
+- **BattleAI** abstract base class with `choose_action()` and `choose_forced_switch()` methods
+- **AIDifficulty** enum: DEFAULT, EASY, MEDIUM (+ COMPETITIVE, PREDICTIVE, MILLENNIUM_EYE reserved for Phase 2)
+- **Evaluator** — pure-function move scorer using damage estimation, type effectiveness, no RNG
+- **Three concrete AI implementations:**
+  - DefaultAI — bit-identical port of `get_random_ai_action` (backward compat)
+  - EasyAI — filters out immune moves, unnecessary Self-Destruct, disabled moves
+  - MediumAI — type-aware scoring, prefers super-effective, basic switching on bad matchups
+- **Factory function** `create_ai(difficulty, clauses, profile)` — instantiate correct AI by difficulty
+
+**Settings changes:**
+- Replaced `AIType` enum with `AIDifficulty` (backward-compat alias AIType = AIDifficulty)
+- Renamed fields: `player_ai_type` → `player_ai_difficulty`, `opponent_ai_type` → `opponent_ai_difficulty`
+
+**Integration:**
+- `main.py` — `run_team_battle()` now creates AI instances using `create_ai()`
+- Both autobattle and player-vs-AI modes use AI system
+- No changes to battle engine, move effects, or logging
+
+**Tests:**
+- 49 new tests: test_ai_evaluator.py, test_ai_default.py, test_ai_easy.py, test_ai_medium.py, test_ai_factory.py
+- All 378 tests pass, 5 golden baselines unchanged
+
+#### Modular AI System (Phase 2) — Advanced Tactics - 2026-02-15
+
+Extended the Phase 1 AI system with three new AI difficulties offering tactical advantages:
+
+- **CompetitiveAI** — threat-scoring AI that evaluates incoming opponent threats and switches defensively
+- **PredictiveAI** — look-ahead AI that evaluates switch targets based on likely opponent responses
+- **MillenniumEyeAI** — future-sight AI with action revision hook: chooses initial action, then has opportunity to revise after opponent's action is chosen
+
+**Core Extensions:**
+- `engine/ai/evaluator.py` — new pure functions: `threat_score()` (incoming damage from opponent team), `score_switch_target()` (quality of switch-in), `should_switch()` (threshold-based switching decision)
+- `engine/ai/base.py` — optional `revise_action()` hook for post-decision-chosen revision
+- `engine/ai/factory.py` — all 6 difficulties now registered: Easy, Medium, Default, Competitive, Predictive, MillenniumEye
+
+**Integration:**
+- `engine/team_battle.py` — new `on_actions_chosen` hook in `run_battle()` for Millennium Eye action revision
+- `main.py` — action revision hook wired into battle flow
+- No changes to battle engine, turn execution, or logging
+
+**Tests:**
+- 35 new tests: test_ai_competitive.py, test_ai_predictive.py, test_ai_millennium_eye.py, test_ai_evaluator_advanced.py, updated test_ai_factory.py
+- All 414 tests pass, 5 golden baselines unchanged
+
+#### Trainer Class System (Phase 3) — Style Overlay - 2026-02-15
+
+Added a 2-axis trainer personality system: AI difficulty controls *how well* the AI plays, TrainerProfile controls *what style* it prefers.
+
+- **TrainerStyle** enum: BALANCED, OFFENSIVE, DEFENSIVE, STATUS_FOCUSED, TYPE_SPECIALIST
+- **TrainerProfile** dataclass with numeric weights for team building (attack_weight, defense_weight, speed_weight, status_move_weight) and battle behavior (switch_threshold, aggression, status_priority, setup_priority)
+- **Factory presets**: `TrainerProfile.balanced()`, `.offensive()`, `.defensive()`, `.status_focused()`, `.type_specialist(types)`
+- **Profile-aware team builder** (`engine/ai/team_builder.py`): weighted Pokemon selection by stat profile, type specialist filtering, moveset biasing (offensive → high-power moves, defensive → recovery/screens, status → ensures status moves)
+- **AI scoring integration**: CompetitiveAI and MediumAI read profile weights (aggression, status_priority, setup_priority) to bias move scoring
+- **BattleAI base class** now defaults to `TrainerProfile.balanced()` when no profile provided
+
+**Settings changes:**
+- Added `player_trainer_style` and `opponent_trainer_style` fields to `BattleSettings`
+- `TrainerStyle` imported from `engine.ai.trainer_class`
+
+**Integration:**
+- `main.py` — creates TrainerProfile from settings, passes to `create_ai()` and `create_team_with_moveset()`
+- `create_team_with_moveset()` accepts optional profile; non-balanced profiles delegate to `build_team_for_profile()`
+- No changes to battle engine, turn execution, or logging
+
+**Tests:**
+- 35 new tests: test_ai_trainer_class.py, test_ai_team_builder.py
+- All 449 tests pass, 5 golden baselines unchanged
+
 #### UI Revamp: Main Menu, Quick-Start, Custom Battle Config Form - 2026-02-15
 
 Restructured interactive flow from flat sequential menus into a proper main menu hub with organized sub-menus.
