@@ -36,7 +36,11 @@ def check_sleep_clause(defender_team: list, clauses) -> tuple[bool, str]:
         return True, ""
 
     for pokemon in defender_team:
-        if pokemon.status == Status.SLEEP and pokemon.is_alive():
+        if (
+            pokemon.status == Status.SLEEP
+            and pokemon.is_alive()
+            and getattr(pokemon, "sleep_source", "move") != "self"
+        ):
             return False, "Sleep Clause: another Pokemon on the team is already asleep"
 
     return True, ""

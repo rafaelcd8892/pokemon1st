@@ -197,6 +197,7 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         attacker.current_hp = attacker.max_hp
         attacker.status = Status.SLEEP
         attacker.sleep_counter = 2  # Rest always sleeps for exactly 2 turns in Gen 1
+        attacker.sleep_source = "self"
         bus = get_event_bus()
         bus.emit(PokemonHealedEvent(
             turn=bus.current_turn, pokemon_name=attacker.name,

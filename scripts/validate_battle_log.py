@@ -34,6 +34,11 @@ def _group_by_turn(entries: List[Dict[str, Any]]) -> Dict[int, List[Dict[str, An
     return by_turn
 
 
+def _actor_identity(entry: Dict[str, Any]) -> tuple[Any, Any]:
+    """Return side-aware actor identity: (pokemon_name, pokemon_side)."""
+    return entry.get("pokemon"), entry.get("pokemon_side")
+
+
 def validate_log_data(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     anomalies: List[Dict[str, Any]] = []
     entries = data.get("entries", [])
@@ -195,16 +200,16 @@ def validate_log_data(data: Dict[str, Any]) -> List[Dict[str, Any]]:
         prevented = set()
         for e in turn_entries:
             if e.get("action_type") == "move_prevented":
-                prevented.add(e.get("pokemon"))
+                prevented.add(_actor_identity(e))
         for e in turn_entries:
             if e.get("action_type") != "move":
                 continue
             details = e.get("details", {})
             result = details.get("result", "resolved")
-            actor = e.get("pokemon")
+            actor = _actor_identity(e)
             if actor in prevented and result == "resolved" and details.get("damage", 0) > 0:
                 add("WARN", turn, "prevented_but_attacked",
-                    f"{actor} was prevented from acting but also has a resolved move with damage")
+                    f"{actor[0]} was prevented from acting but also has a resolved move with damage")
 
     return anomalies
 

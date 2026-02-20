@@ -57,6 +57,15 @@ class BattleLogger:
             log_dir: Optional custom directory for log files. Defaults to LOGS_DIR.
         """
         self.enabled = enabled
+        # Keep object shape consistent in disabled mode so callers can inspect
+        # logger attributes without attribute errors.
+        self.battle_id = battle_id or ""
+        self.log_file: Optional[Path] = None
+        self.json_file: Optional[Path] = None
+        self.entries: List[BattleLogEntry] = []
+        self.metadata: Dict[str, Any] = {}
+        self._current_turn = 0
+        self._file_handle = None
         if not enabled:
             return
 
@@ -73,15 +82,13 @@ class BattleLogger:
         self.json_file = output_dir / f"{self.battle_id}.json"
 
         # In-memory log entries
-        self.entries: List[BattleLogEntry] = []
-        self.metadata: Dict[str, Any] = {
+        self.entries = []
+        self.metadata = {
             "battle_id": self.battle_id,
             "start_time": timestamp,
             "team1": [],
             "team2": [],
         }
-
-        self._current_turn = 0
         self._file_handle = open(self.log_file, "w", encoding="utf-8")
 
         # Write header

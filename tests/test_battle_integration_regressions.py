@@ -6,7 +6,10 @@ as strict xfail regression tests.
 
 from unittest.mock import patch
 
+import pytest
+
 from engine.battle import apply_damage_to_target, execute_turn
+from engine.battle_logger import get_battle_logger
 from engine.damage import calculate_critical_hit
 from engine.rng import FixedRNG, set_rng, reset_rng
 from engine.status import apply_end_turn_status_damage
@@ -307,6 +310,55 @@ class TestBattleIntegrationFlow:
         ]
         assert len(dig_turn_1) == 1
         assert dig_turn_1[0].details.get("result") == "charge_start"
+
+    def test_run_battle_exception_still_cleans_up_global_logger(self):
+        """Battle loop exceptions must not leave the global logger active."""
+        tackle = create_test_move(
+            name="Tackle",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=40,
+            accuracy=100,
+        )
+        p1 = _poke("A", moves=[tackle], speed=100)
+        p2 = _poke("B", moves=[tackle], speed=90)
+
+        battle = TeamBattle(
+            Team([p1], "P1"),
+            Team([p2], "P2"),
+            battle_format=BattleFormat.SINGLE,
+            action_delay=0,
+            enable_battle_log=True,
+        )
+
+        with pytest.raises(RuntimeError):
+            battle.run_battle(
+                get_player_action=lambda _t, _o: (_ for _ in ()).throw(RuntimeError("boom")),
+                get_opponent_action=lambda team, opp: BattleAction.attack(team.active_pokemon.moves[0]),
+            )
+
+        assert get_battle_logger() is None
+
+    def test_disabled_logger_still_exposes_stable_attributes(self):
+        """Disabled battle logger should remain safe to inspect."""
+        tackle = create_test_move(
+            name="Tackle",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=40,
+            accuracy=100,
+        )
+        battle = TeamBattle(
+            Team([_poke("A", moves=[tackle])], "P1"),
+            Team([_poke("B", moves=[tackle])], "P2"),
+            battle_format=BattleFormat.SINGLE,
+            action_delay=0,
+            enable_battle_log=False,
+        )
+
+        assert battle.battle_logger.enabled is False
+        assert battle.battle_logger.battle_id == ""
+        assert battle.battle_logger.entries == []
 
 
 class TestRegressionSpecs:

@@ -70,6 +70,9 @@ class Pokemon:
 
         self.status = Status.NONE
         self.sleep_counter = 0
+        # Tracks sleep origin for Sleep Clause handling:
+        # "move" for opponent-inflicted sleep, "self" for Rest/self-induced.
+        self.sleep_source = None
 
         # Stat stages: -6 to +6 for each stat
         self.stat_stages = {
@@ -169,13 +172,16 @@ class Pokemon:
     def take_damage(self, damage: int):
         self.current_hp = max(0, self.current_hp - damage)
 
-    def apply_status(self, status: Status) -> bool:
+    def apply_status(self, status: Status, sleep_source: str = "move") -> bool:
         """Aplica un estado. Retorna True si fue exitoso"""
         if self.status == Status.NONE:
             self.status = status
             if status == Status.SLEEP:
                 self.sleep_counter = get_rng().randint(1, 7, RNGContext.DURATION)
-            elif status == Status.CONFUSION:
+                self.sleep_source = sleep_source
+            else:
+                self.sleep_source = None
+            if status == Status.CONFUSION:
                 self.confusion_turns = get_rng().randint(1, 4, RNGContext.DURATION)
             return True
         return False

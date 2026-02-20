@@ -16,11 +16,12 @@ from engine.clauses import (
 
 
 def make_pokemon(name: str = "TestMon", status: Status = Status.NONE,
-                 alive: bool = True) -> Pokemon:
+                 alive: bool = True, sleep_source: str | None = None) -> Pokemon:
     """Create a minimal test Pokemon."""
     stats = Stats(hp=100, attack=100, defense=100, special=100, speed=100)
     p = Pokemon(name, [Type.NORMAL], stats, [], level=50, use_calculated_stats=False)
     p.status = status
+    p.sleep_source = sleep_source
     if not alive:
         p.current_hp = 0
     return p
@@ -51,6 +52,17 @@ class TestSleepClause:
         allowed, reason = check_sleep_clause(team, clauses)
         assert not allowed
         assert "Sleep Clause" in reason
+
+    def test_rest_sleep_does_not_count_for_sleep_clause(self):
+        """Self-induced sleep (Rest) should not block a new sleep."""
+        clauses = BattleClauses(sleep_clause=True)
+        team = [
+            make_pokemon("RestMon", status=Status.SLEEP, sleep_source="self"),
+            make_pokemon("Mon2"),
+        ]
+        allowed, reason = check_sleep_clause(team, clauses)
+        assert allowed
+        assert reason == ""
 
     def test_inactive_allows_multiple_sleep(self):
         """When sleep clause is off, multiple sleeps are allowed."""

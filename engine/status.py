@@ -76,6 +76,8 @@ def apply_status_effects(pokemon: Pokemon) -> tuple[bool, str | None]:
         pokemon.sleep_counter -= 1
         if pokemon.sleep_counter <= 0:
             pokemon.status = Status.NONE
+            pokemon.sleep_counter = 0
+            pokemon.sleep_source = None
             print(f"{pokemon.name} despertó!")
             bus = get_event_bus()
             bus.emit(StatusCuredEvent(

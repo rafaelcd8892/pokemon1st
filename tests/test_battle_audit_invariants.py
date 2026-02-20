@@ -106,6 +106,39 @@ def test_validate_log_detects_duplicate_move_event():
     assert "duplicate_move_event" in codes
 
 
+def test_validate_log_uses_side_aware_actor_identity_for_prevented_check():
+    """prevented_but_attacked should not fire for same species on opposite sides."""
+    data = {
+        "metadata": {"battle_id": "synthetic-side-aware"},
+        "entries": [
+            {"turn": 5, "action_type": "turn_start", "pokemon": "", "details": {}, "message": ""},
+            {
+                "turn": 5,
+                "action_type": "move_prevented",
+                "pokemon": "Slowbro",
+                "pokemon_side": "P1",
+                "details": {"move": "", "reason": "asleep"},
+                "message": "",
+            },
+            {
+                "turn": 5,
+                "action_type": "move",
+                "pokemon": "Slowbro",
+                "pokemon_side": "P2",
+                "target": "Slowbro",
+                "target_side": "P1",
+                "details": {"move": "Surf", "damage": 20, "critical": False, "effectiveness": 1.0},
+                "message": "",
+            },
+            {"turn": 5, "action_type": "turn_end", "pokemon": "", "details": {}, "message": ""},
+        ],
+    }
+
+    anomalies = validate_log_data(data)
+    codes = {a["code"] for a in anomalies}
+    assert "prevented_but_attacked" not in codes
+
+
 def test_generated_team_battle_satisfies_core_audit_invariants():
     tackle = create_test_move(
         name="Tackle",

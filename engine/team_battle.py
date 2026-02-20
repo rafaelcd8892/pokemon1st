@@ -402,82 +402,88 @@ class TeamBattle:
         Returns:
             The winning team, or None for a draw
         """
-        self.log("═" * 50)
-        self.log("         ¡COMIENZA LA BATALLA!")
-        self.log(f"         Formato: {self.battle_format.description}")
-        self.log("═" * 50)
+        try:
+            self.log("═" * 50)
+            self.log("         ¡COMIENZA LA BATALLA!")
+            self.log(f"         Formato: {self.battle_format.description}")
+            self.log("═" * 50)
 
-        # Set up battle logger with team info
-        self.battle_logger.set_teams(
-            [p.name for p in self.team1.pokemon],
-            [p.name for p in self.team2.pokemon],
-            self.team1.name,
-            self.team2.name
-        )
+            # Set up battle logger with team info
+            self.battle_logger.set_teams(
+                [p.name for p in self.team1.pokemon],
+                [p.name for p in self.team2.pokemon],
+                self.team1.name,
+                self.team2.name
+            )
 
-        self.log(f"\n{self.team1.name}: ¡Adelante, {self.team1.active_pokemon.name}!")
-        self.display_team_status(self.team1)
-        self.battle_logger.log_info(f"{self.team1.name} sends out {self.team1.active_pokemon.name}")
+            self.log(f"\n{self.team1.name}: ¡Adelante, {self.team1.active_pokemon.name}!")
+            self.display_team_status(self.team1)
+            self.battle_logger.log_info(f"{self.team1.name} sends out {self.team1.active_pokemon.name}")
 
-        self.log(f"\n{self.team2.name}: ¡Adelante, {self.team2.active_pokemon.name}!")
-        self.display_team_status(self.team2)
-        self.battle_logger.log_info(f"{self.team2.name} sends out {self.team2.active_pokemon.name}")
+            self.log(f"\n{self.team2.name}: ¡Adelante, {self.team2.active_pokemon.name}!")
+            self.display_team_status(self.team2)
+            self.battle_logger.log_info(f"{self.team2.name} sends out {self.team2.active_pokemon.name}")
 
-        while True:
-            # Check win condition
-            winner = self.check_winner()
-            if winner:
-                self.log("\n" + "═" * 50)
-                self.log(f"¡{winner.name} gana la batalla!")
-                self.log("═" * 50)
-                end_battle_log(winner.name, "All opponent Pokemon fainted")
-                return winner
+            while True:
+                # Check win condition
+                winner = self.check_winner()
+                if winner:
+                    self.log("\n" + "═" * 50)
+                    self.log(f"¡{winner.name} gana la batalla!")
+                    self.log("═" * 50)
+                    end_battle_log(winner.name, "All opponent Pokemon fainted")
+                    return winner
 
-            if self.turn_count >= self.max_turns:
-                self.log("\n" + "═" * 50)
-                self.log("¡La batalla terminó en empate por límite de turnos!")
-                self.log("═" * 50)
-                end_battle_log(None, "Turn limit reached")
-                return None
+                if self.turn_count >= self.max_turns:
+                    self.log("\n" + "═" * 50)
+                    self.log("¡La batalla terminó en empate por límite de turnos!")
+                    self.log("═" * 50)
+                    end_battle_log(None, "Turn limit reached")
+                    return None
 
-            # Handle forced switches first
-            for team, get_action in [(self.team1, get_forced_switch), (self.team2, get_forced_switch)]:
-                if self.needs_forced_switch(team) and get_action:
-                    switch_idx = get_action(team)
-                    if switch_idx is not None:
-                        if team.switch_pokemon(switch_idx):
-                            self.log(f"\n{team.name} envía a {team.active_pokemon.name}!")
-                            self.display_team_status(team)
-                            self.battle_logger.log_info(
-                                f"Forced switch: {team.name} sends out {team.active_pokemon.name}"
-                            )
-                        else:
-                            self.log(f"\n{team.name} intentó un cambio forzado inválido (index {switch_idx}).")
-                            self.battle_logger.log_info(
-                                f"Invalid forced switch ignored for {team.name}: index {switch_idx}"
-                            )
+                # Handle forced switches first
+                for team, get_action in [(self.team1, get_forced_switch), (self.team2, get_forced_switch)]:
+                    if self.needs_forced_switch(team) and get_action:
+                        switch_idx = get_action(team)
+                        if switch_idx is not None:
+                            if team.switch_pokemon(switch_idx):
+                                self.log(f"\n{team.name} envía a {team.active_pokemon.name}!")
+                                self.display_team_status(team)
+                                self.battle_logger.log_info(
+                                    f"Forced switch: {team.name} sends out {team.active_pokemon.name}"
+                                )
+                            else:
+                                self.log(f"\n{team.name} intentó un cambio forzado inválido (index {switch_idx}).")
+                                self.battle_logger.log_info(
+                                    f"Invalid forced switch ignored for {team.name}: index {switch_idx}"
+                                )
 
-            # Get actions from both players
-            action1 = get_player_action(self.team1, self.team2)
-            action2 = get_opponent_action(self.team2, self.team1)
+                # Get actions from both players
+                action1 = get_player_action(self.team1, self.team2)
+                action2 = get_opponent_action(self.team2, self.team1)
 
-            # AI action revision hook (e.g., Millennium Eye)
-            if on_actions_chosen:
-                action1, action2 = on_actions_chosen(action1, action2)
+                # AI action revision hook (e.g., Millennium Eye)
+                if on_actions_chosen:
+                    action1, action2 = on_actions_chosen(action1, action2)
 
-            # Execute the turn
-            winner = self.execute_turn_pair(action1, action2)
-            if winner:
-                self.log("\n" + "═" * 50)
-                self.log(f"¡{winner.name} gana la batalla!")
-                self.log("═" * 50)
-                end_battle_log(winner.name, "All opponent Pokemon fainted")
-                return winner
+                # Execute the turn
+                winner = self.execute_turn_pair(action1, action2)
+                if winner:
+                    self.log("\n" + "═" * 50)
+                    self.log(f"¡{winner.name} gana la batalla!")
+                    self.log("═" * 50)
+                    end_battle_log(winner.name, "All opponent Pokemon fainted")
+                    return winner
 
-            # Show team status at end of turn
-            self.log("\n--- Estado de los equipos ---")
-            self.display_team_status(self.team1, full=True)
-            self.display_team_status(self.team2, full=True)
+                # Show team status at end of turn
+                self.log("\n--- Estado de los equipos ---")
+                self.display_team_status(self.team1, full=True)
+                self.display_team_status(self.team2, full=True)
+        finally:
+            # If an exception interrupted the loop before normal end paths,
+            # finalize the logger to avoid leaving global logger/file handles open.
+            if get_battle_logger() is self.battle_logger:
+                end_battle_log(None, "Battle aborted")
 
 
 def create_random_team(size: int, trainer_name: str = "Trainer") -> Team:

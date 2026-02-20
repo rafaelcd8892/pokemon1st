@@ -36,6 +36,7 @@ class PredictiveAI(BattleAI):
     def choose_action(self, team: Team, opponent_team: Team) -> BattleAction:
         active = team.active_pokemon
         defender = opponent_team.active_pokemon
+        self._last_opponent_active = defender
         legal_moves = self._get_legal_moves(team)
 
         if not legal_moves:
