@@ -13,6 +13,16 @@ Build a deterministic Pokémon Gen 1 battle engine (core mechanics first), with 
 4. Add/adjust tests.
 5. Run validation commands and report results.
 
+## Mechanics Ticket Checklist Template
+Copy/paste this block into mechanics tickets:
+- [ ] Decision note added/updated in `docs/decisions.md`
+- [ ] Policy state set in `docs/known_quirks.md` (`Replicate` / `Approximate` / `Ignore`)
+- [ ] Unit test added/updated for the mechanic
+- [ ] Integration/regression test added/updated
+- [ ] Golden verification run (`python3 scripts/run_golden.py`) or explicitly marked N/A
+- [ ] Deterministic outcome verified with fixed seed
+- [ ] Battle log format unchanged (unless ticket explicitly approves a format change)
+
 ## Scope control
 - Touch only the files listed in the ticket.
 - If more files are needed, stop and explain why.

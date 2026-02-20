@@ -71,3 +71,28 @@ Areas that frequently cause subtle bugs:
 - Multi-turn moves / partial trapping
 - Status + turn order interactions
 - 1/256 quirks (if enabled)
+
+## Fidelity Sources + Code Ownership
+Primary references for fidelity-critical mechanics:
+- `pret/pokered` disassembly (battle/status/move logic)
+- Bulbapedia Gen 1 mechanics pages (critical hit, freeze, trapping, Hyper Beam, accuracy, Focus Energy)
+- Smogon RBY mechanics analyses
+
+Core implementation ownership:
+- Damage + crit path: `engine/damage.py`
+- Accuracy/evasion + stat stages: `engine/stat_modifiers.py`, `engine/battle.py` (`_check_accuracy`)
+- Status behavior (sleep/freeze/paralysis/poison): `engine/status.py`, `models/pokemon.py`
+- Move-specific mechanics (Focus Energy, Leech Seed, trapping move registry): `engine/move_effects.py`
+- Turn flow/recharge/trapping residual handling: `engine/battle.py`
+
+For the per-mechanic policy matrix, source tags, and function-level mapping, use `docs/known_quirks.md`.
+
+## Mechanics Ticket Checklist Template
+Copy/paste this block into mechanics tickets:
+- [ ] Decision note added/updated in `docs/decisions.md`
+- [ ] Policy state set in `docs/known_quirks.md` (`Replicate` / `Approximate` / `Ignore`)
+- [ ] Unit test added/updated for the mechanic
+- [ ] Integration/regression test added/updated
+- [ ] Golden verification run (`python3 scripts/run_golden.py`) or explicitly marked N/A
+- [ ] Deterministic outcome verified with fixed seed
+- [ ] Battle log format unchanged (unless ticket explicitly approves a format change)
