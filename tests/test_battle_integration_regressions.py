@@ -406,6 +406,67 @@ class TestBattleIntegrationFlow:
         assert p1_turn2_moves
         assert p1_turn2_moves[0].details.get("move") == "Wrap"
 
+    def test_trapping_attempt_clears_pending_hyper_beam_recharge(self):
+        """A trapping move attempt should clear the target's pending Hyper Beam recharge."""
+        hyper_beam = create_test_move(
+            name="Hyper Beam",
+            move_type=Type.NORMAL,
+            category=MoveCategory.SPECIAL,
+            power=150,
+            accuracy=100,
+        )
+        wrap = create_test_move(
+            name="Wrap",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=15,
+            accuracy=100,
+        )
+        tackle = create_test_move(
+            name="Tackle",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=40,
+            accuracy=100,
+        )
+
+        beam_user = _poke("BeamUser", moves=[hyper_beam, tackle], speed=60, attack=130, hp=220)
+        wrapper = _poke("Wrapper", moves=[wrap, tackle], speed=120, defense=120, hp=220)
+
+        battle = TeamBattle(
+            Team([beam_user], "P1"),
+            Team([wrapper], "P2"),
+            battle_format=BattleFormat.SINGLE,
+            action_delay=0,
+            enable_battle_log=True,
+        )
+
+        def _accuracy(_attacker, _defender, move):
+            return move.name != "Wrap"
+
+        with patch("engine.battle._check_accuracy", side_effect=_accuracy), patch(
+            "engine.damage.calculate_critical_hit", return_value=False
+        ):
+            battle.execute_turn_pair(BattleAction.attack(hyper_beam), BattleAction.attack(tackle))
+            assert beam_user.must_recharge is True
+            battle.execute_turn_pair(BattleAction.attack(tackle), BattleAction.attack(wrap))
+
+        assert beam_user.must_recharge is False
+
+        p1_turn2_moves = [
+            e for e in battle.battle_logger.entries
+            if e.turn == 2 and e.action_type == "move" and e.pokemon == "BeamUser"
+        ]
+        assert p1_turn2_moves
+        assert p1_turn2_moves[0].details.get("move") == "Tackle"
+
+        p1_turn2_recharge_blocks = [
+            e for e in battle.battle_logger.entries
+            if e.turn == 2 and e.action_type == "move_prevented" and e.pokemon == "BeamUser"
+            and e.details.get("reason") == "recharging"
+        ]
+        assert not p1_turn2_recharge_blocks
+
 
 class TestRegressionSpecs:
     """Known gaps encoded as strict xfails (expected behavior specs)."""

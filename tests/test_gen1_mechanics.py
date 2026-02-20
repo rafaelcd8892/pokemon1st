@@ -103,6 +103,59 @@ class TestHyperBeamRecharge:
         assert not defender.is_alive()
         assert attacker.must_recharge is False
 
+    def test_hyper_beam_recharges_when_substitute_survives(self):
+        """Hyper Beam should still require recharge if it only damages a Substitute."""
+        attacker = create_test_pokemon("Tauros", types=[Type.NORMAL], attack=100, speed=110)
+        defender = create_test_pokemon("Chansey", types=[Type.NORMAL], hp=500, defense=120)
+        defender.substitute_hp = 999
+
+        hyper_beam = create_test_move(
+            name="Hyper-Beam", move_type=Type.NORMAL,
+            category=MoveCategory.SPECIAL, power=150, accuracy=100,
+        )
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            _handle_recharge_move(attacker, defender, hyper_beam, "RECHARGE|Hyper-Beam", None)
+
+        assert defender.substitute_hp > 0
+        assert attacker.must_recharge is True
+
+    def test_hyper_beam_no_recharge_when_breaking_substitute(self):
+        """Hyper Beam should skip recharge when it breaks a Substitute."""
+        attacker = create_test_pokemon("Tauros", types=[Type.NORMAL], attack=100, speed=110)
+        defender = create_test_pokemon("Chansey", types=[Type.NORMAL], hp=500, defense=120)
+        defender.substitute_hp = 1
+
+        hyper_beam = create_test_move(
+            name="Hyper-Beam", move_type=Type.NORMAL,
+            category=MoveCategory.SPECIAL, power=150, accuracy=100,
+        )
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            _handle_recharge_move(attacker, defender, hyper_beam, "RECHARGE|Hyper-Beam", None)
+
+        assert defender.substitute_hp == 0
+        assert attacker.must_recharge is False
+
+    def test_sleep_clears_pending_recharge_turn(self):
+        """If the user is asleep, pending Hyper Beam recharge should be cleared."""
+        attacker = create_test_pokemon("Tauros", types=[Type.NORMAL], speed=110)
+        defender = create_test_pokemon("Snorlax", types=[Type.NORMAL], hp=300)
+        tackle = create_test_move(
+            name="Tackle", move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL, power=40, accuracy=100,
+        )
+
+        attacker.must_recharge = True
+        attacker.status = Status.SLEEP
+        attacker.sleep_counter = 2
+        attacker.moves = [tackle]
+
+        execute_turn(attacker, defender, tackle)
+
+        assert attacker.must_recharge is False
+        assert attacker.sleep_counter == 1
+
 
 # =============================================================================
 # Fix 3: Explosion halves defense in damage formula

@@ -130,6 +130,9 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
         )
         return
 
+    # Gen 1 quirk: being targeted by a trapping move clears pending Hyper Beam recharge.
+    _clear_recharge_from_trapping_attempt(defender, move)
+
     # Check accuracy
     # Gen 1: continuing a successful trapping sequence does not re-check accuracy.
     if not is_trap_locked_turn and not _check_accuracy(attacker, defender, move):
@@ -187,6 +190,12 @@ def _clear_trap_state(trapped: Pokemon):
         _clear_trapping_lock(trapper)
 
 
+def _clear_recharge_from_trapping_attempt(defender: Pokemon, move: Move):
+    """Clear pending recharge when a trapping move is attempted against the target."""
+    if defender.must_recharge and move.name in TRAPPING_MOVES:
+        defender.must_recharge = False
+
+
 def _handle_recharge_state(attacker: Pokemon) -> bool:
     """
     Handle recharge state (e.g., after Hyper Beam).
@@ -194,6 +203,10 @@ def _handle_recharge_state(attacker: Pokemon) -> bool:
     Returns:
         True if the Pokemon must recharge (turn ends), False otherwise
     """
+    if attacker.must_recharge and attacker.status == Status.SLEEP:
+        attacker.must_recharge = False
+        return False
+
     if attacker.must_recharge:
         print(f"\n{attacker.name} debe recargar!")
         blog = get_battle_logger()
@@ -469,19 +482,23 @@ def _handle_recharge_move(attacker: Pokemon, defender: Pokemon, move: Move,
         return
 
     is_physical = _is_physical_move(move)
+    had_substitute = defender.substitute_hp > 0
     actual_damage = apply_damage_to_target(defender, actual_damage, is_physical)
+    broke_substitute = had_substitute and defender.substitute_hp == 0
     _log_move_event(attacker, defender, move, damage=actual_damage, is_critical=is_crit, effectiveness=effectiveness, breakdown=bd)
     _print_damage_messages(is_crit, effectiveness, defender.name)
 
     if actual_damage > 0:
         print(f"{defender.name} recibe {actual_damage} de daño!")
         print(f"  {format_pokemon_status(defender)}")
-        # Gen 1: Must recharge next turn, but skip recharge if target faints
-        if defender.is_alive():
-            from engine.events.types import RechargeNeededEvent
-            attacker.must_recharge = True
-            bus = get_event_bus()
-            bus.emit(RechargeNeededEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move.name))
+
+    # Gen 1: recharge on non-KO hits; no recharge on KO, miss (handled earlier),
+    # or when Hyper Beam breaks a Substitute.
+    if defender.is_alive() and not broke_substitute:
+        from engine.events.types import RechargeNeededEvent
+        attacker.must_recharge = True
+        bus = get_event_bus()
+        bus.emit(RechargeNeededEvent(turn=bus.current_turn, pokemon_name=attacker.name, move_name=move.name))
 
 
 def _handle_charge_move(attacker: Pokemon, defender: Pokemon, move: Move,
