@@ -121,6 +121,8 @@ class Pokemon:
         self.is_trapped = False         # Being trapped by Wrap, etc.
         self.trap_turns = 0             # Turns remaining in trap
         self.trapped_by = None          # Pokemon trapping this one
+        self.trapping_move = None       # Move locking this Pokemon (Wrap/Bind/Clamp/Fire Spin)
+        self.trapping_target = None     # Current target locked by trapping move
 
         # Transform state snapshot (restored on switch-out)
         self.is_transformed = False
@@ -236,6 +238,8 @@ class Pokemon:
         self.is_trapped = False
         self.trap_turns = 0
         self.trapped_by = None
+        self.trapping_move = None
+        self.trapping_target = None
         self.reset_stat_stages()
 
     def snapshot_transform_state(self):

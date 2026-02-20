@@ -360,6 +360,52 @@ class TestBattleIntegrationFlow:
         assert battle.battle_logger.battle_id == ""
         assert battle.battle_logger.entries == []
 
+    def test_trapping_move_lock_overrides_new_action_choice(self):
+        """Once Wrap lands, selecting a different move next turn should still execute Wrap."""
+        wrap = create_test_move(
+            name="Wrap",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=15,
+            accuracy=100,
+        )
+        blizzard = create_test_move(
+            name="Blizzard",
+            move_type=Type.ICE,
+            category=MoveCategory.SPECIAL,
+            power=110,
+            accuracy=100,
+        )
+        tackle = create_test_move(
+            name="Tackle",
+            move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL,
+            power=40,
+            accuracy=100,
+        )
+
+        trapper = _poke("Dragonite", moves=[wrap, blizzard], speed=120, attack=125, special=130)
+        victim = _poke("Venusaur", moves=[tackle], hp=220, defense=100, speed=60)
+
+        battle = TeamBattle(
+            Team([trapper], "P1"),
+            Team([victim], "P2"),
+            battle_format=BattleFormat.SINGLE,
+            action_delay=0,
+            enable_battle_log=True,
+        )
+
+        with patch("engine.damage.calculate_critical_hit", return_value=False):
+            battle.execute_turn_pair(BattleAction.attack(wrap), BattleAction.attack(tackle))
+            battle.execute_turn_pair(BattleAction.attack(blizzard), BattleAction.attack(tackle))
+
+        p1_turn2_moves = [
+            e for e in battle.battle_logger.entries
+            if e.action_type == "move" and e.turn == 2 and e.pokemon == "Dragonite"
+        ]
+        assert p1_turn2_moves
+        assert p1_turn2_moves[0].details.get("move") == "Wrap"
+
 
 class TestRegressionSpecs:
     """Known gaps encoded as strict xfails (expected behavior specs)."""
@@ -399,10 +445,13 @@ class TestRegressionSpecs:
         trapper = _poke("Trapper")
         trapped = _poke("Victim")
         other = _poke("Other")
+        wrap = create_test_move(name="Wrap", power=15, accuracy=100)
 
         trapped.is_trapped = True
         trapped.trap_turns = 1
         trapped.trapped_by = trapper
+        trapper.trapping_move = wrap
+        trapper.trapping_target = trapped
 
         # End-of-turn in a changed context should still clear stale trap state.
         from engine.battle import _apply_trapping_effects
@@ -411,6 +460,8 @@ class TestRegressionSpecs:
 
         assert trapped.is_trapped is False
         assert trapped.trapped_by is None
+        assert trapper.trapping_move is None
+        assert trapper.trapping_target is None
 
     def test_apply_damage_returns_effective_damage_amount(self):
         """Damage application should return actual HP removed from target."""

@@ -197,6 +197,49 @@ class TestTrappingPreventsAction:
         # Defender should not have taken any damage
         assert defender.current_hp == original_hp
 
+    def test_trapper_is_locked_into_trapping_move(self):
+        """After landing Wrap/Bind, the attacker should stay locked into that move."""
+        attacker = create_test_pokemon("Dragonite", types=[Type.DRAGON], attack=120, speed=100)
+        defender = create_test_pokemon("Venusaur", types=[Type.GRASS], hp=220, defense=100)
+
+        wrap = create_test_move(
+            name="Wrap", move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL, power=15, accuracy=100,
+        )
+        blizzard = create_test_move(
+            name="Blizzard", move_type=Type.ICE,
+            category=MoveCategory.SPECIAL, power=110, accuracy=100,
+        )
+        attacker.moves = [wrap, blizzard]
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            execute_turn(attacker, defender, wrap)
+            execute_turn(attacker, defender, blizzard)  # Should be forced to continue Wrap
+
+        assert attacker.last_move_used == "Wrap"
+        assert attacker.trapping_move == wrap
+        assert attacker.trapping_target == defender
+
+    def test_trap_clears_when_target_faints(self):
+        """Trapping lock/state should clear immediately if the trapped target faints."""
+        attacker = create_test_pokemon("Arbok", types=[Type.POISON], attack=250, speed=90)
+        defender = create_test_pokemon("Caterpie", types=[Type.BUG], hp=10, defense=10)
+
+        wrap = create_test_move(
+            name="Wrap", move_type=Type.NORMAL,
+            category=MoveCategory.PHYSICAL, power=120, accuracy=100,
+        )
+        attacker.moves = [wrap]
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            execute_turn(attacker, defender, wrap)
+
+        assert defender.is_alive() is False
+        assert defender.is_trapped is False
+        assert defender.trapped_by is None
+        assert attacker.trapping_move is None
+        assert attacker.trapping_target is None
+
 
 # =============================================================================
 # Fix 7: Paralysis quarters Speed

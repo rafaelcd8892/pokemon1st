@@ -61,6 +61,9 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
     """
     logger.debug(f"Turn: {attacker.name} using {move.name} against {defender.name}")
 
+    # Gen 1 partial trapping: once a trap is active, attacker stays locked into it.
+    move, is_trap_locked_turn = _resolve_trapping_lock(attacker, defender, move)
+
     # Check move-level clauses (OHKO/Evasion) before execution
     if clauses is not None:
         from engine.clauses import check_move_clauses
@@ -82,9 +85,7 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
     if attacker.is_trapped and (
         attacker.trap_turns <= 0 or (attacker.trapped_by is not None and not attacker.trapped_by.is_alive())
     ):
-        attacker.is_trapped = False
-        attacker.trap_turns = 0
-        attacker.trapped_by = None
+        _clear_trap_state(attacker)
 
     if attacker.is_trapped:
         print(f"\n{attacker.name} está atrapado y no puede moverse!")
@@ -96,15 +97,17 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
 
     # Check for locked/charging moves and get the actual move to use
     move, is_multi_turn, is_charging = _get_active_move(attacker, move)
+    if is_multi_turn or is_charging:
+        is_trap_locked_turn = False
 
     # Check status effects before announcing move
     can_attack, _status_reason = apply_status_effects(attacker)
     if not can_attack:
-        _handle_status_prevented_attack(attacker, is_multi_turn)
+        _handle_status_prevented_attack(attacker, is_multi_turn, is_trap_locked_turn)
         return
 
     # Announce the move being used
-    if not _announce_move(attacker, move, is_multi_turn, is_charging):
+    if not _announce_move(attacker, move, is_multi_turn, is_charging, is_trap_locked_turn):
         return  # Move was disabled
 
     # Track last move and use PP
@@ -128,7 +131,8 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
         return
 
     # Check accuracy
-    if not _check_accuracy(attacker, defender, move):
+    # Gen 1: continuing a successful trapping sequence does not re-check accuracy.
+    if not is_trap_locked_turn and not _check_accuracy(attacker, defender, move):
         return
 
     # Handle special moves with unique effects
@@ -145,6 +149,43 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
 # =============================================================================
 # Pre-Attack Phase Handlers
 # =============================================================================
+
+def _resolve_trapping_lock(attacker: Pokemon, defender: Pokemon, move: Move) -> tuple[Move, bool]:
+    """Force trapping move while attacker is locked into an active partial trap."""
+    trapping_move = attacker.trapping_move
+    trapping_target = attacker.trapping_target
+
+    if trapping_move is None or trapping_target is None:
+        return move, False
+
+    if (
+        trapping_target == defender
+        and defender.is_trapped
+        and defender.trapped_by == attacker
+        and defender.trap_turns > 0
+        and trapping_move.name in TRAPPING_MOVES
+    ):
+        return trapping_move, True
+
+    _clear_trapping_lock(attacker)
+    return move, False
+
+
+def _clear_trapping_lock(attacker: Pokemon):
+    """Clear attacker-side trapping lock state."""
+    attacker.trapping_move = None
+    attacker.trapping_target = None
+
+
+def _clear_trap_state(trapped: Pokemon):
+    """Clear trapped target state and any linked attacker lock."""
+    trapper = trapped.trapped_by
+    trapped.is_trapped = False
+    trapped.trap_turns = 0
+    trapped.trapped_by = None
+    if trapper is not None and trapper.trapping_target == trapped:
+        _clear_trapping_lock(trapper)
+
 
 def _handle_recharge_state(attacker: Pokemon) -> bool:
     """
@@ -194,7 +235,7 @@ def _get_active_move(attacker: Pokemon, move: Move) -> tuple[Move, bool, bool]:
     return move, is_multi_turn, is_charging
 
 
-def _handle_status_prevented_attack(attacker: Pokemon, is_multi_turn: bool):
+def _handle_status_prevented_attack(attacker: Pokemon, is_multi_turn: bool, is_trap_locked: bool = False):
     """Handle the case when status prevents an attack."""
     # Reset multi-turn if interrupted by status
     if is_multi_turn and attacker.multi_turn_counter <= 0:
@@ -202,8 +243,14 @@ def _handle_status_prevented_attack(attacker: Pokemon, is_multi_turn: bool):
         attacker.confusion_turns = get_rng().randint(2, 5, RNGContext.DURATION)
         print(f"¡{attacker.name} está confundido por el cansancio!")
 
+    # Trapping lock ends if the trapper cannot continue attacking.
+    if is_trap_locked and attacker.trapping_target is not None:
+        _clear_trap_state(attacker.trapping_target)
 
-def _announce_move(attacker: Pokemon, move: Move, is_multi_turn: bool, is_charging: bool) -> bool:
+
+def _announce_move(
+    attacker: Pokemon, move: Move, is_multi_turn: bool, is_charging: bool, is_trap_locked: bool = False
+) -> bool:
     """
     Announce the move being used.
 
@@ -219,6 +266,8 @@ def _announce_move(attacker: Pokemon, move: Move, is_multi_turn: bool, is_chargi
             attacker.multi_turn_move = None
             attacker.confusion_turns = get_rng().randint(2, 5, RNGContext.DURATION)
             print(f"¡{attacker.name} está confundido por el cansancio!")
+    elif is_trap_locked:
+        print(f"\n{attacker.name} continúa usando {move_display}!")
     elif is_charging:
         print(f"\n{attacker.name} ataca con {move_display}!")
     else:
@@ -493,23 +542,31 @@ def _handle_rage_move(attacker: Pokemon, defender: Pokemon, move: Move,
 def _handle_trapping_move(attacker: Pokemon, defender: Pokemon, move: Move,
                           message: str, all_moves: list):
     """Handle trapping moves like Wrap, Bind."""
-    # Start trapping (2-5 turns in Gen 1)
+    # Clear stale cross-trap state before attempting a new trap.
+    if defender.is_trapped and defender.trapped_by != attacker:
+        _clear_trap_state(defender)
+
+    # Start trapping (2-5 turns in Gen 1) on first successful lock.
     if not defender.is_trapped:
         from engine.events.types import PokemonTrappedEvent
         defender.is_trapped = True
         defender.trap_turns = get_rng().randint(2, 5, RNGContext.DURATION)
         defender.trapped_by = attacker
+        attacker.trapping_move = move
+        attacker.trapping_target = defender
         bus = get_event_bus()
         bus.emit(PokemonTrappedEvent(turn=bus.current_turn, pokemon_name=defender.name, move_name=move.name))
+    else:
+        # Keep attacker-side lock in sync on continuation turns.
+        attacker.trapping_move = move
+        attacker.trapping_target = defender
 
     actual_damage, is_crit, effectiveness, bd = calculate_damage_with_breakdown(attacker, defender, move)
 
     if effectiveness == 0:
         print(f"No afecta a {defender.name}...")
         _log_move_event(attacker, defender, move, damage=0, is_critical=is_crit, effectiveness=0, breakdown=bd)
-        defender.is_trapped = False
-        defender.trap_turns = 0
-        defender.trapped_by = None
+        _clear_trap_state(defender)
         return
 
     actual_damage = apply_damage_to_target(defender, actual_damage, True)
@@ -520,6 +577,9 @@ def _handle_trapping_move(attacker: Pokemon, defender: Pokemon, move: Move,
         print(f"{defender.name} recibe {actual_damage} de daño!")
         print(f"¡{defender.name} está atrapado por {move.name}!")
         print(f"  {format_pokemon_status(defender)}")
+
+    if not defender.is_alive():
+        _clear_trap_state(defender)
 
 
 def _handle_multi_hit_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -887,32 +947,25 @@ def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
     messages = []
     if trapped.is_trapped:
         if trapped.trap_turns <= 0:
-            trapped.is_trapped = False
-            trapped.trap_turns = 0
-            trapped.trapped_by = None
+            _clear_trap_state(trapped)
             messages.append(f"¡{trapped.name} se liberó!")
             return messages
 
         if trapped.trapped_by is None:
             trapped.trap_turns -= 1
             if trapped.trap_turns <= 0:
-                trapped.is_trapped = False
-                trapped.trapped_by = None
+                _clear_trap_state(trapped)
                 messages.append(f"¡{trapped.name} se liberó!")
             return messages
 
         if not trapped.trapped_by.is_alive():
-            trapped.is_trapped = False
-            trapped.trap_turns = 0
-            trapped.trapped_by = None
+            _clear_trap_state(trapped)
             messages.append(f"¡{trapped.name} se liberó!")
             return messages
 
         # If battle context no longer matches the original trapper, clear stale trap state.
         if trapped.trapped_by != trapper:
-            trapped.is_trapped = False
-            trapped.trap_turns = 0
-            trapped.trapped_by = None
+            _clear_trap_state(trapped)
             messages.append(f"¡{trapped.name} se liberó!")
             return messages
 
@@ -929,8 +982,7 @@ def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
         bus.emit(TrapDamageEvent(turn=bus.current_turn, pokemon_name=trapped.name,
                                  damage=trap_damage, current_hp=trapped.current_hp, max_hp=trapped.max_hp))
         if trapped.trap_turns <= 0:
-            trapped.is_trapped = False
-            trapped.trapped_by = None
+            _clear_trap_state(trapped)
             messages.append(f"¡{trapped.name} se liberó!")
             bus.emit(TrapEscapedEvent(turn=bus.current_turn, pokemon_name=trapped.name))
     return messages
