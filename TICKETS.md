@@ -241,6 +241,34 @@ Validation:
 
 ---
 
+## FID-023 Bide Exact Behavior
+Status: `Backlog`
+Priority: `P2`
+
+Goal:
+- Implement Gen 1-consistent Bide behavior (lock turns, damage storage, and release resolution).
+
+Files allowed:
+- `engine/battle.py`
+- `engine/move_effects.py`
+- `models/pokemon.py`
+- `tests/test_gen1_mechanics.py`
+- `tests/test_battle_integration_regressions.py`
+- `tests/scenarios/*.json` (if needed)
+- `tests/golden/*.json` (only if explicitly approved)
+
+Acceptance criteria:
+- [ ] Bide no longer resolves as a normal power-0 attack.
+- [ ] Turn lock and retaliation behavior are covered with unit/integration tests.
+- [ ] Deterministic behavior is preserved with fixed seed.
+- [ ] Golden logs unchanged unless explicitly approved.
+
+Validation:
+- `pytest -q`
+- `python3 scripts/run_golden.py`
+
+---
+
 ## FID-030 Canonical Fidelity Scenario Suite
 Status: `Backlog`
 Priority: `P2`
@@ -309,6 +337,34 @@ Validation:
 
 ---
 
+## FID-033 Moveset Quality Scoring + Bide Overuse Control
+Status: `Backlog`
+Priority: `P2`
+
+Goal:
+- Define a reproducible way to score/compare generated movesets and reduce pathological move selection (notably `Bide` overuse).
+- Ensure random/smart-random movesets remain diverse and competitive without repeatedly selecting low-value filler moves.
+
+Files allowed:
+- `data/data_loader.py`
+- `tests/test_moveset_selection.py`
+- `scripts/batch_battle.py`
+- `tests/test_battle_integration_regressions.py` (if needed)
+- `docs/agent_brief.md` (if metric/reporting notes are added)
+
+Acceptance criteria:
+- [ ] A deterministic moveset-quality signal is defined (at minimum: role coverage + damaging/status balance + STAB utility).
+- [ ] Baseline measurement for generated movesets is documented (including `Bide` pick rate under fixed seed).
+- [ ] Selection logic reduces `Bide` overuse in random/smart-random generation while preserving variety.
+- [ ] Tests pin the anti-overuse behavior and prevent regressions.
+
+Validation:
+- `pytest -q tests/test_moveset_selection.py`
+- `pytest -q tests/test_battle_integration_regressions.py`
+- `python3 scripts/batch_battle.py --battles 100 --format 3v3 --moveset smart_random --seed 42`
+
+---
+
 ## Suggested Execution Order
 1. `FID-001`
 2. `FID-002`
@@ -320,6 +376,8 @@ Validation:
 8. `FID-020`
 9. `FID-021`
 10. `FID-022`
-11. `FID-030`
-12. `FID-031`
-13. `FID-032`
+11. `FID-023`
+12. `FID-033`
+13. `FID-030`
+14. `FID-031`
+15. `FID-032`
