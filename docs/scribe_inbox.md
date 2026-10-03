@@ -61,3 +61,63 @@
   - Tests: 2 new test files (test_ai_trainer_class.py, test_ai_team_builder.py)
 - Files: engine/ai/trainer_class.py, engine/ai/team_builder.py, engine/ai/base.py, engine/ai/competitive_ai.py, engine/ai/medium_ai.py, engine/ai/__init__.py, settings/battle_config.py, main.py
 - Tests: 449 total (35 new), all pass. 5 golden baselines unchanged
+### Local venv setup - 2026-10-02
+- Date: 2026-10-02
+- Type: readme
+- Summary: Run commands in CLAUDE.md now use a project virtualenv (`.venv/`) instead of bare `pytest`/`python`.
+- Details:
+  - Homebrew Python 3.14 has no pytest and blocks global pip installs; repo has no requirements.txt/pyproject.
+  - Setup: `python3 -m venv .venv && .venv/bin/pip install pytest`. `.venv` already gitignored.
+  - README "how to run" section may need the same update.
+- Files: CLAUDE.md
+- Tests: 449 pass, 5 golden baselines unchanged (verified via .venv)
+
+### Engine review findings - 2026-10-02
+- Date: 2026-10-02
+- Type: quirk, todo
+- Summary: Deep review found confirmed mechanic bugs and missing Gen 1 mechanics. No code changed yet.
+- Details:
+  - Confirmed by repro: Explosion/Self-Destruct user survives on miss/semi-invulnerable target; Metronome/Mirror Move call execute_turn on real Move objects from both teams (drains their PP, re-runs status checks, drops clauses); confusion checked before sleep/freeze (asleep Pokemon hurts itself); 0 PP = turn does nothing (no Struggle); no recoil (Take Down, Double-Edge, Submission).
+  - Missing Gen 1 mechanics: move priority (Quick Attack +1, Counter -1); high-crit moves (policy says Replicate); flinch; secondary stat drops (Psychic, Aurora Beam, Acid, Bubble...); Toxic = regular poison; type-based status immunities (Poison can't be poisoned, etc.).
+  - Smaller: Counter only tracks damage from the normal-attack path; Rage only triggers there; Jump Kick crash is max_hp/8 (Gen 1: 1 HP); Fire Spin doesn't thaw; Metronome pool is on-field moves only.
+  - Any fix changes golden logs -> needs approved baseline update.
+- Files: engine/battle.py, engine/status.py, engine/damage.py, engine/move_effects.py, engine/team_battle.py
+- Tests: repro script only (not committed)
+
+### Explosion faints user on miss - 2026-10-02
+- Date: 2026-10-02
+- Type: changelog
+- Summary: Explosion/Self-Destruct now faint the user when they miss or hit a Dig/Fly target (Gen 1 behavior). Previously the user survived.
+- Details:
+  - New helper `_faint_if_self_destruct` in engine/battle.py, called on the semi-invulnerable and accuracy-miss paths and reused by `_handle_self_destruct_move`.
+  - Faint message is the existing "se debilitó por la explosión" line; no new log wording.
+- Files: engine/battle.py, tests/test_gen1_mechanics.py
+- Tests: 5 new (TestSelfDestructFaintsOnMiss), 454 pass, 5 golden baselines unchanged
+
+### Metronome/Mirror Move use a copy of the called move - 2026-10-02
+- Date: 2026-10-02
+- Type: changelog
+- Summary: Moves called by Metronome/Mirror Move no longer spend PP from the source Move (often the opponent's), no longer re-run status/recharge/trap/PP checks, and now respect OHKO/Evasion clauses.
+- Details:
+  - engine/battle.py: post-check logic of `execute_turn` extracted into `_resolve_move`. `_handle_metronome_mirror_move` resolves a `dataclasses.replace` copy through `_resolve_move` instead of recursing into `execute_turn`. Clauses/defender_team now passed through `_handle_special_move`.
+  - Copy also fixes Metronome-called charge/multi-turn moves draining the source PP on later turns.
+  - Console line for the called move unchanged ("X usa Y!").
+- Files: engine/battle.py, tests/test_gen1_mechanics.py
+- Tests: 5 new (TestCalledMovesUseCopies), 459 pass, 5 golden baselines unchanged, batch 100x 3v3: 0 errors
+- Quirk found: charge moves (Solar Beam, etc.) spend 2 PP — `move.use()` runs again on the execution turn in `execute_turn`.
+
+### Bugs 3-5 + follow-ups from engine review - 2026-10-02
+- Date: 2026-10-02
+- Type: changelog, quirk
+- Summary: Status check order fixed, Struggle added, recoil added, charge/Thrash PP spent once, Thrash lock now ends, self-KO handled in the turn loop.
+- Details:
+  - engine/status.py: order is now sleep -> freeze -> confusion -> paralysis (asleep/frozen Pokemon no longer roll confusion or decrement it).
+  - Struggle: `create_struggle()` in engine/move_effects.py (Normal, 50 power, physical). `execute_turn` substitutes it when no move has PP. ui/selection.py: "Attack" returns immediately when no PP (previously the player could get stuck in the move menu).
+  - Recoil: `RECOIL_MOVES` (Take Down/Double Edge/Submission 1/4, Struggle 1/2), applied in `_execute_normal_attack` from actual damage dealt; 0 when a Substitute absorbs. New console line "recibe N de daño por retroceso" + `recoil` effect log entry.
+  - PP: continuation turns of charge moves and Thrash/Petal Dance no longer spend PP (Solar Beam was costing 2).
+  - Thrash lock: continuation turns used to re-enter the special handler and restart the lock, so it only ended when PP ran out. Continuation turns now skip special handling (`_resolve_move(is_continuation=...)`).
+  - Turn loop (engine/team_battle.py): a Pokemon that faints from its own move is logged/handled immediately; the foe no longer attacks a fainted target; losing the last Pokemon to a self-KO ends the battle.
+  - Explosion miss now logs a `self_destruct` effect so the faint has a logged cause (validator `faint_without_cause`).
+  - Known validator false positive (pre-existing): `prevented_but_attacked` fires on mirror matches because it matches by name, not side.
+- Files: engine/battle.py, engine/status.py, engine/move_effects.py, engine/team_battle.py, ui/selection.py, tests/test_gen1_mechanics.py, tests/test_battle_integration_regressions.py
+- Tests: 476 pass (17 new in this batch), 5 golden baselines unchanged, batch 3v3 runs: 0 errors

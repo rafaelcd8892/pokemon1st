@@ -1268,6 +1268,8 @@ def select_battle_action_curses(stdscr, team: Team, opponent_team: Team,
         elif key == 10:  # Enter
             if mode == "main":
                 if selected_idx == 0:  # Attack
+                    if not any(m.has_pp() for m in active.moves):
+                        return ("attack", 0)  # Engine substitutes Struggle
                     mode = "moves"
                     selected_idx = 0
                 else:  # Switch

@@ -33,34 +33,6 @@ def apply_status_effects(pokemon: Pokemon) -> tuple[bool, str | None]:
     blog = get_battle_logger()
     side = getattr(pokemon, "battle_side", None)
 
-    # Check confusion first (happens before major status)
-    if pokemon.is_confused():
-        pokemon.confusion_turns -= 1
-        if pokemon.confusion_turns <= 0:
-            print(f"{pokemon.name} snapped out of confusion!")
-        else:
-            print(f"{pokemon.name} is confused!")
-            # 50% chance to hurt itself
-            if get_rng().random(RNGContext.BATTLE_MECHANIC) < 0.5:
-                confusion_damage = apply_confusion_damage(pokemon)
-                pokemon.take_damage(confusion_damage)
-                print(f"{pokemon.name} hurt itself in confusion for {confusion_damage} damage!")
-                bus = get_event_bus()
-                bus.emit(ConfusionSelfHitEvent(
-                    turn=bus.current_turn, pokemon_name=pokemon.name,
-                    damage=confusion_damage, current_hp=pokemon.current_hp,
-                    max_hp=pokemon.max_hp))
-                if blog:
-                    blog.log_move_prevented(
-                        pokemon.name, "", "confused_self_hit",
-                        pokemon_side=side,
-                        extra_details={"confusion_damage": confusion_damage,
-                                       "hp_after": pokemon.current_hp,
-                                       "max_hp": pokemon.max_hp})
-                    blog.log_effect("confusion_self_hit", pokemon.name,
-                                    damage=confusion_damage, pokemon_side=side)
-                return False, "confused_self_hit"
-
     if pokemon.status == Status.FREEZE:
         # Gen 1: Frozen Pokemon never thaw on their own.
         # They can only be thawed by being hit by a Fire-type move.
@@ -94,6 +66,34 @@ def apply_status_effects(pokemon: Pokemon) -> tuple[bool, str | None]:
         if blog:
             blog.log_move_prevented(pokemon.name, "", "asleep", pokemon_side=side)
         return False, "asleep"
+
+    # Gen 1: confusion is checked after sleep/freeze, before paralysis
+    if pokemon.is_confused():
+        pokemon.confusion_turns -= 1
+        if pokemon.confusion_turns <= 0:
+            print(f"{pokemon.name} snapped out of confusion!")
+        else:
+            print(f"{pokemon.name} is confused!")
+            # 50% chance to hurt itself
+            if get_rng().random(RNGContext.BATTLE_MECHANIC) < 0.5:
+                confusion_damage = apply_confusion_damage(pokemon)
+                pokemon.take_damage(confusion_damage)
+                print(f"{pokemon.name} hurt itself in confusion for {confusion_damage} damage!")
+                bus = get_event_bus()
+                bus.emit(ConfusionSelfHitEvent(
+                    turn=bus.current_turn, pokemon_name=pokemon.name,
+                    damage=confusion_damage, current_hp=pokemon.current_hp,
+                    max_hp=pokemon.max_hp))
+                if blog:
+                    blog.log_move_prevented(
+                        pokemon.name, "", "confused_self_hit",
+                        pokemon_side=side,
+                        extra_details={"confusion_damage": confusion_damage,
+                                       "hp_after": pokemon.current_hp,
+                                       "max_hp": pokemon.max_hp})
+                    blog.log_effect("confusion_self_hit", pokemon.name,
+                                    damage=confusion_damage, pokemon_side=side)
+                return False, "confused_self_hit"
 
     if pokemon.status == Status.PARALYSIS:
         if get_rng().random(RNGContext.BATTLE_MECHANIC) < config.PARALYSIS_FAIL_CHANCE:

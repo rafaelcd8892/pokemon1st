@@ -1,6 +1,7 @@
 """Battle engine for executing turns and handling combat mechanics."""
 
 import logging
+from dataclasses import replace
 from models.pokemon import Pokemon
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,8 @@ from engine.display import format_pokemon_status, format_move_name
 from engine.move_effects import (
     is_special_move, execute_special_move,
     apply_leech_seed_damage, decrement_screen_turns,
-    TWO_TURN_MOVES, TRAPPING_MOVES, get_multi_hit_count
+    TWO_TURN_MOVES, TRAPPING_MOVES, SELF_DESTRUCT_MOVES, RECOIL_MOVES,
+    create_struggle, get_multi_hit_count
 )
 from engine.rng import get_rng, RNGContext
 from engine.battle_logger import get_battle_logger
@@ -97,6 +99,10 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
     # Check for locked/charging moves and get the actual move to use
     move, is_multi_turn, is_charging = _get_active_move(attacker, move)
 
+    # Gen 1: with no PP left on any move, the Pokemon uses Struggle
+    if not is_multi_turn and not is_charging and not any(m.has_pp() for m in attacker.moves):
+        move = create_struggle()
+
     # Check status effects before announcing move
     can_attack, _status_reason = apply_status_effects(attacker)
     if not can_attack:
@@ -107,13 +113,24 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
     if not _announce_move(attacker, move, is_multi_turn, is_charging):
         return  # Move was disabled
 
-    # Track last move and use PP
+    # Track last move and use PP. Continuing a locked-in or charged move
+    # does not spend PP again; Struggle has no PP.
     attacker.last_move_used = move.name
-    if not move.has_pp():
-        print(f"¡No hay PP para {move.name}!")
-        return
-    move.use()
+    if not (is_multi_turn or is_charging or move.name == "Struggle"):
+        if not move.has_pp():
+            print(f"¡No hay PP para {move.name}!")
+            return
+        move.use()
 
+    # Continuation turns (charged or locked-in) attack normally: re-entering the
+    # special handler would restart the charge or the Thrash lock.
+    _resolve_move(attacker, defender, move, all_moves, is_charging or is_multi_turn,
+                  clauses=clauses, defender_team=defender_team)
+
+
+def _resolve_move(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list,
+                  is_continuation: bool = False, clauses=None, defender_team: list = None):
+    """Resolve a move after pre-checks (status, recharge, PP) have passed."""
     # Check if defender is semi-invulnerable
     if defender.is_semi_invulnerable:
         print(f"¡El ataque falló! ({defender.name} está fuera de alcance)")
@@ -125,17 +142,18 @@ def execute_turn(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: li
             effectiveness=1.0,
             move_result="blocked_by_invulnerability",
         )
+        _faint_if_self_destruct(attacker, move, log_effect=True)
         return
 
     # Check accuracy
     if not _check_accuracy(attacker, defender, move):
+        _faint_if_self_destruct(attacker, move, log_effect=True)
         return
 
     # Handle special moves with unique effects
-    # Skip special handling if this is the execution turn of a charge move
-    # (is_charging means we already charged last turn and now attack normally)
-    if is_special_move(move) and not is_charging:
-        _handle_special_move(attacker, defender, move, all_moves)
+    if is_special_move(move) and not is_continuation:
+        _handle_special_move(attacker, defender, move, all_moves,
+                             clauses=clauses, defender_team=defender_team)
         return
 
     # Handle normal attack (includes charge move execution)
@@ -269,13 +287,19 @@ def _check_accuracy(attacker: Pokemon, defender: Pokemon, move: Move) -> bool:
 # Special Move Handlers
 # =============================================================================
 
-def _handle_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list):
+def _handle_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_moves: list,
+                         clauses=None, defender_team: list = None):
     """Handle moves with special effects (fixed damage, OHKO, recovery, etc.)."""
     damage, message = execute_special_move(attacker, defender, move, all_moves)
 
+    if damage == -1 and "|" in message:
+        _log_move_event(attacker, defender, move, damage=0, effectiveness=1.0)
+        _handle_metronome_mirror_move(attacker, defender, move, message, all_moves,
+                                      clauses=clauses, defender_team=defender_team)
+        return
+
     # Dispatch to appropriate handler based on damage code
     handlers = {
-        -1: _handle_metronome_mirror_move,
         -2: _handle_hp_drain_move,
         -3: _handle_self_destruct_move,
         -4: _handle_crash_damage_move,
@@ -291,10 +315,6 @@ def _handle_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
 
     handler = handlers.get(damage)
     if handler and "|" in message:
-        # For special utility moves with delegated behavior, log invocation when
-        # no direct damage record is guaranteed by handler.
-        if damage == -1:
-            _log_move_event(attacker, defender, move, damage=0, effectiveness=1.0)
         handler(attacker, defender, move, message, all_moves)
     elif message:
         print(message)
@@ -310,17 +330,41 @@ def _handle_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
 
 
 def _handle_metronome_mirror_move(attacker: Pokemon, defender: Pokemon, move: Move,
-                                   message: str, all_moves: list):
-    """Handle Metronome/Mirror Move (execute a random/copied move)."""
+                                   message: str, all_moves: list,
+                                   clauses=None, defender_team: list = None):
+    """
+    Handle Metronome/Mirror Move (execute a random/copied move).
+
+    The called move is a copy: it must not spend PP from the Move object it was
+    taken from (which may belong to the opponent), and status/recharge/PP checks
+    already ran for Metronome/Mirror Move itself.
+    """
     msg_parts = message.split("|")
     print(msg_parts[0])  # Print the "Metronome chose X!" message
     chosen_move_name = msg_parts[1]
 
-    if all_moves:
-        for m in all_moves:
-            if m.name == chosen_move_name:
-                execute_turn(attacker, defender, m, all_moves)
-                return
+    if not all_moves:
+        return
+    source = next((m for m in all_moves if m.name == chosen_move_name), None)
+    if source is None:
+        return
+    called = replace(source, stat_changes=dict(source.stat_changes))
+
+    if clauses is not None:
+        from engine.clauses import check_move_clauses
+        allowed, reason = check_move_clauses(called, clauses)
+        if not allowed:
+            print(f"¡{reason}!")
+            blog = get_battle_logger()
+            if blog:
+                blog.log_move_prevented(attacker.name, called.name, "clause",
+                                        pokemon_side=_pokemon_side(attacker))
+            return
+
+    print(f"\n{attacker.name} usa {format_move_name(called)}!")
+    attacker.last_move_used = called.name
+    _resolve_move(attacker, defender, called, all_moves,
+                  clauses=clauses, defender_team=defender_team)
 
 
 def _handle_hp_drain_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -386,8 +430,24 @@ def _handle_self_destruct_move(attacker: Pokemon, defender: Pokemon, move: Move,
             print(f"  {format_pokemon_status(defender)}")
 
     # User faints
-    attacker.current_hp = 0
-    print(f"¡{attacker.name} se debilitó por la explosión!")
+    _faint_if_self_destruct(attacker, move)
+
+
+def _faint_if_self_destruct(attacker: Pokemon, move: Move, log_effect: bool = False):
+    """
+    Gen 1: Explosion/Self-Destruct faint the user even when the move misses.
+
+    log_effect: log the self-KO as an effect (miss paths have no move event
+    carrying self_faint, so the faint would otherwise have no logged cause).
+    """
+    if move.name in SELF_DESTRUCT_MOVES:
+        hp_lost = attacker.current_hp
+        attacker.current_hp = 0
+        print(f"¡{attacker.name} se debilitó por la explosión!")
+        blog = get_battle_logger()
+        if log_effect and blog and hp_lost > 0:
+            blog.log_effect("self_destruct", attacker.name, damage=hp_lost,
+                            pokemon_side=_pokemon_side(attacker))
 
 
 def _handle_crash_damage_move(attacker: Pokemon, defender: Pokemon, move: Move,
@@ -681,6 +741,9 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move,
                 print(f"¡La furia de {defender.name} aumenta!")
                 bus = get_event_bus()
                 bus.emit(RageIncreasedEvent(turn=bus.current_turn, pokemon_name=defender.name))
+            # Recoil (Take Down, Double-Edge, Submission, Struggle)
+            if move.name in RECOIL_MOVES:
+                _apply_recoil(attacker, actual_damage, RECOIL_MOVES[move.name])
             # Gen 1: Fire-type moves thaw frozen targets
             if defender.status == Status.FREEZE and move.type == Type.FIRE:
                 from engine.events.types import StatusCuredEvent
@@ -700,6 +763,18 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move,
 
     # Apply stat changes
     _apply_move_stat_changes(attacker, defender, move)
+
+
+def _apply_recoil(attacker: Pokemon, damage_dealt: int, divisor: int):
+    """Apply Gen 1 recoil: damage_dealt // divisor (minimum 1)."""
+    recoil = max(1, damage_dealt // divisor)
+    attacker.take_damage(recoil)
+    print(f"¡{attacker.name} recibe {recoil} de daño por retroceso!")
+    print(f"  {format_pokemon_status(attacker)}")
+    blog = get_battle_logger()
+    if blog:
+        blog.log_effect("recoil", attacker.name, damage=recoil,
+                        pokemon_side=_pokemon_side(attacker))
 
 
 def _apply_screen_reduction(defender: Pokemon, damage: int, is_physical: bool, is_critical: bool) -> int:

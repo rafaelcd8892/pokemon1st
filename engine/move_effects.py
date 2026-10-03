@@ -2,7 +2,7 @@
 
 from models.pokemon import Pokemon
 from models.move import Move
-from models.enums import Status, Type
+from models.enums import Status, Type, MoveCategory
 from engine.rng import get_rng, RNGContext
 from engine.events import get_event_bus
 from engine.events.types import (
@@ -94,6 +94,21 @@ SPECIAL_EFFECT_MOVES = {
     "Whirlwind",     # Does nothing in 1v1 trainer battle
     "Conversion",    # Changes type (Porygon only)
 }
+
+# Recoil moves: user takes damage_dealt // divisor (Gen 1)
+RECOIL_MOVES = {
+    "Take Down": 4,
+    "Double Edge": 4,
+    "Submission": 4,
+    "Struggle": 2,
+}
+
+
+def create_struggle() -> Move:
+    """Struggle: used automatically when no move has PP (Gen 1: Normal, 50 power, 1/2 recoil)."""
+    return Move(name="Struggle", type=Type.NORMAL, category=MoveCategory.PHYSICAL,
+                power=50, accuracy=100, pp=1, max_pp=1)
+
 
 # All moves that need special handling
 ALL_SPECIAL_MOVES = (

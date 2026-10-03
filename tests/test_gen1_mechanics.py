@@ -425,3 +425,306 @@ class TestAlwaysHitMoves:
         # Should always return True (hit)
         for _ in range(100):
             assert _check_accuracy(attacker, defender, swift) is True
+
+
+# =============================================================================
+# Fix 14: Explosion/Self-Destruct faint the user even on a miss
+# =============================================================================
+
+class TestSelfDestructFaintsOnMiss:
+    """Gen 1: the user of Explosion/Self-Destruct faints whether or not it hits."""
+
+    @pytest.mark.parametrize("move_name", ["Explosion", "Self Destruct"])
+    def test_user_faints_when_target_semi_invulnerable(self, move_name):
+        attacker = create_test_pokemon("Golem", types=[Type.ROCK, Type.GROUND])
+        defender = create_test_pokemon("Dugtrio", types=[Type.GROUND])
+        defender.is_semi_invulnerable = True
+        move = create_test_move(name=move_name, power=250)
+
+        execute_turn(attacker, defender, move)
+
+        assert attacker.current_hp == 0
+        assert defender.current_hp == defender.max_hp
+
+    @pytest.mark.parametrize("move_name", ["Explosion", "Self Destruct"])
+    def test_user_faints_when_move_misses(self, move_name):
+        attacker = create_test_pokemon("Golem", types=[Type.ROCK, Type.GROUND])
+        defender = create_test_pokemon("Onix", types=[Type.ROCK, Type.GROUND])
+        move = create_test_move(name=move_name, power=250)
+
+        with patch('engine.battle._check_accuracy', return_value=False):
+            execute_turn(attacker, defender, move)
+
+        assert attacker.current_hp == 0
+        assert defender.current_hp == defender.max_hp
+
+    def test_other_moves_do_not_faint_user_on_miss(self):
+        attacker = create_test_pokemon("Golem", types=[Type.ROCK, Type.GROUND])
+        defender = create_test_pokemon("Onix", types=[Type.ROCK, Type.GROUND])
+        move = create_test_move(name="Tackle", power=35)
+
+        with patch('engine.battle._check_accuracy', return_value=False):
+            execute_turn(attacker, defender, move)
+
+        assert attacker.current_hp == attacker.max_hp
+
+
+# =============================================================================
+# Fix 15: Metronome/Mirror Move run a copy of the called move
+# =============================================================================
+
+def _pick_first_choice(target):
+    """Patch for get_rng().choice that returns `target` on the first call only."""
+    calls = []
+    from engine.rng import get_rng
+    original = get_rng().choice
+
+    def _choice(seq, context=None):
+        calls.append(1)
+        return target if len(calls) == 1 else original(seq, context)
+    return _choice
+
+
+class TestCalledMovesUseCopies:
+    """Moves called by Metronome/Mirror Move must not touch the source Move object."""
+
+    def test_metronome_does_not_spend_opponent_pp(self, seeded_rng):
+        metronome = create_test_move(name="Metronome", category=MoveCategory.STATUS, power=0)
+        tackle = create_test_move(name="Tackle", power=35)
+        attacker = create_test_pokemon("Clefable", moves=[metronome])
+        defender = create_test_pokemon("Rattata", moves=[tackle])
+
+        with patch.object(seeded_rng, "choice", _pick_first_choice(tackle)):
+            execute_turn(attacker, defender, metronome, [metronome, tackle])
+
+        assert defender.current_hp < defender.max_hp
+        assert tackle.pp == tackle.max_pp
+        assert metronome.pp == metronome.max_pp - 1
+
+    def test_mirror_move_does_not_spend_opponent_pp(self, seeded_rng):
+        mirror = create_test_move(name="Mirror Move", category=MoveCategory.STATUS, power=0)
+        tackle = create_test_move(name="Tackle", power=35)
+        attacker = create_test_pokemon("Pidgeot", moves=[mirror])
+        defender = create_test_pokemon("Rattata", moves=[tackle])
+        defender.last_move_used = "Tackle"
+
+        execute_turn(attacker, defender, mirror, [mirror, tackle])
+
+        assert defender.current_hp < defender.max_hp
+        assert tackle.pp == tackle.max_pp
+
+    def test_called_move_does_not_rerun_confusion_check(self, seeded_rng):
+        metronome = create_test_move(name="Metronome", category=MoveCategory.STATUS, power=0)
+        tackle = create_test_move(name="Tackle", power=35)
+        attacker = create_test_pokemon("Clefable", moves=[metronome])
+        defender = create_test_pokemon("Rattata", moves=[tackle])
+        attacker.confusion_turns = 5
+
+        with patch('engine.battle.apply_status_effects', return_value=(True, None)) as status_check, \
+             patch.object(seeded_rng, "choice", _pick_first_choice(tackle)):
+            execute_turn(attacker, defender, metronome, [metronome, tackle])
+
+        assert status_check.call_count == 1
+
+    def test_charge_move_from_metronome_does_not_spend_source_pp(self, seeded_rng):
+        metronome = create_test_move(name="Metronome", category=MoveCategory.STATUS, power=0)
+        solar_beam = create_test_move(name="Solar Beam", move_type=Type.GRASS,
+                                      category=MoveCategory.SPECIAL, power=120)
+        attacker = create_test_pokemon("Clefable", moves=[metronome])
+        defender = create_test_pokemon("Venusaur", moves=[solar_beam])
+
+        with patch.object(seeded_rng, "choice", _pick_first_choice(solar_beam)):
+            execute_turn(attacker, defender, metronome, [metronome, solar_beam])  # charge
+        execute_turn(attacker, defender, metronome, [metronome, solar_beam])      # fire
+
+        assert defender.current_hp < defender.max_hp
+        assert solar_beam.pp == solar_beam.max_pp
+
+    def test_ohko_clause_blocks_metronome_called_ohko_move(self, seeded_rng):
+        from models.ruleset import BattleClauses
+        metronome = create_test_move(name="Metronome", category=MoveCategory.STATUS, power=0)
+        fissure = create_test_move(name="Fissure", move_type=Type.GROUND, power=0, accuracy=30)
+        attacker = create_test_pokemon("Clefable", moves=[metronome])
+        defender = create_test_pokemon("Rattata", moves=[fissure])
+        clauses = BattleClauses(ohko_clause=True)
+
+        with patch.object(seeded_rng, "choice", _pick_first_choice(fissure)), \
+             patch('engine.battle._check_accuracy', return_value=True):
+            execute_turn(attacker, defender, metronome, [metronome, fissure], clauses=clauses)
+
+        assert defender.current_hp == defender.max_hp
+
+
+# =============================================================================
+# Fix 16: Status check order is sleep -> freeze -> confusion -> paralysis
+# =============================================================================
+
+class TestStatusCheckOrder:
+    """Gen 1: a sleeping/frozen Pokemon never rolls confusion."""
+
+    @pytest.mark.parametrize("status", [Status.SLEEP, Status.FREEZE])
+    def test_confusion_not_checked_while_asleep_or_frozen(self, seeded_rng, status):
+        pokemon = create_test_pokemon("Slowbro")
+        pokemon.status = status
+        pokemon.sleep_counter = 5
+        pokemon.confusion_turns = 3
+
+        with patch.object(seeded_rng, "random", return_value=0.0):  # would always self-hit
+            can_attack, _ = apply_status_effects(pokemon)
+
+        assert not can_attack
+        assert pokemon.current_hp == pokemon.max_hp
+        assert pokemon.confusion_turns == 3
+
+    def test_confusion_still_checked_when_awake(self, seeded_rng):
+        pokemon = create_test_pokemon("Slowbro")
+        pokemon.confusion_turns = 3
+
+        with patch.object(seeded_rng, "random", return_value=0.0):
+            can_attack, reason = apply_status_effects(pokemon)
+
+        assert not can_attack
+        assert reason == "confused_self_hit"
+        assert pokemon.current_hp < pokemon.max_hp
+
+
+# =============================================================================
+# Fix 17: Struggle when no move has PP
+# =============================================================================
+
+class TestStruggle:
+    """Gen 1: with no PP left, the Pokemon uses Struggle (50 power, 1/2 recoil)."""
+
+    def test_struggle_used_when_out_of_pp(self, seeded_rng):
+        tackle = create_test_move(name="Tackle", power=35, pp=0)
+        attacker = create_test_pokemon("Rattata", moves=[tackle])
+        defender = create_test_pokemon("Pidgey")
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            execute_turn(attacker, defender, tackle)
+
+        assert defender.current_hp < defender.max_hp
+        assert attacker.current_hp < attacker.max_hp  # recoil
+        assert attacker.last_move_used == "Struggle"
+        assert tackle.pp == 0
+
+    def test_struggle_recoil_is_half_damage(self, seeded_rng):
+        tackle = create_test_move(name="Tackle", power=35, pp=0)
+        attacker = create_test_pokemon("Rattata", moves=[tackle], hp=300)
+        defender = create_test_pokemon("Pidgey", hp=300)
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False):
+            execute_turn(attacker, defender, tackle)
+
+        dealt = defender.max_hp - defender.current_hp
+        assert attacker.max_hp - attacker.current_hp == max(1, dealt // 2)
+
+    def test_struggle_cannot_hit_ghost(self, seeded_rng):
+        tackle = create_test_move(name="Tackle", power=35, pp=0)
+        attacker = create_test_pokemon("Rattata", moves=[tackle])
+        defender = create_test_pokemon("Gastly", types=[Type.GHOST, Type.POISON])
+
+        execute_turn(attacker, defender, tackle)
+
+        assert defender.current_hp == defender.max_hp
+        assert attacker.current_hp == attacker.max_hp
+
+    def test_no_struggle_while_a_move_has_pp(self, seeded_rng):
+        empty = create_test_move(name="Tackle", power=35, pp=0)
+        full = create_test_move(name="Scratch", power=40)
+        attacker = create_test_pokemon("Rattata", moves=[empty, full])
+        defender = create_test_pokemon("Pidgey")
+
+        execute_turn(attacker, defender, empty)
+
+        assert defender.current_hp == defender.max_hp
+        assert attacker.last_move_used == "Tackle"
+
+
+# =============================================================================
+# Fix 18: Recoil moves
+# =============================================================================
+
+class TestRecoil:
+    """Gen 1: Take Down, Double-Edge, Submission deal 1/4 of damage dealt as recoil."""
+
+    @pytest.mark.parametrize("name,move_type", [
+        ("Take Down", Type.NORMAL), ("Double Edge", Type.NORMAL), ("Submission", Type.FIGHTING),
+    ])
+    def test_recoil_is_quarter_of_damage(self, seeded_rng, name, move_type):
+        move = create_test_move(name=name, move_type=move_type, power=100)
+        attacker = create_test_pokemon("Tauros", hp=300)
+        defender = create_test_pokemon("Chansey", hp=300)
+
+        with patch('engine.damage.calculate_critical_hit', return_value=False), \
+             patch('engine.battle._check_accuracy', return_value=True):
+            execute_turn(attacker, defender, move)
+
+        dealt = defender.max_hp - defender.current_hp
+        assert dealt > 0
+        assert attacker.max_hp - attacker.current_hp == max(1, dealt // 4)
+
+    def test_no_recoil_when_substitute_absorbs(self, seeded_rng):
+        move = create_test_move(name="Double Edge", power=100)
+        attacker = create_test_pokemon("Tauros")
+        defender = create_test_pokemon("Chansey")
+        defender.substitute_hp = 500
+
+        execute_turn(attacker, defender, move)
+
+        assert attacker.current_hp == attacker.max_hp
+
+    def test_no_recoil_on_regular_move(self, seeded_rng):
+        move = create_test_move(name="Body Slam", power=85)
+        attacker = create_test_pokemon("Tauros")
+        defender = create_test_pokemon("Chansey")
+
+        execute_turn(attacker, defender, move)
+
+        assert attacker.current_hp == attacker.max_hp
+
+
+# =============================================================================
+# Fix 19: Charge and locked-in moves spend PP once
+# =============================================================================
+
+class TestPPSpentOnce:
+    """Gen 1: the second turn of a charge move or a Thrash lock does not spend PP."""
+
+    def test_solar_beam_spends_one_pp(self, seeded_rng):
+        solar_beam = create_test_move(name="Solar Beam", move_type=Type.GRASS,
+                                      category=MoveCategory.SPECIAL, power=120)
+        attacker = create_test_pokemon("Venusaur", moves=[solar_beam])
+        defender = create_test_pokemon("Blastoise")
+
+        execute_turn(attacker, defender, solar_beam)  # charge
+        execute_turn(attacker, defender, solar_beam)  # fire
+
+        assert defender.current_hp < defender.max_hp
+        assert solar_beam.pp == solar_beam.max_pp - 1
+
+    def test_charge_move_with_last_pp_still_fires(self, seeded_rng):
+        solar_beam = create_test_move(name="Solar Beam", move_type=Type.GRASS,
+                                      category=MoveCategory.SPECIAL, power=120, pp=1)
+        attacker = create_test_pokemon("Venusaur", moves=[solar_beam])
+        defender = create_test_pokemon("Blastoise")
+
+        execute_turn(attacker, defender, solar_beam)
+        execute_turn(attacker, defender, solar_beam)
+
+        assert defender.current_hp < defender.max_hp
+
+    def test_thrash_spends_one_pp(self, seeded_rng):
+        thrash = create_test_move(name="Thrash", power=90)
+        attacker = create_test_pokemon("Tauros", moves=[thrash])
+        defender = create_test_pokemon("Chansey", hp=999)
+
+        execute_turn(attacker, defender, thrash)
+        for _ in range(10):
+            if attacker.multi_turn_move is None:
+                break
+            execute_turn(attacker, defender, thrash)
+
+        assert attacker.multi_turn_move is None, "Thrash lock never ended"
+        assert attacker.is_confused()
+        assert thrash.pp == thrash.max_pp - 1
