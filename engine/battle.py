@@ -15,7 +15,7 @@ from engine.display import format_pokemon_status, format_move_name
 from engine.move_effects import (
     is_special_move, execute_special_move,
     apply_leech_seed_damage, decrement_screen_turns,
-    TWO_TURN_MOVES, TRAPPING_MOVES, SELF_DESTRUCT_MOVES, RECOIL_MOVES,
+    TWO_TURN_MOVES, TRAPPING_MOVES, SELF_DESTRUCT_MOVES,
     create_struggle, get_multi_hit_count
 )
 from engine.rng import get_rng, RNGContext
@@ -348,7 +348,8 @@ def _handle_metronome_mirror_move(attacker: Pokemon, defender: Pokemon, move: Mo
     source = next((m for m in all_moves if m.name == chosen_move_name), None)
     if source is None:
         return
-    called = replace(source, stat_changes=dict(source.stat_changes))
+    called = replace(source, stat_changes=dict(source.stat_changes),
+                     secondary_stat_changes=dict(source.secondary_stat_changes))
 
     if clauses is not None:
         from engine.clauses import check_move_clauses
@@ -742,8 +743,8 @@ def _execute_normal_attack(attacker: Pokemon, defender: Pokemon, move: Move,
                 bus = get_event_bus()
                 bus.emit(RageIncreasedEvent(turn=bus.current_turn, pokemon_name=defender.name))
             # Recoil (Take Down, Double-Edge, Submission, Struggle)
-            if move.name in RECOIL_MOVES:
-                _apply_recoil(attacker, actual_damage, RECOIL_MOVES[move.name])
+            if move.recoil_divisor:
+                _apply_recoil(attacker, actual_damage, move.recoil_divisor)
             # Gen 1: Fire-type moves thaw frozen targets
             if defender.status == Status.FREEZE and move.type == Type.FIRE:
                 from engine.events.types import StatusCuredEvent

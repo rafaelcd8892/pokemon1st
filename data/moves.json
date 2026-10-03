@@ -22,7 +22,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "DEFENSE": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Acid-Armor",
@@ -76,7 +80,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "ATTACK": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Barrage",
@@ -138,7 +146,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 10
     },
     {
       "name": "Blizzard",
@@ -174,7 +183,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 10
     },
     {
       "name": "Bonemerang",
@@ -198,7 +208,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "SPEED": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Bubble-Beam",
@@ -210,7 +224,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "SPEED": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Clamp",
@@ -270,7 +288,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "SPEED": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Conversion",
@@ -294,7 +316,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "priority": -1
     },
     {
       "name": "Crabhammer",
@@ -306,7 +329,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "high_crit": true
     },
     {
       "name": "Cut",
@@ -380,7 +404,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "recoil_divisor": 4
     },
     {
       "name": "Double-Kick",
@@ -726,7 +751,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 30
     },
     {
       "name": "High-Jump-Kick",
@@ -798,7 +824,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 10
     },
     {
       "name": "Hypnosis",
@@ -858,7 +885,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "high_crit": true
     },
     {
       "name": "Kinesis",
@@ -958,7 +986,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 30
     },
     {
       "name": "Meditate",
@@ -1202,7 +1231,11 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "secondary_stat_changes": {
+        "SPECIAL": -1
+      },
+      "secondary_stat_chance": 33
     },
     {
       "name": "Psywave",
@@ -1226,7 +1259,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "priority": 1
     },
     {
       "name": "Rage",
@@ -1250,7 +1284,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "high_crit": true
     },
     {
       "name": "Razor-Wind",
@@ -1322,7 +1357,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 30
     },
     {
       "name": "Rock-Throw",
@@ -1346,7 +1382,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 30
     },
     {
       "name": "Sand-Attack",
@@ -1484,7 +1521,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "high_crit": true
     },
     {
       "name": "Sleep-Powder",
@@ -1618,7 +1656,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "flinch_chance": 30
     },
     {
       "name": "Strength",
@@ -1668,7 +1707,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "recoil_divisor": 4
     },
     {
       "name": "Substitute",
@@ -1780,7 +1820,8 @@
       "status_effect": null,
       "status_chance": 0,
       "stat_changes": null,
-      "target_self": false
+      "target_self": false,
+      "recoil_divisor": 4
     },
     {
       "name": "Teleport",

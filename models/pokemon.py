@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Optional
 from models.enums import Type, Status, StatType
 from models.stats import Stats
@@ -246,19 +247,8 @@ class Pokemon:
         )
 
         moves_snapshot = [
-            Move(
-                name=m.name,
-                type=m.type,
-                category=m.category,
-                power=m.power,
-                accuracy=m.accuracy,
-                pp=m.pp,
-                max_pp=m.max_pp,
-                status_effect=m.status_effect,
-                status_chance=m.status_chance,
-                stat_changes=m.stat_changes.copy() if m.stat_changes else {},
-                target_self=m.target_self,
-            )
+            replace(m, stat_changes=dict(m.stat_changes),
+                    secondary_stat_changes=dict(m.secondary_stat_changes))
             for m in self.moves
         ]
 

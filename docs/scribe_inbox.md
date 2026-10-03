@@ -121,3 +121,16 @@
   - Known validator false positive (pre-existing): `prevented_but_attacked` fires on mirror matches because it matches by name, not side.
 - Files: engine/battle.py, engine/status.py, engine/move_effects.py, engine/team_battle.py, ui/selection.py, tests/test_gen1_mechanics.py, tests/test_battle_integration_regressions.py
 - Tests: 476 pass (17 new in this batch), 5 golden baselines unchanged, batch 3v3 runs: 0 errors
+
+### Move data fields (refactor item 1) - 2026-10-03
+- Date: 2026-10-03
+- Type: changelog, map, decision
+- Summary: moves.json and Move gain Gen 1 mechanic fields: recoil_divisor (live), priority, high_crit, flinch_chance, secondary_stat_changes + secondary_stat_chance (data only, not yet read by the engine). No battle behavior change.
+- Details:
+  - Schema: new keys are optional and only present when non-default (23 moves edited). Gen 1 values: Quick Attack +1 / Counter -1 priority; Slash, Karate Chop, Razor Leaf, Crabhammer high crit; flinch 10% (Bite, Hyper Fang, Bone Club) / 30% (Stomp, Headbutt, Rolling Kick, Low Kick, Rock Slide); secondary -1 drops at 33% (85/256) for Psychic, Aurora Beam, Acid, Bubble, Bubble Beam, Constrict; recoil 1/4 for Take Down, Double-Edge, Submission.
+  - Decision: chance-based stat drops live in `secondary_stat_changes`, separate from `stat_changes` (which the engine always applies), so adding data cannot silently enable a mechanic.
+  - Recoil now read from `move.recoil_divisor`; `RECOIL_MOVES` name list removed. Struggle sets recoil_divisor=2.
+  - Bug avoided: Transform move copies and the Transform snapshot/restore built Moves field by field, which would drop new fields (e.g. Double-Edge losing recoil after Ditto switches out). Both now use `dataclasses.replace`. `get_move_data` key whitelist extended for the same reason.
+  - Next: enable each mechanic after its policy is set in docs/known_quirks.md (priority, high crit, flinch, secondary effects are TBD/Replicate there).
+- Files: data/moves.json, models/move.py, data/data_loader.py, engine/move_effects.py, engine/battle.py, models/pokemon.py, tests/test_move_data_fields.py, tests/test_gen1_mechanics.py
+- Tests: 507 pass (31 new), 5 golden baselines unchanged, batch 100x 3v3: 0 errors

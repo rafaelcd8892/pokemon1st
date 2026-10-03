@@ -648,11 +648,10 @@ class TestStruggle:
 class TestRecoil:
     """Gen 1: Take Down, Double-Edge, Submission deal 1/4 of damage dealt as recoil."""
 
-    @pytest.mark.parametrize("name,move_type", [
-        ("Take Down", Type.NORMAL), ("Double Edge", Type.NORMAL), ("Submission", Type.FIGHTING),
-    ])
-    def test_recoil_is_quarter_of_damage(self, seeded_rng, name, move_type):
-        move = create_test_move(name=name, move_type=move_type, power=100)
+    @pytest.mark.parametrize("slug", ["take-down", "double-edge", "submission"])
+    def test_recoil_is_quarter_of_damage(self, seeded_rng, slug):
+        from data.data_loader import create_move
+        move = create_move(slug)
         attacker = create_test_pokemon("Tauros", hp=300)
         defender = create_test_pokemon("Chansey", hp=300)
 
@@ -666,6 +665,7 @@ class TestRecoil:
 
     def test_no_recoil_when_substitute_absorbs(self, seeded_rng):
         move = create_test_move(name="Double Edge", power=100)
+        move.recoil_divisor = 4
         attacker = create_test_pokemon("Tauros")
         defender = create_test_pokemon("Chansey")
         defender.substitute_hp = 500
