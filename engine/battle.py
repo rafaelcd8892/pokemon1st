@@ -1016,20 +1016,54 @@ def _apply_trapping_effects(trapped: Pokemon, trapper: Pokemon) -> list[str]:
 # Turn Order
 # =============================================================================
 
-def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon) -> tuple[Pokemon, Pokemon]:
+def get_effective_priority(pokemon: Pokemon, chosen_move: Move | None) -> int:
     """
-    Determine who attacks first based on Speed (with stat stages applied).
+    Gen 1 priority of the move that will actually execute this turn
+    (policy: docs/known_quirks.md, "Turn order / move priority").
+
+    Recharging, trapped and Struggle turns are 0. A locked-in or charged move
+    uses its own priority. Metronome/Mirror Move use their own (0).
+    """
+    if pokemon.must_recharge or pokemon.is_trapped:
+        return 0
+    if pokemon.multi_turn_move is not None:
+        return pokemon.multi_turn_move.priority
+    if pokemon.is_charging and pokemon.charging_move is not None:
+        return pokemon.charging_move.priority
+    if chosen_move is None or not any(m.has_pp() for m in pokemon.moves):
+        return 0  # Struggle
+    return chosen_move.priority
+
+
+def determine_turn_order(pokemon1: Pokemon, pokemon2: Pokemon,
+                         move1: Move | None = None,
+                         move2: Move | None = None) -> tuple[Pokemon, Pokemon]:
+    """
+    Determine who attacks first: move priority, then Speed (with stat stages
+    and paralysis applied), then a random tie-break.
 
     Args:
         pokemon1: First Pokemon
         pokemon2: Second Pokemon
+        move1: Move chosen by pokemon1 (None = priority 0)
+        move2: Move chosen by pokemon2 (None = priority 0)
 
     Returns:
         Tuple of (first_attacker, second_attacker)
     """
     speed1 = get_modified_speed(pokemon1)
     speed2 = get_modified_speed(pokemon2)
+    priority1 = get_effective_priority(pokemon1, move1)
+    priority2 = get_effective_priority(pokemon2, move2)
     blog = get_battle_logger()
+
+    if priority1 != priority2:
+        first, second = (pokemon1, pokemon2) if priority1 > priority2 else (pokemon2, pokemon1)
+        first_speed, second_speed = (speed1, speed2) if first is pokemon1 else (speed2, speed1)
+        if blog:
+            blog.log_turn_order(first.name, second.name, first_speed, second_speed,
+                                _pokemon_side(first), _pokemon_side(second), "priority")
+        return first, second
 
     if speed1 > speed2:
         if blog:

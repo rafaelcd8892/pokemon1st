@@ -201,7 +201,7 @@ class TeamBattle:
         pokemon1 = self.team1.active_pokemon
         pokemon2 = self.team2.active_pokemon
 
-        first, second = determine_turn_order(pokemon1, pokemon2)
+        first, second = determine_turn_order(pokemon1, pokemon2, action1.move, action2.move)
 
         if first == pokemon1:
             return [(self.team1, action1, self.team2), (self.team2, action2, self.team1)]
