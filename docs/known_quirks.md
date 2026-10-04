@@ -16,6 +16,15 @@ Agents must follow this policy. If a ticket requires changing it, update this do
 - Crit rate based on Speed: ✅ Replicate
 - High-crit moves behavior: ✅ Replicate
 
+## Turn order / move priority
+- Move priority: ✅ Replicate (decided 2026-10-03)
+  - Order each turn: switches first, then attacks by priority (higher first), then modified Speed (stat stages + paralysis ÷4), then a random coin flip on a tie.
+  - Gen 1 priorities: Quick Attack +1, Counter −1, every other move 0. Source: `priority` in data/moves.json.
+  - The priority used is that of the move that will actually execute this turn: a charging move's second turn, a Thrash/Petal Dance lock, or the move chosen this turn.
+  - 0 priority when no move executes: recharging (Hyper Beam), trapped by Wrap/Bind, or using Struggle.
+  - Metronome and Mirror Move use their own priority (0). The called move's priority is ignored (a Metronome-called Quick Attack does not go first).
+  - Log: when priority decides the order, `turn_order` uses reason `"priority"` instead of `"speed"`. Existing reasons and wording are unchanged.
+
 ## Accuracy quirks
 - 1/256 miss glitch: ❓ TBD (default: ❌ Ignore)
 - Accuracy/evasion stage behavior: ⚠️ Approximate (needs tests)

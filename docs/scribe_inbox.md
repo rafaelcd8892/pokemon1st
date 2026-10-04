@@ -134,3 +134,28 @@
   - Next: enable each mechanic after its policy is set in docs/known_quirks.md (priority, high crit, flinch, secondary effects are TBD/Replicate there).
 - Files: data/moves.json, models/move.py, data/data_loader.py, engine/move_effects.py, engine/battle.py, models/pokemon.py, tests/test_move_data_fields.py, tests/test_gen1_mechanics.py
 - Tests: 507 pass (31 new), 5 golden baselines unchanged, batch 100x 3v3: 0 errors
+
+### Decision: Gen 1 move priority - 2026-10-03
+- Date: 2026-10-03
+- Type: decision
+- Summary: Move priority is ✅ Replicate. Turn order = switches, then priority, then modified Speed, then random tie-break. Quick Attack +1, Counter −1, all others 0.
+- Details:
+  - Context: priority was not implemented; Quick Attack and Counter went by Speed. `priority` field already in data/moves.json (refactor item 1), not yet read by the engine.
+  - Options considered: (1) ignore priority (status quo); (2) replicate Gen 1 priority using the selected move; (3) replicate using the move that actually executes this turn (chosen).
+  - Outcome (3): priority comes from the executing move: charge move 2nd turn, Thrash/Petal Dance lock, else the selected move. Recharge, trapped and Struggle turns are 0. Metronome/Mirror Move are 0; the called move's priority is ignored.
+  - Log: new `turn_order` reason `"priority"` only when priority decides the order; `"speed"`, `"speed_tie_random"`, `"switch_priority"` unchanged. Validator rule `turn_order_speed_wrong` only checks reason `"speed"`, so it stays valid.
+  - Follow-up: implement in engine/team_battle.py `get_turn_order` (it has both actions) + engine/battle.py `determine_turn_order`; unit tests for each rule above; golden baselines expected unchanged unless a golden battle uses Quick Attack/Counter (check before approving any update).
+  - SCRIBE: add to docs/decisions.md.
+- Files: docs/known_quirks.md
+- Tests: none (no code change)
+
+### Move priority implemented - 2026-10-03
+- Date: 2026-10-03
+- Type: changelog
+- Summary: Turn order now uses Gen 1 move priority (Quick Attack +1, Counter −1) before Speed, per the 2026-10-03 priority decision.
+- Details:
+  - engine/battle.py: new pure `get_effective_priority(pokemon, chosen_move)`; `determine_turn_order` takes optional `move1`/`move2` (defaults keep old behavior) and logs reason `"priority"` when priority decides. Text log shows `[priority]`.
+  - engine/team_battle.py: `get_turn_order` passes both chosen moves. Switches still go first.
+  - Follow-up (todo): AI does not know about priority. engine/ai/evaluator.py (~line 244) compares Speed only, so the AI underrates Quick Attack and misjudges Counter.
+- Files: engine/battle.py, engine/team_battle.py, tests/test_move_priority.py
+- Tests: 525 pass (18 new), 5 golden baselines unchanged, batch 100x 3v3: 0 errors (53 priority-ordered turns logged)
