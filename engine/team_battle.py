@@ -325,8 +325,11 @@ class TeamBattle:
 
         # Execute actions in order
         for acting_team, action, opponent_team in action_order:
-            # Skip if acting Pokemon fainted from previous action
+            # Skip if acting Pokemon fainted from previous action, or its
+            # target already fainted (e.g. from Explosion or recoil)
             if not acting_team.active_pokemon.is_alive():
+                continue
+            if not action.is_switch() and not opponent_team.active_pokemon.is_alive():
                 continue
 
             self.execute_action(acting_team, action, opponent_team)
@@ -348,6 +351,20 @@ class TeamBattle:
 
                 # Force switch for the defeated Pokemon's team
                 self.log(f"\n{defender_team.name} debe elegir otro Pokémon...")
+
+            # Check if the actor fainted from its own move (Explosion, recoil, confusion)
+            attacker = acting_team.active_pokemon
+            if not attacker.is_alive() and id(attacker) not in fainted_during_actions:
+                fainted_during_actions.add(id(attacker))
+                self.log(f"\n¡{attacker.name} se debilitó!")
+                self.battle_logger.log_faint(
+                    attacker.name,
+                    pokemon_side=getattr(attacker, "battle_side", None),
+                )
+                if acting_team.is_defeated():
+                    self.battle_logger.end_turn()
+                    return opponent_team
+                self.log(f"\n{acting_team.name} debe elegir otro Pokémon...")
 
         # Apply end of turn effects
         apply_end_of_turn_effects(self.team1.active_pokemon, self.team2.active_pokemon)
@@ -561,7 +578,7 @@ def get_random_ai_action(team: Team, opponent_team: Team, clauses=None) -> Battl
         move = get_rng().choice(available_moves, RNGContext.AI_DECISION)
         return BattleAction.attack(move)
 
-    # No moves with PP - use Struggle (first move as placeholder)
+    # No moves with PP - execute_turn substitutes Struggle
     return BattleAction.attack(active.moves[0])
 
 

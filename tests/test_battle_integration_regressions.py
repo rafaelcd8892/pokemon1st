@@ -526,3 +526,50 @@ class TestRegressionSpecs:
         execute_turn(attacker, defender, horn_drill)
 
         assert defender.current_hp == 0
+
+
+class TestSelfFaintInTurnLoop:
+    """A Pokemon that faints from its own move is handled before the foe acts."""
+
+    def _battle(self, user_moves, foe_moves, user_team_extra=()):
+        user = _poke("Golem", moves=user_moves, speed=120)
+        foe = _poke("Chansey", moves=foe_moves, hp=500, speed=30)
+        team1 = Team([user, *user_team_extra], "P1")
+        team2 = Team([foe], "P2")
+        battle = TeamBattle(team1, team2, battle_format=BattleFormat.TRIPLE,
+                            action_delay=0, enable_battle_log=False)
+        return battle, user, foe
+
+    def test_missed_explosion_on_last_pokemon_loses_battle(self):
+        explosion = create_test_move(name="Explosion", power=250)
+        tackle = create_test_move(name="Tackle", power=35)
+        battle, user, foe = self._battle([explosion], [tackle])
+
+        set_rng(FixedRNG(randint_value=50, random_value=0.99))
+        try:
+            with patch("engine.battle._check_accuracy", return_value=False):
+                winner = battle.execute_turn_pair(BattleAction.attack(explosion), BattleAction.attack(tackle))
+        finally:
+            reset_rng()
+
+        assert user.current_hp == 0
+        assert winner is battle.team2
+        assert tackle.pp == tackle.max_pp  # foe never attacked the fainted Golem
+
+    def test_foe_does_not_attack_self_fainted_pokemon(self):
+        explosion = create_test_move(name="Explosion", power=250)
+        tackle = create_test_move(name="Tackle", power=35)
+        backup = _poke("Onix", moves=[create_test_move(name="Tackle", power=35)])
+        battle, user, foe = self._battle([explosion], [tackle], user_team_extra=[backup])
+
+        set_rng(FixedRNG(randint_value=50, random_value=0.99))
+        try:
+            winner = battle.execute_turn_pair(BattleAction.attack(explosion), BattleAction.attack(tackle))
+        finally:
+            reset_rng()
+
+        assert winner is None
+        assert user.current_hp == 0
+        assert foe.is_alive()
+        assert tackle.pp == tackle.max_pp
+        assert battle.needs_forced_switch(battle.team1)

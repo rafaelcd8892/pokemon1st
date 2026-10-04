@@ -35,16 +35,18 @@ Pokemon Gen 1 Battle engine. Modular. Looking to step by step increase.
 - Tests: `tests/` (unit, integration, golden, audit)
 
 ## How to run locally
+- One-time setup (project virtualenv in `.venv/`, gitignored):
+  - `python3 -m venv .venv && .venv/bin/pip install pytest`
 - Run an interactive battle:
-  - `python3 main.py`
+  - `.venv/bin/python main.py`
 - Run tests:
-  - `pytest -q`
+  - `.venv/bin/python -m pytest -q`
 - Run golden tests:
-  - `python scripts/run_golden.py`
+  - `.venv/bin/python scripts/run_golden.py`
 - Run batch battles (100 automated with validation):
-  - `python scripts/batch_battle.py --battles 100 --format 3v3`
+  - `.venv/bin/python scripts/batch_battle.py --battles 100 --format 3v3`
 - Validate a battle log:
-  - `python scripts/validate_battle_log.py logs/battles/<file>.json`
+  - `.venv/bin/python scripts/validate_battle_log.py logs/battles/<file>.json`
 
 ## Data / configuration
 - Pokémon stats source: `data/pokemon.json` (151 Kanto Pokémon with base stats)
