@@ -169,7 +169,13 @@ def get_move_data(move_name: str) -> dict:
                 'status_effect': move.get('status_effect'),
                 'status_chance': move.get('status_chance', 0),
                 'stat_changes': move.get('stat_changes'),
-                'target_self': move.get('target_self', False)
+                'target_self': move.get('target_self', False),
+                'recoil_divisor': move.get('recoil_divisor', 0),
+                'priority': move.get('priority', 0),
+                'high_crit': move.get('high_crit', False),
+                'flinch_chance': move.get('flinch_chance', 0),
+                'secondary_stat_changes': move.get('secondary_stat_changes'),
+                'secondary_stat_chance': move.get('secondary_stat_chance', 0),
             }
     raise ValueError(f"Move not found: {move_name}")
 
@@ -197,6 +203,11 @@ def create_move_from_data(move_data: dict) -> Move:
         for stat_name, value in move_data['stat_changes'].items():
             stat_changes[StatType[stat_name]] = value
 
+    secondary_stat_changes = {}
+    if move_data.get('secondary_stat_changes'):
+        for stat_name, value in move_data['secondary_stat_changes'].items():
+            secondary_stat_changes[StatType[stat_name]] = value
+
     return Move(
         name=move_data['name'],
         type=type_enum,
@@ -208,7 +219,13 @@ def create_move_from_data(move_data: dict) -> Move:
         status_effect=status_enum,
         status_chance=move_data.get('status_chance', 0),
         stat_changes=stat_changes,
-        target_self=move_data.get('target_self', False)
+        target_self=move_data.get('target_self', False),
+        recoil_divisor=move_data.get('recoil_divisor', 0),
+        priority=move_data.get('priority', 0),
+        high_crit=move_data.get('high_crit', False),
+        flinch_chance=move_data.get('flinch_chance', 0),
+        secondary_stat_changes=secondary_stat_changes,
+        secondary_stat_chance=move_data.get('secondary_stat_chance', 0),
     )
 
 

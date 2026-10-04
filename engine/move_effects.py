@@ -1,5 +1,6 @@
 """Special move effects for moves with unique mechanics"""
 
+from dataclasses import replace
 from models.pokemon import Pokemon
 from models.move import Move
 from models.enums import Status, Type, MoveCategory
@@ -95,19 +96,10 @@ SPECIAL_EFFECT_MOVES = {
     "Conversion",    # Changes type (Porygon only)
 }
 
-# Recoil moves: user takes damage_dealt // divisor (Gen 1)
-RECOIL_MOVES = {
-    "Take Down": 4,
-    "Double Edge": 4,
-    "Submission": 4,
-    "Struggle": 2,
-}
-
-
 def create_struggle() -> Move:
     """Struggle: used automatically when no move has PP (Gen 1: Normal, 50 power, 1/2 recoil)."""
     return Move(name="Struggle", type=Type.NORMAL, category=MoveCategory.PHYSICAL,
-                power=50, accuracy=100, pp=1, max_pp=1)
+                power=50, accuracy=100, pp=1, max_pp=1, recoil_divisor=2)
 
 
 # All moves that need special handling
@@ -359,12 +351,10 @@ def execute_special_move(attacker: Pokemon, defender: Pokemon, move: Move, all_m
         # Copy moves (with 5 PP each in Gen 1)
         attacker.moves = []
         for m in defender.moves:
-            copied_move = Move(
-                name=m.name, type=m.type, category=m.category,
-                power=m.power, accuracy=m.accuracy, pp=5, max_pp=5,
-                status_effect=m.status_effect, status_chance=m.status_chance,
-                stat_changes=m.stat_changes.copy() if m.stat_changes else {},
-                target_self=m.target_self
+            copied_move = replace(
+                m, pp=5, max_pp=5,
+                stat_changes=dict(m.stat_changes),
+                secondary_stat_changes=dict(m.secondary_stat_changes),
             )
             attacker.moves.append(copied_move)
         attacker.is_transformed = True
